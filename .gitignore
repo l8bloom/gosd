@@ -1,0 +1,10 @@
+misc/
+tmp/
+assets/
+
+*~
+\#*\#
+.\#*
+
+
+output.png
