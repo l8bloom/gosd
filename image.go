@@ -1,7 +1,7 @@
-package services
+package gosd
 
 import (
-	"image"
+	imgPckg "image"
 	"image/png"
 	"os"
 	"unsafe"
@@ -15,35 +15,116 @@ var (
 
 	// SD_API void sd_img_gen_params_init(sd_img_gen_params_t* sd_img_gen_params);
 	imageGenParamsInit ffi.Fun
+
+	// SD_API char* sd_img_gen_params_to_str(const sd_img_gen_params_t* sd_img_gen_params);
+	imageGenParamsToStr ffi.Fun
 )
 
 func loadImageRoutines(lib ffi.Lib) error {
 	var err error
-	if generateImage, err = lib.Prep("generate_image", &ffi.TypePointer, &ffi.TypePointer, &ffi.TypePointer); err != nil {
+	if generateImage, err = lib.Prep(
+		"generate_image",
+		&ffi.TypePointer,
+		&ffi.TypePointer,
+		&ffi.TypePointer,
+	); err != nil {
 		return loadError("generate_image", err)
 	}
-	if imageGenParamsInit, err = lib.Prep("sd_img_gen_params_init", &ffi.TypeVoid, &ffi.TypePointer); err != nil {
+	if imageGenParamsInit, err = lib.Prep(
+		"sd_img_gen_params_init",
+		&ffi.TypeVoid,
+		&ffi.TypePointer,
+	); err != nil {
 		return loadError("sd_img_gen_params_init", err)
+	}
+
+	if imageGenParamsToStr, err = lib.Prep(
+		"sd_img_gen_params_to_str",
+		&ffi.TypePointer,
+		&ffi.TypePointer,
+	); err != nil {
+		return loadError("sd_img_gen_params_to_str", err)
 	}
 
 	return nil
 }
 
 // sd_lora_t
-type LoraType struct {
+type loraType struct {
 	IsHighNoise uint8   // bool is_high_noise;
 	Multiplier  float32 // float multiplier;
 	Path        *byte   // const char* path;
 }
 
-// avoid using this and use [GeneratedImage] instead.
-// [Image] depends on C type system, and may cause
-// unwanted Go effects when GC deployed
-type Image struct {
+func (lt *loraType) toGo() *LoraType {
+	if lt == nil {
+		return nil
+	}
+	return &LoraType{
+		IsHighNoise: byteToBool(lt.IsHighNoise),
+		Multiplier:  lt.Multiplier,
+		Path:        charToString(lt.Path),
+	}
+}
+
+type LoraType struct {
+	IsHighNoise bool
+	Multiplier  float32
+	Path        string
+}
+
+func (lt *LoraType) toC() *loraType {
+	return &loraType{
+		IsHighNoise: boolToByte(lt.IsHighNoise),
+		Multiplier:  lt.Multiplier,
+		Path:        stringToChar(lt.Path),
+	}
+}
+
+type image struct {
 	Width   uint32 // uint32_t width
 	Height  uint32 // uint32_t height
 	Channel uint32 // uint32_t channel
 	Data    *uint8 // uint8_t  *data
+}
+
+func (lt *image) toGo() *Image {
+	size := int(lt.Width * lt.Height * lt.Channel)
+	newPix := make([]uint8, size)
+
+	// Cast to Go slice
+	srcPix := unsafe.Slice(lt.Data, size)
+	copy(newPix, srcPix)
+
+	return &Image{
+		Width:   lt.Width,
+		Height:  lt.Height,
+		Channel: lt.Channel,
+		Data:    newPix,
+	}
+}
+
+type Image struct {
+	Width   uint32
+	Height  uint32
+	Channel uint32
+	Data    []uint8
+}
+
+func (lt *Image) toC() *image {
+	size := int(lt.Width * lt.Height * lt.Channel)
+	var _data *uint8
+
+	if size != 0 {
+		_data = &lt.Data[0]
+	}
+
+	return &image{
+		Width:   lt.Width,
+		Height:  lt.Height,
+		Channel: lt.Channel,
+		Data:    _data,
+	}
 }
 
 type SchedulerType int32
@@ -83,14 +164,39 @@ const (
 	SampleMethodCount
 )
 
-type GuidanceParams struct {
+type guidanceParams struct {
 	TextCfg           float32   // float txt_cfg;
 	ImageCfg          float32   // float img_cfg;
 	DistilledGuidance float32   // float distilled_guidance;
-	SLG               SLGParams // sd_slg_params_t slg;
+	SLG               sLGParams // sd_slg_params_t slg;
 }
 
-type SLGParams struct {
+func (g *guidanceParams) toGo() *GuidanceParams {
+	return &GuidanceParams{
+		TextCfg:           g.TextCfg,
+		ImageCfg:          g.ImageCfg,
+		DistilledGuidance: g.DistilledGuidance,
+		SLG:               *g.SLG.toGo(),
+	}
+}
+
+type GuidanceParams struct {
+	TextCfg           float32
+	ImageCfg          float32
+	DistilledGuidance float32
+	SLG               SLGParams
+}
+
+func (g *GuidanceParams) toC() *guidanceParams {
+	return &guidanceParams{
+		TextCfg:           g.TextCfg,
+		ImageCfg:          g.ImageCfg,
+		DistilledGuidance: g.DistilledGuidance,
+		SLG:               *g.SLG.toC(),
+	}
+}
+
+type sLGParams struct {
 	Layers     *int32  // int* layers;
 	LayerCount uint64  // size_t layer_count;
 	LayerStart float32 // float layer_start;
@@ -98,8 +204,49 @@ type SLGParams struct {
 	Scale      float32 // float scale;
 }
 
-type SampleParamsType struct {
-	Guidance          GuidanceParams   // sd_guidance_params_t guidance;
+func (slg *sLGParams) toGo() *SLGParams {
+	size := int(slg.LayerCount)
+	newLayers := make([]int32, size)
+
+	// Cast to Go slice
+	srcLayers := unsafe.Slice(slg.Layers, size)
+	copy(newLayers, srcLayers)
+
+	return &SLGParams{
+		Layers:     newLayers,
+		LayerCount: slg.LayerCount,
+		LayerStart: slg.LayerStart,
+		LayerEnd:   slg.LayerEnd,
+		Scale:      slg.Scale,
+	}
+}
+
+type SLGParams struct {
+	Layers     []int32
+	LayerCount uint64
+	LayerStart float32
+	LayerEnd   float32
+	Scale      float32
+}
+
+func (slg *SLGParams) toC() *sLGParams {
+	size := int(slg.LayerCount)
+	var _data *int32
+
+	if size != 0 {
+		_data = &slg.Layers[0]
+	}
+	return &sLGParams{
+		Layers:     _data,
+		LayerCount: slg.LayerCount,
+		LayerStart: slg.LayerStart,
+		LayerEnd:   slg.LayerEnd,
+		Scale:      slg.Scale,
+	}
+}
+
+type sampleParamsType struct {
+	Guidance          guidanceParams   // sd_guidance_params_t guidance;
 	Scheduler         SchedulerType    // enum scheduler_t scheduler;
 	SampleMethod      SampleMethodType // enum sample_method_t sample_method;
 	SampleSteps       int32            // int sample_steps;
@@ -110,20 +257,144 @@ type SampleParamsType struct {
 	FlowShift         float32          // float flow_shift;
 }
 
-type PMParamsType struct {
-	IDImages      *Image  // sd_image_t* id_images;
+func (slg *sampleParamsType) toGo() *SampleParamsType {
+	size := int(slg.CustomSigmasCount)
+	newSigma := make([]float32, size)
+
+	srcSigma := unsafe.Slice(slg.CustomSigmas, size)
+	copy(newSigma, srcSigma)
+
+	return &SampleParamsType{
+		Guidance:          *slg.Guidance.toGo(),
+		Scheduler:         slg.Scheduler,
+		SampleMethod:      slg.SampleMethod,
+		SampleSteps:       slg.SampleSteps,
+		ETA:               slg.ETA,
+		ShiftedTimestamp:  slg.ShiftedTimestamp,
+		CustomSigmas:      newSigma,
+		CustomSigmasCount: slg.CustomSigmasCount,
+		FlowShift:         slg.FlowShift,
+	}
+}
+
+type SampleParamsType struct {
+	Guidance          GuidanceParams
+	Scheduler         SchedulerType
+	SampleMethod      SampleMethodType
+	SampleSteps       int32
+	ETA               float32
+	ShiftedTimestamp  int32
+	CustomSigmas      []float32
+	CustomSigmasCount int32
+	FlowShift         float32
+}
+
+func (slg *SampleParamsType) toC() *sampleParamsType {
+	size := int(slg.CustomSigmasCount)
+	var _data *float32
+
+	if size != 0 {
+		_data = &slg.CustomSigmas[0]
+	}
+
+	return &sampleParamsType{
+		Guidance:          *slg.Guidance.toC(),
+		Scheduler:         slg.Scheduler,
+		SampleMethod:      slg.SampleMethod,
+		SampleSteps:       slg.SampleSteps,
+		ETA:               slg.ETA,
+		ShiftedTimestamp:  slg.ShiftedTimestamp,
+		CustomSigmas:      _data,
+		CustomSigmasCount: slg.CustomSigmasCount,
+		FlowShift:         slg.FlowShift,
+	}
+}
+
+type pMParamsType struct {
+	IDImages      *image  // sd_image_t* id_images;
 	IDImagesCount int32   // int id_images_count;
 	IDEmbedPath   *byte   // const char* id_embed_path;
 	StyleStrength float32 // float style_strength;
 }
 
-type VAETilingParams struct {
+func (pmp *pMParamsType) toGo() *PMParamsType {
+	size := int(pmp.IDImagesCount)
+	newImages := make([]Image, size)
+
+	srcImage := unsafe.Slice(pmp.IDImages, size)
+	for _, sl := range srcImage {
+		newImages = append(newImages, *sl.toGo())
+	}
+
+	return &PMParamsType{
+		IDImages:      newImages,
+		IDImagesCount: pmp.IDImagesCount,
+		IDEmbedPath:   charToString(pmp.IDEmbedPath),
+		StyleStrength: pmp.StyleStrength,
+	}
+}
+
+type PMParamsType struct {
+	IDImages      []Image
+	IDImagesCount int32
+	IDEmbedPath   string
+	StyleStrength float32
+}
+
+func (pmp *PMParamsType) toC() *pMParamsType {
+	size := int(pmp.IDImagesCount)
+	var _data *image
+
+	if size != 0 {
+		_data = pmp.IDImages[10].toC()
+	}
+
+	return &pMParamsType{
+		IDImages:      _data,
+		IDImagesCount: pmp.IDImagesCount,
+		IDEmbedPath:   stringToChar(pmp.IDEmbedPath),
+		StyleStrength: pmp.StyleStrength,
+	}
+}
+
+type vAETilingParams struct {
 	Enabled       uint8   // bool enabled;
 	TileSizeX     int32   // int tile_size_x;
 	TileSizeY     int32   // int tile_size_y;
 	TargetOverlap float32 // float target_overlap;
 	RelSizeX      float32 // float rel_size_x;
 	RelSizeY      float32 // float rel_size_y;
+}
+
+func (vae *vAETilingParams) toGo() *VAETilingParams {
+	return &VAETilingParams{
+		Enabled:       byteToBool(vae.Enabled),
+		TileSizeX:     vae.TileSizeX,
+		TileSizeY:     vae.TileSizeY,
+		TargetOverlap: vae.TargetOverlap,
+		RelSizeX:      vae.RelSizeX,
+		RelSizeY:      vae.RelSizeY,
+	}
+}
+
+type VAETilingParams struct {
+	Enabled       bool
+	TileSizeX     int32
+	TileSizeY     int32
+	TargetOverlap float32
+	RelSizeX      float32
+	RelSizeY      float32
+}
+
+func (vae *VAETilingParams) toC() *vAETilingParams {
+	return &vAETilingParams{
+		Enabled:       boolToByte(vae.Enabled),
+		TileSizeX:     vae.TileSizeX,
+		TileSizeY:     vae.TileSizeY,
+		TargetOverlap: vae.TargetOverlap,
+		RelSizeX:      vae.RelSizeX,
+		RelSizeY:      vae.RelSizeY,
+	}
 }
 
 type CacheModeType int32
@@ -137,7 +408,7 @@ const (
 	CacheCacheDit
 )
 
-type CacheParams struct {
+type cacheParams struct {
 	Mode                     CacheModeType // enum sd_cache_mode_t mode;
 	ReuseThreshold           float32       // float reuse_threshold;
 	StartPercent             float32       // float start_percent;
@@ -157,42 +428,212 @@ type CacheParams struct {
 	SCMPolicyDynamic         uint8         // bool scm_policy_dynamic;
 }
 
-type ImageParams struct {
-	Lora               *LoraType        // const sd_lora_t* loras;
+func (c *cacheParams) toGo() *CacheParams {
+	return &CacheParams{
+		Mode:                     c.Mode,
+		ReuseThreshold:           c.ReuseThreshold,
+		StartPercent:             c.StartPercent,
+		EndPercent:               c.EndPercent,
+		ErrorDecayRate:           c.ErrorDecayRate,
+		UseRelativeThreshold:     c.UseRelativeThreshold,
+		ResetErrorOnCompute:      c.ResetErrorOnCompute,
+		FNComputeBlocks:          c.FNComputeBlocks,
+		BNComputeBlocks:          c.BNComputeBlocks,
+		ResidualDiffThreshold:    c.ResidualDiffThreshold,
+		MaxWarmupSteps:           c.MaxWarmupSteps,
+		MaxCachedSteps:           c.MaxCachedSteps,
+		MaxContinuousCachedSteps: c.MaxContinuousCachedSteps,
+		TaylorSeerNDerivatives:   c.TaylorSeerNDerivatives,
+		TaylorSeerSkipInterval:   c.TaylorSeerSkipInterval,
+		SCMMask:                  charToString(c.SCMMask),
+		SCMPolicyDynamic:         c.SCMPolicyDynamic,
+	}
+}
+
+type CacheParams struct {
+	Mode                     CacheModeType
+	ReuseThreshold           float32
+	StartPercent             float32
+	EndPercent               float32
+	ErrorDecayRate           float32
+	UseRelativeThreshold     uint8
+	ResetErrorOnCompute      uint8
+	FNComputeBlocks          int32
+	BNComputeBlocks          int32
+	ResidualDiffThreshold    float32
+	MaxWarmupSteps           int32
+	MaxCachedSteps           int32
+	MaxContinuousCachedSteps int32
+	TaylorSeerNDerivatives   int32
+	TaylorSeerSkipInterval   int32
+	SCMMask                  string
+	SCMPolicyDynamic         uint8
+}
+
+func (c *CacheParams) toC() *cacheParams {
+	return &cacheParams{
+		Mode:                     c.Mode,
+		ReuseThreshold:           c.ReuseThreshold,
+		StartPercent:             c.StartPercent,
+		EndPercent:               c.EndPercent,
+		ErrorDecayRate:           c.ErrorDecayRate,
+		UseRelativeThreshold:     c.UseRelativeThreshold,
+		ResetErrorOnCompute:      c.ResetErrorOnCompute,
+		FNComputeBlocks:          c.FNComputeBlocks,
+		BNComputeBlocks:          c.BNComputeBlocks,
+		ResidualDiffThreshold:    c.ResidualDiffThreshold,
+		MaxWarmupSteps:           c.MaxWarmupSteps,
+		MaxCachedSteps:           c.MaxCachedSteps,
+		MaxContinuousCachedSteps: c.MaxContinuousCachedSteps,
+		TaylorSeerNDerivatives:   c.TaylorSeerNDerivatives,
+		TaylorSeerSkipInterval:   c.TaylorSeerSkipInterval,
+		SCMMask:                  stringToChar(c.SCMMask),
+		SCMPolicyDynamic:         c.SCMPolicyDynamic,
+	}
+}
+
+type imageParams struct {
+	Lora               *loraType        // const sd_lora_t* loras;
 	LoraCount          uint32           // uint32_t lora_count;
 	Prompt             *byte            // const char* prompt;
 	NegativePrompt     *byte            // const char* negative_prompt;
 	ClipSkip           int32            // int clip_skip;
-	InitImage          Image            // sd_image_t init_image;
-	RefImages          *Image           // sd_image_t* ref_images;
+	InitImage          image            // sd_image_t init_image;
+	RefImages          *image           // sd_image_t* ref_images;
 	RefImagesCount     int32            // int ref_images_count;
 	AutoResizeRefImage uint8            // bool auto_resize_ref_image;
 	IncreaseRefIndex   uint8            // bool increase_ref_index;
-	MaskImage          Image            // sd_image_t mask_image;
+	MaskImage          image            // sd_image_t mask_image;
 	Width              int32            // int width;
 	Height             int32            // int height;
-	SampleParams       SampleParamsType // sd_sample_params_t sample_params;
+	SampleParams       sampleParamsType // sd_sample_params_t sample_params;
 	Strength           float32          // float strength;
 	Seed               int64            // int64_t seed;
 	BatchCount         int32            // int batch_count;
-	ControlImage       Image            // sd_image_t control_image;
+	ControlImage       image            // sd_image_t control_image;
 	ControlStrength    float32          // float control_strength;
-	PMParams           PMParamsType     // sd_pm_params_t pm_params;
-	VAETilingParams    VAETilingParams  // sd_tiling_params_t vae_tiling_params;
-	Cache              CacheParams      // sd_cache_params_t cache;
+	PMParams           pMParamsType     // sd_pm_params_t pm_params;
+	VAETilingParams    vAETilingParams  // sd_tiling_params_t vae_tiling_params;
+	Cache              cacheParams      // sd_cache_params_t cache;
 }
 
-func GenerateImage(ctx Context, ip ImageParams) GeneratedImage {
-	var image *Image
+func (i *imageParams) toGo() *ImageParams {
+	size := int(i.LoraCount)
+	newLora := make([]LoraType, 0, size)
 
-	i := &ip
+	// Cast to Go slice
+	srcLora := unsafe.Slice(i.Lora, size)
+	for _, sl := range srcLora {
+		newLora = append(newLora, *sl.toGo())
+	}
+
+	size = int(i.RefImagesCount)
+	newImages := make([]Image, 0, size)
+
+	// Cast to Go slice
+	srcImages := unsafe.Slice(i.RefImages, size)
+	for _, si := range srcImages {
+		newImages = append(newImages, *si.toGo())
+	}
+
+	return &ImageParams{
+		Lora:               newLora,
+		LoraCount:          i.LoraCount,
+		Prompt:             charToString(i.Prompt),
+		NegativePrompt:     charToString(i.NegativePrompt),
+		ClipSkip:           i.ClipSkip,
+		InitImage:          *i.InitImage.toGo(),
+		RefImages:          newImages,
+		RefImagesCount:     i.RefImagesCount,
+		AutoResizeRefImage: byteToBool(i.AutoResizeRefImage),
+		IncreaseRefIndex:   byteToBool(i.IncreaseRefIndex),
+		MaskImage:          *i.MaskImage.toGo(),
+		Width:              i.Width,
+		Height:             i.Height,
+		SampleParams:       *i.SampleParams.toGo(),
+		Strength:           i.Strength,
+		Seed:               i.Seed,
+		BatchCount:         i.BatchCount,
+		ControlImage:       *i.ControlImage.toGo(),
+		ControlStrength:    i.ControlStrength,
+		PMParams:           *i.PMParams.toGo(),
+		VAETilingParams:    *i.VAETilingParams.toGo(),
+		Cache:              *i.Cache.toGo(),
+	}
+}
+
+type ImageParams struct {
+	Lora               []LoraType
+	LoraCount          uint32
+	Prompt             string
+	NegativePrompt     string
+	ClipSkip           int32
+	InitImage          Image
+	RefImages          []Image
+	RefImagesCount     int32
+	AutoResizeRefImage bool
+	IncreaseRefIndex   bool
+	MaskImage          Image
+	Width              int32
+	Height             int32
+	SampleParams       SampleParamsType
+	Strength           float32
+	Seed               int64
+	BatchCount         int32
+	ControlImage       Image
+	ControlStrength    float32
+	PMParams           PMParamsType
+	VAETilingParams    VAETilingParams
+	Cache              CacheParams
+}
+
+func (i *ImageParams) toC() *imageParams {
+	var _lora *loraType
+	if i.LoraCount != 0 {
+		_lora = i.Lora[0].toC()
+	}
+	var _refImages *image
+	if i.RefImagesCount != 0 {
+		_refImages = i.RefImages[0].toC()
+	}
+
+	return &imageParams{
+		Lora:               _lora,
+		LoraCount:          i.LoraCount,
+		Prompt:             stringToChar(i.Prompt),
+		NegativePrompt:     stringToChar(i.NegativePrompt),
+		ClipSkip:           i.ClipSkip,
+		InitImage:          *i.InitImage.toC(),
+		RefImages:          _refImages,
+		RefImagesCount:     i.RefImagesCount,
+		AutoResizeRefImage: boolToByte(i.AutoResizeRefImage),
+		IncreaseRefIndex:   boolToByte(i.IncreaseRefIndex),
+		MaskImage:          *i.MaskImage.toC(),
+		Width:              i.Width,
+		Height:             i.Height,
+		SampleParams:       *i.SampleParams.toC(),
+		Strength:           i.Strength,
+		Seed:               i.Seed,
+		BatchCount:         i.BatchCount,
+		ControlImage:       *i.ControlImage.toC(),
+		ControlStrength:    i.ControlStrength,
+		PMParams:           *i.PMParams.toC(),
+		VAETilingParams:    *i.VAETilingParams.toC(),
+		Cache:              *i.Cache.toC(),
+	}
+}
+
+func GenerateImage(ctx Context, ip ImageParams) Image {
+	var image *image
+
+	i := ip.toC()
 	generateImage.Call(unsafe.Pointer(&image), unsafe.Pointer(&ctx), unsafe.Pointer(&i))
 
-	return NewGeneratedImage(*image)
+	return *image.toGo()
 }
 
-func NewImageParams() *ImageParams {
-	ip := &ImageParams{
+func newImageParams() *imageParams {
+	ip := &imageParams{
 		Prompt:         utilsGetNulString(),
 		NegativePrompt: utilsGetNulString(),
 	}
@@ -201,39 +642,56 @@ func NewImageParams() *ImageParams {
 }
 
 func ImageGenParamsInit() ImageParams {
-	var ip *ImageParams = NewImageParams()
+	var ip *imageParams = newImageParams()
 
 	imageGenParamsInit.Call(nil, unsafe.Pointer(&ip))
-	return *ip
+	return *ip.toGo()
 }
 
-type GeneratedImage struct {
-	Width   int
-	Height  int
-	Channel int
-	Data    []uint8
+func ImageGenParamsToStr(ip ImageParams) string {
+	str := utilsGetNulString()
+
+	_params := ip.toC()
+	imageGenParamsToStr.Call(unsafe.Pointer(&str), unsafe.Pointer(&_params))
+
+	return charToString(str)
 }
 
-func (img GeneratedImage) SavePNG(filename string) error {
+// this is not a core feature of the library,
+// just an example of what can be done with
+// the generated image from the stable diffusion
+func (img Image) SavePNG(filename string) error {
+	pix := img.Pixelize()
+
+	f, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	return png.Encode(f, &pix)
+}
+
+func (img Image) Pixelize() imgPckg.RGBA {
 	if len(img.Data) == 0 {
 		panic("Image with 0 length.")
 	}
 
-	rect := image.Rect(0, 0, img.Width, img.Height)
-	rgba := image.NewRGBA(rect)
+	rect := imgPckg.Rect(0, 0, int(img.Width), int(img.Height))
+	rgba := imgPckg.NewRGBA(rect)
 
 	src := img.Data
 	dst := rgba.Pix
-	channels := img.Channel
+	channels := int(img.Channel)
 
-	// Single loop that handles 1-channel (Grey) or 3-channel (RGB)
+	// Tries to handle gray and colorful images
 	for i, j := 0, 0; i < len(src); i += channels {
 		if channels == 3 {
 			dst[j] = src[i]     // R
 			dst[j+1] = src[i+1] // G
 			dst[j+2] = src[i+2] // B
 		} else if channels == 1 {
-			// Monochromatic: Map Gray to R, G, and B
+			// Monochromatic
 			val := src[i]
 			dst[j] = val
 			dst[j+1] = val
@@ -242,28 +700,5 @@ func (img GeneratedImage) SavePNG(filename string) error {
 		dst[j+3] = 255 // Alpha is ALWAYS required for RGBA
 		j += 4
 	}
-
-	f, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	return png.Encode(f, rgba)
-}
-
-func NewGeneratedImage(img Image) GeneratedImage {
-	size := int(img.Width * img.Height * img.Channel)
-	newPix := make([]uint8, size)
-
-	// Cast to Go slice
-	srcPix := unsafe.Slice(img.Data, size)
-	copy(newPix, srcPix)
-
-	return GeneratedImage{
-		Width:   int(img.Width),
-		Height:  int(img.Height),
-		Channel: int(img.Channel),
-		Data:    newPix,
-	}
+	return *rgba
 }

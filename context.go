@@ -1,4 +1,4 @@
-package services
+package gosd
 
 import (
 	"unsafe"
@@ -6,12 +6,64 @@ import (
 	"github.com/jupiterrider/ffi"
 )
 
+var (
+	// SD_API void sd_ctx_params_init(sd_ctx_params_t* sd_ctx_params);
+	contextParamsInit ffi.Fun
+
+	// SD_API sd_ctx_t* new_sd_ctx(const sd_ctx_params_t* sd_ctx_params);
+	newContext ffi.Fun
+
+	// SD_API char* sd_ctx_params_to_str(const sd_ctx_params_t* sd_ctx_params);
+	ctxParamsToStr ffi.Fun
+
+	// SD_API void free_sd_ctx(sd_ctx_t* sd_ctx);
+	freeCtx ffi.Fun
+)
+
+func loadContextRoutines(lib ffi.Lib) error {
+	var err error
+	if newContext, err = lib.Prep(
+		"new_sd_ctx",
+		&ffi.TypePointer,
+		&ffi.TypePointer,
+	); err != nil {
+		return loadError("new_sd_ctx", err)
+	}
+
+	if contextParamsInit, err = lib.Prep(
+		"sd_ctx_params_init",
+		&ffi.TypeVoid,
+		&ffi.TypePointer,
+	); err != nil {
+		return loadError("sd_ctx_params_init", err)
+	}
+
+	if freeCtx, err = lib.Prep(
+		"free_sd_ctx",
+		&ffi.TypeVoid,
+		&ffi.TypePointer,
+	); err != nil {
+		return loadError("free_sd_ctx", err)
+	}
+
+	if ctxParamsToStr, err = lib.Prep(
+		"sd_ctx_params_to_str",
+		&ffi.TypePointer,
+		&ffi.TypePointer,
+	); err != nil {
+		return loadError("sd_ctx_params_to_str", err)
+	}
+
+	return nil
+}
+
 // opaque pointers
 type (
 	Context uintptr
 )
 
-type ContextParams struct {
+// C type
+type contextParams struct {
 	ModelPath                   *byte             // const char* model_path;
 	ClipLPath                   *byte             // const char* clip_l_path;
 	ClipGPath                   *byte             // const char* clip_g_path;
@@ -24,7 +76,7 @@ type ContextParams struct {
 	VAEPath                     *byte             // const char* vae_path;
 	TAESDPath                   *byte             // const char* taesd_path;
 	ControlNetPath              *byte             // const char* control_net_path;
-	Embeddings                  *Embedding        // const sd_embedding_t* embeddings;
+	Embeddings                  *embedding        // const sd_embedding_t* embeddings;
 	EmbeddingCount              uint32            // uint32_t embedding_count;
 	PhotoMakerPath              *byte             // const char* photo_maker_path;
 	TensorTypeRules             *byte             // const char* tensor_type_rules;
@@ -53,6 +105,150 @@ type ContextParams struct {
 	ChromaUseT5Mask             uint8             // bool chroma_use_t5_mask;
 	ChromaT5MaskPad             int32             // int chroma_t5_mask_pad;
 	QwenImageZeroCond           uint8             // bool qwen_image_zero_cond_t;
+}
+
+func (ctx *contextParams) toGo() *ContextParams {
+	var _embedding *Embedding
+	if ctx.EmbeddingCount != 0 {
+		_embedding = ctx.Embeddings.toGo()
+	}
+	return &ContextParams{
+		ModelPath:                   charToString(ctx.ModelPath),
+		ClipLPath:                   charToString(ctx.ClipLPath),
+		ClipGPath:                   charToString(ctx.ClipGPath),
+		ClipVisionPath:              charToString(ctx.ClipVisionPath),
+		T5XXLPath:                   charToString(ctx.T5XXLPath),
+		LLMPath:                     charToString(ctx.LLMPath),
+		LLMVisionPath:               charToString(ctx.LLMVisionPath),
+		DiffusionModelPath:          charToString(ctx.DiffusionModelPath),
+		HighNoiseDiffusionModelPath: charToString(ctx.HighNoiseDiffusionModelPath),
+		VAEPath:                     charToString(ctx.VAEPath),
+		TAESDPath:                   charToString(ctx.TAESDPath),
+		ControlNetPath:              charToString(ctx.ControlNetPath),
+		Embeddings:                  _embedding,
+		EmbeddingCount:              ctx.EmbeddingCount,
+		PhotoMakerPath:              charToString(ctx.PhotoMakerPath),
+		TensorTypeRules:             charToString(ctx.TensorTypeRules),
+		VAEDecodeOnly:               byteToBool(ctx.VAEDecodeOnly),
+		FreeParamsImmediately:       byteToBool(ctx.FreeParamsImmediately),
+		NThreads:                    ctx.NThreads,
+		WType:                       ctx.WType,
+		RNG:                         ctx.RNG,
+		SamplerRNG:                  ctx.SamplerRNG,
+		Prediction:                  ctx.Prediction,
+		LoraApplyMode:               ctx.LoraApplyMode,
+		OffloadParamsToCPU:          byteToBool(ctx.OffloadParamsToCPU),
+		EnableMMAP:                  byteToBool(ctx.EnableMMAP),
+		KeepClipOnCPU:               byteToBool(ctx.KeepClipOnCPU),
+		KeepControlNetOnCPU:         byteToBool(ctx.KeepControlNetOnCPU),
+		KeepVAEOnCPU:                byteToBool(ctx.KeepVAEOnCPU),
+		FlashAttn:                   byteToBool(ctx.FlashAttn),
+		DiffusionFlashAttn:          byteToBool(ctx.DiffusionFlashAttn),
+		TAEPreviewOnly:              byteToBool(ctx.TAEPreviewOnly),
+		DiffusionConvDirect:         byteToBool(ctx.DiffusionConvDirect),
+		VAEConvDirect:               byteToBool(ctx.VAEConvDirect),
+		CircularX:                   byteToBool(ctx.CircularX),
+		CircularY:                   byteToBool(ctx.CircularY),
+		ForceSDXLVAEConvScale:       byteToBool(ctx.ForceSDXLVAEConvScale),
+		ChromaUseDITMask:            byteToBool(ctx.ChromaUseDITMask),
+		ChromaUseT5Mask:             byteToBool(ctx.ChromaUseT5Mask),
+		ChromaT5MaskPad:             ctx.ChromaT5MaskPad,
+		QwenImageZeroCond:           byteToBool(ctx.QwenImageZeroCond),
+	}
+}
+
+type ContextParams struct {
+	ModelPath                   string
+	ClipLPath                   string
+	ClipGPath                   string
+	ClipVisionPath              string
+	T5XXLPath                   string
+	LLMPath                     string
+	LLMVisionPath               string
+	DiffusionModelPath          string
+	HighNoiseDiffusionModelPath string
+	VAEPath                     string
+	TAESDPath                   string
+	ControlNetPath              string
+	Embeddings                  *Embedding
+	EmbeddingCount              uint32
+	PhotoMakerPath              string
+	TensorTypeRules             string
+	VAEDecodeOnly               bool
+	FreeParamsImmediately       bool
+	NThreads                    int32
+	WType                       SDType
+	RNG                         RNGType
+	SamplerRNG                  RNGType
+	Prediction                  PredictionType
+	LoraApplyMode               LoraApplyModeType
+	OffloadParamsToCPU          bool
+	EnableMMAP                  bool
+	KeepClipOnCPU               bool
+	KeepControlNetOnCPU         bool
+	KeepVAEOnCPU                bool
+	FlashAttn                   bool
+	DiffusionFlashAttn          bool
+	TAEPreviewOnly              bool
+	DiffusionConvDirect         bool
+	VAEConvDirect               bool
+	CircularX                   bool
+	CircularY                   bool
+	ForceSDXLVAEConvScale       bool
+	ChromaUseDITMask            bool
+	ChromaUseT5Mask             bool
+	ChromaT5MaskPad             int32
+	QwenImageZeroCond           bool
+}
+
+func (ctx *ContextParams) toC() *contextParams {
+	var _embedding *embedding
+	if ctx.EmbeddingCount != 0 {
+		_embedding = ctx.Embeddings.toC()
+	}
+	return &contextParams{
+		ModelPath:                   stringToChar(ctx.ModelPath),
+		ClipLPath:                   stringToChar(ctx.ClipLPath),
+		ClipGPath:                   stringToChar(ctx.ClipGPath),
+		ClipVisionPath:              stringToChar(ctx.ClipVisionPath),
+		T5XXLPath:                   stringToChar(ctx.T5XXLPath),
+		LLMPath:                     stringToChar(ctx.LLMPath),
+		LLMVisionPath:               stringToChar(ctx.LLMVisionPath),
+		DiffusionModelPath:          stringToChar(ctx.DiffusionModelPath),
+		HighNoiseDiffusionModelPath: stringToChar(ctx.HighNoiseDiffusionModelPath),
+		VAEPath:                     stringToChar(ctx.VAEPath),
+		TAESDPath:                   stringToChar(ctx.TAESDPath),
+		ControlNetPath:              stringToChar(ctx.ControlNetPath),
+		Embeddings:                  _embedding,
+		EmbeddingCount:              ctx.EmbeddingCount,
+		PhotoMakerPath:              stringToChar(ctx.PhotoMakerPath),
+		TensorTypeRules:             stringToChar(ctx.TensorTypeRules),
+		VAEDecodeOnly:               boolToByte(ctx.VAEDecodeOnly),
+		FreeParamsImmediately:       boolToByte(ctx.FreeParamsImmediately),
+		NThreads:                    ctx.NThreads,
+		WType:                       ctx.WType,
+		RNG:                         ctx.RNG,
+		SamplerRNG:                  ctx.SamplerRNG,
+		Prediction:                  ctx.Prediction,
+		LoraApplyMode:               ctx.LoraApplyMode,
+		OffloadParamsToCPU:          boolToByte(ctx.OffloadParamsToCPU),
+		EnableMMAP:                  boolToByte(ctx.EnableMMAP),
+		KeepClipOnCPU:               boolToByte(ctx.KeepClipOnCPU),
+		KeepControlNetOnCPU:         boolToByte(ctx.KeepControlNetOnCPU),
+		KeepVAEOnCPU:                boolToByte(ctx.KeepVAEOnCPU),
+		FlashAttn:                   boolToByte(ctx.FlashAttn),
+		DiffusionFlashAttn:          boolToByte(ctx.DiffusionFlashAttn),
+		TAEPreviewOnly:              boolToByte(ctx.TAEPreviewOnly),
+		DiffusionConvDirect:         boolToByte(ctx.DiffusionConvDirect),
+		VAEConvDirect:               boolToByte(ctx.VAEConvDirect),
+		CircularX:                   boolToByte(ctx.CircularX),
+		CircularY:                   boolToByte(ctx.CircularY),
+		ForceSDXLVAEConvScale:       boolToByte(ctx.ForceSDXLVAEConvScale),
+		ChromaUseDITMask:            boolToByte(ctx.ChromaUseDITMask),
+		ChromaUseT5Mask:             boolToByte(ctx.ChromaUseT5Mask),
+		ChromaT5MaskPad:             ctx.ChromaT5MaskPad,
+		QwenImageZeroCond:           boolToByte(ctx.QwenImageZeroCond),
+	}
 }
 
 type LoraApplyModeType int32
@@ -132,63 +328,62 @@ const (
 	TypeCOUNT = 40
 )
 
-type Embedding struct {
+type embedding struct {
 	Name *byte
 	Path *byte
 }
 
-var (
-	// SD_API void sd_ctx_params_init(sd_ctx_params_t* sd_ctx_params);
-	contextParamsInit ffi.Fun
-
-	// SD_API sd_ctx_t* new_sd_ctx(const sd_ctx_params_t* sd_ctx_params);
-	newContext ffi.Fun
-)
-
-func loadContextRoutines(lib ffi.Lib) error {
-	var err error
-	if newContext, err = lib.Prep("new_sd_ctx", &ffi.TypePointer, &ffi.TypePointer); err != nil {
-		return loadError("new_sd_ctx", err)
+func (e *embedding) toGo() *Embedding {
+	return &Embedding{
+		Name: charToString(e.Name),
+		Path: charToString(e.Path),
 	}
-	if contextParamsInit, err = lib.Prep("sd_ctx_params_init", &ffi.TypeVoid, &ffi.TypePointer); err != nil {
-		return loadError("sd_ctx_params_init", err)
-	}
+}
 
-	return nil
+type Embedding struct {
+	Name string
+	Path string
+}
+
+func (e *Embedding) toC() *embedding {
+	return &embedding{
+		Name: stringToChar(e.Name),
+		Path: stringToChar(e.Path),
+	}
 }
 
 // Creates default context params
 func ContextParamsInit() ContextParams {
-	var cp *ContextParams = NewContextParams()
+	var cp *contextParams = newContextParams()
 
 	contextParamsInit.Call(nil, unsafe.Pointer(&cp))
-	return *cp
+	return *cp.toGo()
 }
 
 func NewContext(ctxParams ContextParams) Context {
 	var context Context
 
-	_ctxParams := &ctxParams
+	_ctxParams := ctxParams.toC()
 	newContext.Call(unsafe.Pointer(&context), unsafe.Pointer(&_ctxParams))
 
 	return context
 }
 
-func DefaultContextParams(cp *ContextParams) *ContextParams {
-	cp.DiffusionModelPath = utilsStrToNulString("/home/dom-ak45/.cache/stable.diffusion/flux-2-klein-9b-Q8_0.gguf")
-	// cp.DiffusionModelPath = utilsStrToNulString("/home/dom-ak45/.cache/stable.diffusion/z_image_turbo-Q6_K.gguf")
-
-	cp.LLMPath = utilsStrToNulString("/home/dom-ak45/.cache/stable.diffusion/Qwen3-8B-Q8_0.gguf")
-	// cp.LLMPath = utilsStrToNulString("/home/dom-ak45/.cache/stable.diffusion/Qwen3-4B-Instruct-2507-Q4_K_M.gguf")
-
-	cp.VAEPath = utilsStrToNulString("/home/dom-ak45/.cache/stable.diffusion/diffusion_pytorch_model.safetensors")
-	// cp.VAEPath = utilsStrToNulString("/home/dom-ak45/.cache/stable.diffusion/z_image_vae_diffusion_pytorch_model.safetensors")
-	cp.KeepVAEOnCPU = 1
-	return cp
+func FreeCtx(ctx Context) {
+	freeCtx.Call(nil, unsafe.Pointer(&ctx))
 }
 
-func NewContextParams() *ContextParams {
-	ctxParams := ContextParams{
+func CtxParamsToStr(ctxParams ContextParams) string {
+	str := utilsGetNulString()
+
+	_params := ctxParams.toC()
+	ctxParamsToStr.Call(unsafe.Pointer(&str), unsafe.Pointer(&_params))
+
+	return charToString(str)
+}
+
+func newContextParams() *contextParams {
+	ctxParams := contextParams{
 		ModelPath:                   utilsGetNulString(),
 		ClipLPath:                   utilsGetNulString(),
 		ClipGPath:                   utilsGetNulString(),

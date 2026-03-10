@@ -1,10 +1,9 @@
-package services
+package gosd
 
 import (
 	"unsafe"
 
 	"github.com/jupiterrider/ffi"
-	"golang.org/x/sys/unix"
 )
 
 var (
@@ -20,15 +19,34 @@ var (
 
 func loadCallbacks(lib ffi.Lib) error {
 	var err error
-	if setLogCallback, err = lib.Prep("sd_set_log_callback", &ffi.TypeVoid, &ffi.TypePointer, &ffi.TypePointer); err != nil {
+	if setLogCallback, err = lib.Prep(
+		"sd_set_log_callback",
+		&ffi.TypeVoid,
+		&ffi.TypePointer,
+		&ffi.TypePointer,
+	); err != nil {
 		return loadError("sd_set_log_callback", err)
 	}
 
-	if setProgressCallback, err = lib.Prep("sd_set_progress_callback", &ffi.TypeVoid, &ffi.TypePointer, &ffi.TypePointer); err != nil {
+	if setProgressCallback, err = lib.Prep(
+		"sd_set_progress_callback",
+		&ffi.TypeVoid,
+		&ffi.TypePointer,
+		&ffi.TypePointer,
+	); err != nil {
 		return loadError("sd_set_progress_callback", err)
 	}
 
-	if setPreviewCallback, err = lib.Prep("sd_set_preview_callback", &ffi.TypeVoid, &ffi.TypePointer, &ffi.TypeSint32, &ffi.TypeSint32, &ffi.TypeUint8, &ffi.TypeUint8, &ffi.TypePointer); err != nil {
+	if setPreviewCallback, err = lib.Prep(
+		"sd_set_preview_callback",
+		&ffi.TypeVoid,
+		&ffi.TypePointer,
+		&ffi.TypeSint32,
+		&ffi.TypeSint32,
+		&ffi.TypeUint8,
+		&ffi.TypeUint8,
+		&ffi.TypePointer,
+	); err != nil {
 		return loadError("sd_set_preview_callback", err)
 	}
 	return nil
@@ -78,14 +96,22 @@ func SetLogCallback(callback LogCallback, data unsafe.Pointer) {
 
 		callback(
 			level,
-			unix.BytePtrToString(text),
+			charToString(text),
 			data,
 		)
 		return 0
 	})
 
 	var cifCallback ffi.Cif
-	if status := ffi.PrepCif(&cifCallback, ffi.DefaultAbi, 3, &ffi.TypeVoid, &ffi.TypeSint32, &ffi.TypePointer, &ffi.TypePointer); status != ffi.OK {
+	if status := ffi.PrepCif(
+		&cifCallback,
+		ffi.DefaultAbi,
+		3,
+		&ffi.TypeVoid,
+		&ffi.TypeSint32,
+		&ffi.TypePointer,
+		&ffi.TypePointer,
+	); status != ffi.OK {
 		panic(status)
 	}
 
@@ -132,7 +158,15 @@ func SetProgressCallback(callback ProgressCallback, data unsafe.Pointer) {
 	})
 
 	var cifCallback ffi.Cif
-	if status := ffi.PrepCif(&cifCallback, ffi.DefaultAbi, 4, &ffi.TypeVoid, &ffi.TypeSint32, &ffi.TypeSint32, &ffi.TypeFloat, &ffi.TypePointer); status != ffi.OK {
+	if status := ffi.PrepCif(&cifCallback,
+		ffi.DefaultAbi,
+		4,
+		&ffi.TypeVoid,
+		&ffi.TypeSint32,
+		&ffi.TypeSint32,
+		&ffi.TypeFloat,
+		&ffi.TypePointer,
+	); status != ffi.OK {
 		panic(status)
 	}
 
@@ -181,7 +215,16 @@ func SetPreviewCallback(callback PreviewCallback, previewMode PreviewMode, inter
 	})
 	var cifCallback ffi.Cif
 
-	if status := ffi.PrepCif(&cifCallback, ffi.DefaultAbi, 5, &ffi.TypeVoid, &ffi.TypeSint32, &ffi.TypeSint32, &ffi.TypePointer, &ffi.TypeUint8, &ffi.TypePointer); status != ffi.OK {
+	if status := ffi.PrepCif(&cifCallback,
+		ffi.DefaultAbi,
+		5,
+		&ffi.TypeVoid,
+		&ffi.TypeSint32,
+		&ffi.TypeSint32,
+		&ffi.TypePointer,
+		&ffi.TypeUint8,
+		&ffi.TypePointer,
+	); status != ffi.OK {
 		panic(status)
 	}
 
@@ -191,6 +234,13 @@ func SetPreviewCallback(callback PreviewCallback, previewMode PreviewMode, inter
 		}
 	}
 
-	setPreviewCallback.Call(nil, &previewCallback, unsafe.Pointer(&previewMode), unsafe.Pointer(&interval), unsafe.Pointer(&denoised), unsafe.Pointer(&noisy), unsafe.Pointer(&data))
+	setPreviewCallback.Call(nil,
+		&previewCallback,
+		unsafe.Pointer(&previewMode),
+		unsafe.Pointer(&interval),
+		unsafe.Pointer(&denoised),
+		unsafe.Pointer(&noisy),
+		unsafe.Pointer(&data),
+	)
 
 }

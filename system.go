@@ -1,10 +1,9 @@
-package services
+package gosd
 
 import (
 	"unsafe"
 
 	"github.com/jupiterrider/ffi"
-	"golang.org/x/sys/unix"
 )
 
 var (
@@ -16,6 +15,9 @@ var (
 
 	// SD_API const char* sd_version(void);
 	version ffi.Fun
+
+	// SD_API int32_t sd_get_num_physical_cores();
+	getNumPhysicalCores ffi.Fun
 )
 
 func loadSystemRoutines(lib ffi.Lib) error {
@@ -32,6 +34,10 @@ func loadSystemRoutines(lib ffi.Lib) error {
 		return loadError("sd_version", err)
 	}
 
+	if getNumPhysicalCores, err = lib.Prep("sd_get_num_physical_cores", &ffi.TypeSint32); err != nil {
+		return loadError("sd_get_num_physical_cores", err)
+	}
+
 	return nil
 }
 
@@ -43,7 +49,7 @@ func GetSystemInfo() string {
 		return ""
 	}
 
-	return unix.BytePtrToString(systemInfo)
+	return charToString(systemInfo)
 }
 
 func Commit() string {
@@ -54,7 +60,7 @@ func Commit() string {
 		return ""
 	}
 
-	return unix.BytePtrToString(commitInfo)
+	return charToString(commitInfo)
 }
 
 func Version() string {
@@ -65,5 +71,12 @@ func Version() string {
 		return ""
 	}
 
-	return unix.BytePtrToString(versionInfo)
+	return charToString(versionInfo)
+}
+
+func GetNumPhysicalCores() int {
+	var count int
+
+	getNumPhysicalCores.Call(unsafe.Pointer(&count))
+	return count
 }

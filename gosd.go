@@ -1,28 +1,18 @@
-package services
+package gosd
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
+	"unsafe"
 
 	"github.com/jupiterrider/ffi"
 )
 
-// creates C,Cpp-compatible empty string
-func UtilsGetNulString() *byte {
-	s := []byte("\x00")
-	return &s[0]
-}
-
-func UtilsStrToNulString(text string) *byte {
-	s := []byte(text + "\x00")
-	return &s[0]
-}
-
 func utilsGetNulString() *byte {
-	s := []byte("\x00")
-	return &s[0]
+	return utilsStrToNulString("")
 }
 
 func utilsStrToNulString(text string) *byte {
@@ -30,13 +20,54 @@ func utilsStrToNulString(text string) *byte {
 	return &s[0]
 }
 
+func charToString(text *byte) string {
+	if text == nil {
+		return ""
+	}
+	if *text == 0 {
+		return ""
+	}
+
+	n := 0
+	for ptr := unsafe.Pointer(text); *(*byte)(ptr) != 0; n++ {
+		ptr = unsafe.Pointer(uintptr(ptr) + 1)
+	}
+
+	return string(unsafe.Slice(text, n))
+}
+
+func boolToByte(b bool) uint8 {
+	if b {
+		return uint8(1)
+	}
+	return uint8(0)
+}
+
+func byteToBool(b uint8) bool {
+	if b > 0 {
+		return true
+	}
+	return false
+}
+
+func stringToChar(text string) *byte {
+	if strings.IndexByte(text, 0) != -1 {
+		panic(fmt.Errorf("stringToChar: %q already contains null byte\n", text))
+	}
+	a := make([]byte, len(text)+1)
+	copy(a, []byte(text))
+
+	return &a[0]
+}
+
 func loadError(name string, err error) error {
 	fmt.Println(fmt.Errorf("could not load %q: %w", name, err).Error())
 	return fmt.Errorf("could not load %q: %w", name, err)
 }
 
-func loadLibrary(path, lib string) (ffi.Lib, error) {
-	if path == "" && os.Getenv("SD_DYN_LIB") != "" {
+func loadLibrary(lib string) (ffi.Lib, error) {
+	path := os.Getenv("SD_DYN_LIB")
+	if path != "" {
 		path = os.Getenv("SD_DYN_LIB")
 	}
 	if path == "" {
@@ -47,7 +78,6 @@ func loadLibrary(path, lib string) (ffi.Lib, error) {
 	return ffi.Load(filename)
 }
 
-// fetches the .so lib created (and named!) by the stable-diffusion cmake build
 func getLibraryFilename(path, lib string) string {
 	switch runtime.GOOS {
 	case "linux", "freebsd":
@@ -57,27 +87,12 @@ func getLibraryFilename(path, lib string) string {
 	}
 }
 
-// Load loads the shared stable-diffusion.cpp libraries from the specified path.
-func Load(path string) error {
-	lib, err := loadLibrary(path, "stable-diffusion")
+// Load loads the shared stable-diffusion.cpp libraries
+func Load() error {
+	lib, err := loadLibrary("stable-diffusion")
 	if err != nil {
 		return loadError("stable-diffusion", err)
 	}
-	// lib, err = loader.LoadLibrary(path, "ggml-base")
-	// if err != nil {
-	// 	return err
-	// }
-
-	// if err := loadGGMLBase(lib); err != nil {
-	// 	return err
-	// }
-
-	// lib, err = loader.LoadLibrary(path, "llama")
-	// if err != nil {
-	// 	return err
-
-	// }
-
 	if err := loadContextRoutines(lib); err != nil {
 		return err
 	}
@@ -93,6 +108,10 @@ func Load(path string) error {
 	if err := loadCallbacks(lib); err != nil {
 		return err
 	}
+
+	// if err := loadVideosRoutines(lib); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
