@@ -109,9 +109,9 @@ func Load() error {
 		return err
 	}
 
-	// if err := loadVideosRoutines(lib); err != nil {
-	// 	return err
-	// }
+	if err := loadVideosRoutines(lib); err != nil {
+		return err
+	}
 
 	return nil
 }
