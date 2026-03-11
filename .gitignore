@@ -1,10 +1,11 @@
 misc/
 tmp/
-assets/
 
 *~
 \#*\#
 .\#*
 
 
-output.png
+output*.png
+output*.mp4
+output*.avi

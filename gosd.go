@@ -87,7 +87,7 @@ func getLibraryFilename(path, lib string) string {
 	}
 }
 
-// Load loads the shared stable-diffusion.cpp libraries
+// Load loads the stable-diffusion.cpp shared library and all dependent libs
 func Load() error {
 	lib, err := loadLibrary("stable-diffusion")
 	if err != nil {
