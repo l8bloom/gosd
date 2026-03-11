@@ -52,6 +52,11 @@ func loadCallbacks(lib ffi.Lib) error {
 	return nil
 }
 
+// Type used for SetPreviewCallback representing generated data
+type PreviewFrames interface {
+	Image | Video
+}
+
 type LogLevel int32
 
 const (
@@ -180,11 +185,18 @@ func SetProgressCallback(callback ProgressCallback, data unsafe.Pointer) {
 
 }
 
-type PreviewCallback func(step int32, frameCount int32, frames *Image, isNoisy bool, data unsafe.Pointer)
+type PreviewCallback[T PreviewFrames] func(step int32, frames T, isNoisy bool, data unsafe.Pointer)
 
 var previewCallback unsafe.Pointer // keep in global due to GC
 
-func SetPreviewCallback(callback PreviewCallback, previewMode PreviewMode, interval int32, denoised bool, noisy bool, data unsafe.Pointer) {
+// step: current iteration step
+// previewMode: mode in which to do the preview
+// interval: iteration step slider
+// image: generated image passed from the stable diffusion
+// denoised: Should preview denoised images
+// noisy: Should preview noisy images
+// data: any app data
+func SetPreviewCallback[T PreviewFrames](callback PreviewCallback[T], previewMode PreviewMode, interval int32, denoised bool, noisy bool, data unsafe.Pointer) {
 	if callback == nil {
 		panic("Can't set nil as a callback")
 	}
@@ -200,14 +212,41 @@ func SetPreviewCallback(callback PreviewCallback, previewMode PreviewMode, inter
 
 		step := *(*int32)(arg[0])
 		frameCount := *(*int32)(arg[1])
-		frames := *(**Image)(arg[2])
+		frames := *(**image)(arg[2])
 		isNoisy := *(*bool)(arg[3])
 		data := *(*unsafe.Pointer)(arg[4])
 
+		if frameCount <= 0 {
+			panic("SetPreviewCallback: Preview image has no frames to preview")
+		}
+
+		// split between video and image preview
+		var previewFrames T
+
+		switch any(previewFrames).(type) {
+		case Image:
+			if frameCount > 1 {
+				panic("SetPreviewCallback: can't use Image to preview a video.(use type Video)")
+			}
+			_img := *frames.toGo()
+			previewFrames = any(_img).(T)
+
+		default:
+			if frameCount == 1 {
+				panic("SetPreviewCallback: can't use Video to preview an image.(use type Image)")
+			}
+			_Cvid := unsafe.Slice(frames, frameCount)
+			_vid := make([]Image, 0, frameCount)
+			for _, fr := range _Cvid {
+				_vid = append(_vid, *fr.toGo())
+			}
+			_vidFrames := Video{Data: _vid}
+			previewFrames = any(_vidFrames).(T)
+		}
+
 		callback(
 			step,
-			frameCount,
-			frames,
+			previewFrames,
 			isNoisy,
 			data,
 		)

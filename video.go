@@ -159,14 +159,14 @@ func (vp *VideoParams) toC() *videoParams {
 	}
 }
 
-type GeneratedVideo struct {
+type Video struct {
 	Data []Image
 }
 
 // this is not a core feature of the library,
 // just an example of what can be done with
 // the generated video after stable diffusion finishes
-func (gv GeneratedVideo) Save(filename string, fps int) error {
+func (gv Video) Save(filename string, fps int) error {
 	// requires ffmpeg installed
 	cmd := exec.Command("ffmpeg",
 		"-y",             // Overwrite output
@@ -215,7 +215,7 @@ func VideoGenParamsInit() VideoParams {
 	return *params.toGo()
 }
 
-func GenerateVideo(ctx Context, vidParams VideoParams) GeneratedVideo {
+func GenerateVideo(ctx Context, vidParams VideoParams) Video {
 	image := &image{}
 	_vidParams := vidParams.toC()
 	framesCnt := new(int32)
@@ -228,7 +228,7 @@ func GenerateVideo(ctx Context, vidParams VideoParams) GeneratedVideo {
 	)
 
 	images := unsafe.Slice(image, int(*framesCnt))
-	gv := GeneratedVideo{}
+	gv := Video{}
 	for _, img := range images {
 		gv.Data = append(gv.Data, *img.toGo())
 	}
