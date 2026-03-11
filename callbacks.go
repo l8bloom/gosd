@@ -193,8 +193,8 @@ var previewCallback unsafe.Pointer // keep in global due to GC
 // previewMode: mode in which to do the preview
 // interval: iteration step slider
 // image: generated image passed from the stable diffusion
-// denoised: Should preview denoised images
-// noisy: Should preview noisy images
+// denoised: should preview denoised images?
+// noisy: should preview noisy images?
 // data: any app data
 func SetPreviewCallback[T PreviewFrames](callback PreviewCallback[T], previewMode PreviewMode, interval int32, denoised bool, noisy bool, data unsafe.Pointer) {
 	if callback == nil {
