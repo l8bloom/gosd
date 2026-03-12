@@ -6,7 +6,6 @@ Pure Go bindings for [stable-diffusion.cpp](https://github.com/leejet/stable-dif
 ## Quick start
 
 gosd allows writing Go programs backed by the stable-diffusion.cpp powerhouse.  
-Getting started with it is mostly straightforward.
 
 ### Installation
 
@@ -26,7 +25,7 @@ The easiest way is to fetch an official release from the stable-diffuion project
 
 Here is a quick overview example of building the stack and sd libs on Linux with [Khronos Vulkan](https://www.vulkan.org/) gpu driver for Radeon.
 
-```
+```bash
 # fetch the driver for your distribution, eg. on Ubuntu:
 sudo apt update
 sudo apt install mesa-vulkan-drivers vulkan-tools
@@ -58,7 +57,7 @@ go run examples/image_gen/image_gen.go
 ```
 
 ## Examples
-
+Getting started with gosd is rather straightforward.
 
 ### Image generation
 
@@ -76,7 +75,7 @@ func main() {
 	// load the dynamic libraries
 	sd.Load()
 
-	// create and conifgure the inference context
+	// create and configure the inference context
 	ctxParams := sd.ContextParamsInit()
 
 	ctxParams.DiffusionModelPath = "/tmp/stable.diffusion/flux-2-klein-9b-Q8_0.gguf"
@@ -117,14 +116,21 @@ func main() {
 }
 ```
 
+Result:
+
+![gosd](https://github.com/l8bloom/gosd/blob/main/assets/images/image_gen_ex_output.png)
+
 ### Image generation with a preview
 
-`examples/callbacks/image_gen/image_gen_with_callbacks.go` shows image generation with preview callback set.
+`examples/callbacks/image_gen/image_gen_with_callbacks.go` shows image generation with a preview callback set.
 
-Here are the `1st`, `4th` and last image generated:
+Here are some example of previewing generated images during inference:
 
+#### 1st image
 ![gosd](https://github.com/l8bloom/gosd/blob/main/assets/images/readmeFirstImage.png)
+#### 4th image
 ![gosd](https://github.com/l8bloom/gosd/blob/main/assets/images/readmeFourthImage.png)
+#### 10th(last) image
 ![gosd](https://github.com/l8bloom/gosd/blob/main/assets/images/readmeFinalImage.png)
 
 `examples` folder has more snippets showcasing classic use-cases.
