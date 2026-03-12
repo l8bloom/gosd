@@ -18,7 +18,7 @@ To add the lib to project's dependency tree.
 After that, the only thing left is to get the stable-diffusion shared libraries.  
 There are multiple ways to do it, and is directed with the underlying OS and hardware.
 
-The easiest way is to fetch an official release from the stable-diffuion project.
+The easiest way is to fetch an official release from the stable-diffusion project.
 
 
 #### Manual installation
@@ -61,7 +61,6 @@ Getting started with gosd is rather straightforward.
 
 ### Image generation
 
-Example of image generation with gosd library.
 ```go
 package main
 
@@ -118,7 +117,7 @@ func main() {
 
 Result:
 
-![gosd](https://github.com/l8bloom/gosd/blob/main/assets/images/image_gen_ex_output.png)
+![catImage](https://github.com/l8bloom/gosd/blob/main/assets/images/image_gen_ex_output.png)
 
 ### Image generation with a preview
 
@@ -127,11 +126,11 @@ Result:
 Here are some example of previewing generated images during inference:
 
 #### 1st image
-![gosd](https://github.com/l8bloom/gosd/blob/main/assets/images/readmeFirstImage.png)
+![image1](https://github.com/l8bloom/gosd/blob/main/assets/images/readmeFirstImage.png)
 #### 4th image
-![gosd](https://github.com/l8bloom/gosd/blob/main/assets/images/readmeFourthImage.png)
+![image4](https://github.com/l8bloom/gosd/blob/main/assets/images/readmeFourthImage.png)
 #### 10th(last) image
-![gosd](https://github.com/l8bloom/gosd/blob/main/assets/images/readmeFinalImage.png)
+![image10](https://github.com/l8bloom/gosd/blob/main/assets/images/readmeFinalImage.png)
 
 `examples` folder has more snippets showcasing classic use-cases.
 
@@ -144,6 +143,11 @@ provides more insights into library's features, examples, models, licensing etc.
 - `GOSD_DYN_LIB` indicates root of stable-diffusion shared lib(.so, .dll etc.)
 
 You may need to extend OS search path to load libraries sd depends on(eg on Linux `LD_LIBRARY_PATH`).
+
+## Portability
+
+Built on top of purego and the inference libraries, gosd is portable across major systems  
+and vast range of GPU/CPU hardware, but is being regularly tested only on linux platforms at the moment.
 
 
 ## Thanks
