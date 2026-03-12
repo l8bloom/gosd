@@ -66,9 +66,9 @@ func loadError(name string, err error) error {
 }
 
 func loadLibrary(lib string) (ffi.Lib, error) {
-	path := os.Getenv("SD_DYN_LIB")
+	path := os.Getenv("GOSD_DYN_LIB")
 	if path != "" {
-		path = os.Getenv("SD_DYN_LIB")
+		path = os.Getenv("GOSD_DYN_LIB")
 	}
 	if path == "" {
 		return ffi.Lib{}, fmt.Errorf("Can't find runtime stable-diffusion libraries")
