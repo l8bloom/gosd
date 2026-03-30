@@ -83,6 +83,7 @@ func getLibraryFilename(path, lib string) string {
 	case "linux", "freebsd":
 		return filepath.Join(path, fmt.Sprintf("lib%s.so", lib))
 	default:
+		// TODO: fix this
 		panic(fmt.Sprintf("OS %q not supported", runtime.GOOS))
 	}
 }

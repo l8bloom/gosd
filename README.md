@@ -123,7 +123,6 @@ Result:
 
 `examples/callbacks/image_gen/image_gen_with_callbacks.go` shows image generation with a preview callback set.
 
-Here are some example of previewing generated images during inference:
 
 #### 1st image
 ![image1](https://github.com/l8bloom/gosd/blob/main/assets/images/readmeFirstImage.png)
@@ -135,7 +134,7 @@ Here are some example of previewing generated images during inference:
 `examples` folder has more snippets showcasing classic use-cases.
 
 [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp) documentation
-provides more insights into library's features, examples, models, licensing etc.
+provides more insights into library's features, examples, models etc.
 
 
 ## Environment variables
@@ -153,5 +152,5 @@ and vast range of GPU/CPU hardware, but is being regularly tested only on linux 
 ## Thanks
 
 - C/Cpp: stable-diffusion.cpp, llama.cpp
-- Go: purego, ffi
+- Go: ffi, purego
 

@@ -383,7 +383,7 @@ func CtxParamsToStr(ctxParams ContextParams) string {
 }
 
 func newContextParams() *contextParams {
-	ctxParams := contextParams{
+	return &contextParams{
 		ModelPath:                   utilsGetNulString(),
 		ClipLPath:                   utilsGetNulString(),
 		ClipGPath:                   utilsGetNulString(),
@@ -399,5 +399,4 @@ func newContextParams() *contextParams {
 		PhotoMakerPath:              utilsGetNulString(),
 		TensorTypeRules:             utilsGetNulString(),
 	}
-	return &ctxParams
 }

@@ -697,7 +697,7 @@ func (img Image) Pixelize() imgPckg.RGBA {
 			dst[j+1] = val
 			dst[j+2] = val
 		}
-		dst[j+3] = 255 // Alpha is ALWAYS required for RGBA
+		dst[j+3] = 255 // Alpha
 		j += 4
 	}
 	return *rgba

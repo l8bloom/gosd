@@ -189,10 +189,8 @@ type PreviewCallback[T PreviewFrames] func(step int32, frames T, isNoisy bool, d
 
 var previewCallback unsafe.Pointer // keep in global due to GC
 
-// step: current iteration step
 // previewMode: mode in which to do the preview
 // interval: iteration step slider
-// image: generated image passed from the stable diffusion
 // denoised: should preview denoised images?
 // noisy: should preview noisy images?
 // data: any app data
