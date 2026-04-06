@@ -58,9 +58,16 @@ jobs:
           lsblk -fs
       - name: Download test models
         run: |
-          wget -q --show-progress \
+          wget --quiet \
             https://huggingface.co/unsloth/FLUX.2-klein-4B-GGUF/resolve/main/flux-2-klein-4b-Q4_K_M.gguf?download=true
+          wget --quiet \
+            https://huggingface.co/black-forest-labs/FLUX.2-dev/resolve/main/vae/diffusion_pytorch_model.safetensors
+
+          wget --quiet \
+            https://huggingface.co/unsloth/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q4_K_M.gguf
           echo DIFFUSION_MODEL_PATH=$(realpath flux-2-klein-4b-Q4_K_M.gguf) >> GITHUB_ENV
+          echo VAE_PATH=$(realpath diffusion_pytorch_model.safetensors) >> GITHUB_ENV
+          echo LLM_PATH=$(realpath Qwen3-4B-Q4_K_M.gguf) >> GITHUB_ENV
       - name: Print disk usage
         run: |
           df -hT
