@@ -12,42 +12,13 @@ jobs:
     steps:
       - name: Clone
         uses: actions/checkout@v6
-      # - name: Build
-      #   run: |
-      #     echo "Hello world2."
-      - name: setup-golang
+      - name: Install go compiler
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-      - name: golangci-lint
+      - name: Verify go.mod
+        run: "go mod tidy && git diff --exit-code"
+      - name: Run linter
         uses: golangci/golangci-lint-action@v9
         with:
           version: v2.11
-      # # ---- Dependencies ----
-      # - name: Install tools
-      #   run: |
-      #     go install golang.org/x/tools/cmd/goimports@latest
-      #     go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-      # # ---- Format checks (non-mutating) ----
-      # - name: Check gofmt
-      #   run: |
-      #     if [ -n "$(gofmt -l .)" ]; then
-      #       echo "gofmt found issues"
-      #       gofmt -l .
-      #       exit 1
-      #     fi
-      # - name: Check goimports
-      #   run: |
-      #     if [ -n "$(goimports -l .)" ]; then
-      #       echo "goimports found issues"
-      #       goimports -l .
-      #       exit 1
-      #     fi
-      # ---- Linting ----
-      # - name: Run golangci-lint
-      #   run: golangci-lint run ./...
-      # ---- Module hygiene ----
-      - name: Verify go.mod
-        run: |
-          go mod tidy
-          git diff --exit-code
