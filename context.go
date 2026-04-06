@@ -281,9 +281,10 @@ const (
 	RNGTypeCount
 )
 
+// enum ggml_type
 type SDType int32
 
-// same as enum ggml_type
+//nolint:staticcheck // SA9004: matches C++ enum definition exactly
 const (
 	TypeF32  SDType = 0
 	TypeF16         = 1
@@ -354,7 +355,7 @@ func (e *Embedding) toC() *embedding {
 
 // Creates default context params
 func ContextParamsInit() ContextParams {
-	var cp *contextParams = newContextParams()
+	cp := newContextParams()
 
 	contextParamsInit.Call(nil, unsafe.Pointer(&cp))
 	return *cp.toGo()
