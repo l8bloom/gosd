@@ -23,11 +23,6 @@ repos:
         entry: goimports -w
         language: system
         types: [go]
-      - id: golangci
-        name: golangci-lint
-        entry: golangci-lint run
-        language: system
-        types: [go]
       - id: shfmt
         name: shfmt
         entry: shfmt

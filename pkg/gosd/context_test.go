@@ -6,6 +6,7 @@ import (
 
 // test only some sensible default values
 func TestContextParamsInit(t *testing.T) {
+
 	Load()
 	cp := ContextParamsInit()
 	if !cp.VAEDecodeOnly {
