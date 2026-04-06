@@ -27,23 +27,30 @@ func TestContextParamsInit(t *testing.T) {
 }
 
 // func TestNewContext(t *testing.T) {
-// 	var context Context
-
-// 	_ctxParams := ctxParams.toC()
-// 	newContext.Call(unsafe.Pointer(&context), unsafe.Pointer(&_ctxParams))
-
-// 	return context
+// 	ctxParams := ContextParamsInit()
+// 	// ctxParams.DiffusionModelPath = "diffusion-model-path"
+// 	// ctxParams.VAEPath = "vae-encoder-path"
+// 	// ctxParams.LLMPath = "llm-path"
+// 	// TODO: fix for ci/cd, hopefully downloading smallest models for testing purposes will be OK
+// 	ctxParams.DiffusionModelPath = "/home/dom-ak45/.cache/stable.diffusion/flux-2-klein-9b-Q8_0.gguf"
+// 	ctxParams.VAEPath = "/home/dom-ak45/.cache/stable.diffusion/diffusion_pytorch_model.safetensors"
+// 	ctxParams.LLMPath = "/home/dom-ak45/.cache/stable.diffusion/Qwen3-8B-Q8_0.gguf"
+// 	ctx := NewContext(ctxParams)
+// 	if ctx == 0 {
+// 		t.Error("Expected context to be initialized, got nil pointer.")
+// 		t.Log(ctx)
+// 	}
 // }
 
 // func TestFreeCtx(t *testing.T) {
 // 	freeCtx.Call(nil, unsafe.Pointer(&ctx))
 // }
 
-// func TestCtxParamsToStr(t *testing.T) {
-// 	str := utilsGetNulString()
-
-// 	_params := ctxParams.toC()
-// 	ctxParamsToStr.Call(unsafe.Pointer(&str), unsafe.Pointer(&_params))
-
-// 	return charToString(str)
-// }
+func TestCtxParamsToStr(t *testing.T) {
+	ctxParams := ContextParamsInit()
+	ctxParamsStr := CtxParamsToStr(ctxParams)
+	if len(ctxParamsStr) == 0 {
+		t.Error("expected non-empty string representation of context params.")
+		t.Log(ctxParamsStr)
+	}
+}
