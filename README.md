@@ -77,15 +77,12 @@ func main() {
 	// create and configure the inference context
 	ctxParams := sd.ContextParamsInit()
 
+	// declare models
 	ctxParams.DiffusionModelPath = "/tmp/stable.diffusion/flux-2-klein-9b-Q8_0.gguf"
 	ctxParams.VAEPath = "/tmp/stable.diffusion/diffusion_pytorch_model.safetensors"
 	ctxParams.LLMPath = "/tmp/stable.diffusion/Qwen3-8B-Q8_0.gguf"
 
-	ctxParams.DiffusionFlashAttn = true // potential hardware optimizations
-	// ctxParams.KeepClipOnCPU = true // in case of lower vram
-
-	fmt.Printf("\nContext values:\n%s", sd.CtxParamsToStr(ctxParams))
-
+	// create model's context
 	ctx := sd.NewContext(ctxParams)
 	defer sd.FreeCtx(ctx)
 
@@ -95,20 +92,6 @@ func main() {
 	// prompts
 	imgParams.Prompt = "An orange cat on palm beach playing with oranges."
 	imgParams.NegativePrompt = "mascots, watermark, signature"
-
-	// sampler config
-	imgParams.SampleParams.SampleSteps = 20
-
-	// vram saving configuration in case of lower vram
-	imgParams.VAETilingParams.Enabled = true
-	imgParams.VAETilingParams.RelSizeX = 4
-	imgParams.VAETilingParams.RelSizeY = 4
-
-	// image resolution
-	imgParams.Width = 1536
-	imgParams.Height = 768
-
-	fmt.Printf("\nImage params:\n%s", sd.ImageGenParamsToStr(imgParams))
 
 	genImage := sd.GenerateImage(ctx, imgParams)
 	genImage.SavePNG("output.png")
@@ -153,4 +136,4 @@ and vast range of GPU/CPU hardware, but is being regularly tested only on linux 
 
 - C/Cpp: stable-diffusion.cpp, llama.cpp
 - Go: ffi, purego
-
+- Hugging Face
