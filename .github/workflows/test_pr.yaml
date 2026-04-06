@@ -59,3 +59,7 @@ jobs:
           LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH go test ./... -coverprofile=coverage.tmp
           cat coverage.tmp | grep -v "examples/" > coverage.out
           go tool cover -func=coverage.out
+      - name: Print disk usage
+        run: |
+          df -hT
+          lsblk -fs
