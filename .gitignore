@@ -8,3 +8,6 @@ tmp/
 
 # go coverage artifacts
 coverage.*
+
+# models
+models/

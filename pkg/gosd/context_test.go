@@ -1,6 +1,7 @@
 package gosd
 
 import (
+	"os"
 	"testing"
 )
 
@@ -26,21 +27,23 @@ func TestContextParamsInit(t *testing.T) {
 	}
 }
 
-// func TestNewContext(t *testing.T) {
-// 	ctxParams := ContextParamsInit()
-// 	// ctxParams.DiffusionModelPath = "diffusion-model-path"
-// 	// ctxParams.VAEPath = "vae-encoder-path"
-// 	// ctxParams.LLMPath = "llm-path"
-// 	// TODO: fix for ci/cd, hopefully downloading smallest models for testing purposes will be OK
-// 	ctxParams.DiffusionModelPath = "/home/dom-ak45/.cache/stable.diffusion/flux-2-klein-9b-Q8_0.gguf"
-// 	ctxParams.VAEPath = "/home/dom-ak45/.cache/stable.diffusion/diffusion_pytorch_model.safetensors"
-// 	ctxParams.LLMPath = "/home/dom-ak45/.cache/stable.diffusion/Qwen3-8B-Q8_0.gguf"
-// 	ctx := NewContext(ctxParams)
-// 	if ctx == 0 {
-// 		t.Error("Expected context to be initialized, got nil pointer.")
-// 		t.Log(ctx)
-// 	}
-// }
+func TestNewContext(t *testing.T) {
+	ctxParams := ContextParamsInit()
+	ctxParams.DiffusionModelPath = os.Getenv("DIFFUSION_MODEL_PATH")
+	ctxParams.VAEPath = os.Getenv("VAE_PATH")
+	ctxParams.LLMPath = os.Getenv("LLM_PATH")
+
+	// ctxParams.RNG = CPURNG
+	// ctxParams.OffloadParamsToCPU = true
+	// ctxParams.KeepClipOnCPU = true
+	// ctxParams.KeepControlNetOnCPU = true
+	// ctxParams.KeepVAEOnCPU = true
+	ctx := NewContext(ctxParams)
+	if ctx == 0 {
+		t.Error("Expected context to be initialized, got nil pointer.")
+		t.Log(ctx)
+	}
+}
 
 // func TestFreeCtx(t *testing.T) {
 // 	freeCtx.Call(nil, unsafe.Pointer(&ctx))

@@ -52,26 +52,37 @@ jobs:
           mv sd/builds/cpu/bin/* .
           rm -rf sd
           echo "GOSD_DYN_LIB=$(realpath .)" >> $GITHUB_ENV
-      - name: Print disk usage
+      - name: Print memory
         run: |
           df -hT
           lsblk -fs
+          free -h
       - name: Download test models
         run: |
           wget --quiet \
-            https://huggingface.co/unsloth/FLUX.2-klein-4B-GGUF/resolve/main/flux-2-klein-4b-Q4_K_M.gguf?download=true
+            https://huggingface.co/unsloth/FLUX.2-klein-4B-GGUF/resolve/main/flux-2-klein-4b-Q4_K_M.gguf?download=true \
+            -O flux-2-klein-4b-Q4_K_M.gguf
           wget --quiet \
-            https://huggingface.co/black-forest-labs/FLUX.2-dev/resolve/main/vae/diffusion_pytorch_model.safetensors
-
+            https://huggingface.co/ai-toolkit/flux2_vae/resolve/main/ae.safetensors \
+            -O ae.safetensors
           wget --quiet \
-            https://huggingface.co/unsloth/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q4_K_M.gguf
-          echo DIFFUSION_MODEL_PATH=$(realpath flux-2-klein-4b-Q4_K_M.gguf) >> GITHUB_ENV
-          echo VAE_PATH=$(realpath diffusion_pytorch_model.safetensors) >> GITHUB_ENV
-          echo LLM_PATH=$(realpath Qwen3-4B-Q4_K_M.gguf) >> GITHUB_ENV
-      - name: Print disk usage
+            https://huggingface.co/unsloth/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q4_K_M.gguf \
+            -O Qwen3-4B-Q4_K_M.gguf
+          echo "DIFFUSION_MODEL_PATH=$(realpath flux-2-klein-4b-Q4_K_M.gguf)" >> $GITHUB_ENV
+          echo "VAE_PATH=$(realpath ae.safetensors)" >> $GITHUB_ENV
+          echo "LLM_PATH=$(realpath Qwen3-4B-Q4_K_M.gguf)" >> $GITHUB_ENV
+      - name: Print memory
         run: |
           df -hT
           lsblk -fs
+          free -h
+          ls -alF $DIFFUSION_MODEL_PATH
+          ls -alF $VAE_PATH
+          ls -alF $LLM_PATH
+          sudo fallocate -l 20GB /modelSwap
+          sudo chmod  600 /modelSwap
+          sudo mkswap /modelSwap
+          sudo swapon /modelSwap
       - name: Run tests
         run: "LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH go test ./..."
       - name: Print coverages
