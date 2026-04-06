@@ -8,7 +8,7 @@ on:
       - reopened
 jobs:
   ubuntu-build:
-    runs-on: ubuntu
+    runs-on: ubuntu-latest
     steps:
       - name: Clone
         id: checkout
@@ -16,4 +16,4 @@ jobs:
       - name: Build
         id: cmake_build
         run: |
-          echo "Hello world."
+          echo "Hello world2."
