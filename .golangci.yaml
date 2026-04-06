@@ -1,0 +1,11 @@
+# https://golangci-lint.run/docs/configuration/file/
+version: "2"
+linters:
+  exclusions:
+    warn-unused: true
+    paths:
+      - "examples/.*\\.go$"
+formatters:
+  enable:
+    - gofmt
+    - goimports
