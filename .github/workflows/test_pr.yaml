@@ -52,6 +52,17 @@ jobs:
           mv sd/builds/cpu/bin/* .
           rm -rf sd
           echo "GOSD_DYN_LIB=$(realpath .)" >> $GITHUB_ENV
+      - name: Print disk usage
+        run: |
+          df -hT
+          lsblk -fs
+      - name: Download test models
+        run: |
+          wget https://huggingface.co/unsloth/FLUX.2-klein-4B-GGUF/resolve/main/flux-2-klein-4b-Q4_K_M.gguf?download=true
+      - name: Print disk usage
+        run: |
+          df -hT
+          lsblk -fs
       - name: Run tests
         run: "LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH go test ./..."
       - name: Print coverages
@@ -59,7 +70,3 @@ jobs:
           LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH go test ./... -coverprofile=coverage.tmp
           cat coverage.tmp | grep -v "examples/" > coverage.out
           go tool cover -func=coverage.out
-      - name: Print disk usage
-        run: |
-          df -hT
-          lsblk -fs
