@@ -5,3 +5,6 @@ tmp/
 *~
 \#*\#
 .\#*
+
+# go coverage artifacts
+coverage.*
