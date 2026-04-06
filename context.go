@@ -281,9 +281,10 @@ const (
 	RNGTypeCount
 )
 
+// enum ggml_type
 type SDType int32
 
-// same as enum ggml_type
+//nolint:staticcheck // SA9004: matches C++ enum definition exactly
 const (
 	TypeF32  SDType = 0
 	TypeF16         = 1
@@ -325,7 +326,8 @@ const (
 	// SD_TYPE_IQ4_NL_4_8 = 37,
 	// SD_TYPE_IQ4_NL_8_8 = 38,
 	TypeMXFP4 = 39 // MXFP4 (1 block)
-	TypeCOUNT = 40
+	TypeNVFP4 = 40 // NVFP4 (4 blocks, E4M3 scale)
+	TypeCOUNT = 41
 )
 
 type embedding struct {
@@ -354,7 +356,7 @@ func (e *Embedding) toC() *embedding {
 
 // Creates default context params
 func ContextParamsInit() ContextParams {
-	var cp *contextParams = newContextParams()
+	cp := newContextParams()
 
 	contextParamsInit.Call(nil, unsafe.Pointer(&cp))
 	return *cp.toGo()

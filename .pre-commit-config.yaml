@@ -1,0 +1,46 @@
+repos:
+  - repo: local
+    hooks:
+      - id: go-fmt
+        name: go-fmt
+        entry: gofmt -w -l .
+        language: system
+        types: [go]
+      - id: go-vet
+        name: go-vet
+        entry: bash -c 'go vet $(go list ./... | grep -v /misc)'
+        language: system
+        types: [go]
+        pass_filenames: false
+      - id: go-mod-tidy
+        name: go-mod-tidy
+        entry: go mod tidy
+        language: system
+        pass_filenames: false
+      - id: go-imports
+        name: go-imports
+        # Requires: go install golang.org/x/tools/cmd/goimports@latest
+        entry: goimports -w
+        language: system
+        types: [go]
+      - id: shfmt
+        name: shfmt
+        entry: shfmt
+        language: system
+        files: \.sh$
+        args:
+          - --write
+          - --case-indent
+          - --space-redirects
+          - --language-dialect
+          - bash
+          - --binary-next-line
+      - id: shellcheck-fix
+        name: shellcheck autofix
+        entry: bash -c 'shellcheck -f diff "$@" | patch "$@" || true'
+        language: system
+        files: \.sh$
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.21.0
+    hooks:
+      - id: yamlfmt

@@ -642,7 +642,7 @@ func newImageParams() *imageParams {
 }
 
 func ImageGenParamsInit() ImageParams {
-	var ip *imageParams = newImageParams()
+	ip := newImageParams()
 
 	imageGenParamsInit.Call(nil, unsafe.Pointer(&ip))
 	return *ip.toGo()
@@ -667,7 +667,12 @@ func (img Image) SavePNG(filename string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() {
+		closeError := f.Close()
+		if err == nil {
+			err = closeError
+		}
+	}()
 
 	return png.Encode(f, &pix)
 }
@@ -686,11 +691,12 @@ func (img Image) Pixelize() imgPckg.RGBA {
 
 	// Tries to handle gray and colorful images
 	for i, j := 0, 0; i < len(src); i += channels {
-		if channels == 3 {
+		switch channels {
+		case 3:
 			dst[j] = src[i]     // R
 			dst[j+1] = src[i+1] // G
 			dst[j+2] = src[i+2] // B
-		} else if channels == 1 {
+		default:
 			// Monochromatic
 			val := src[i]
 			dst[j] = val

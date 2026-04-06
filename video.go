@@ -196,7 +196,13 @@ func (gv Video) Save(filename string, fps int) error {
 		}
 	}
 
-	stdin.Close()
+	defer func() {
+		closeError := stdin.Close()
+		if err == nil {
+			err = closeError
+		}
+	}()
+
 	return cmd.Wait()
 }
 

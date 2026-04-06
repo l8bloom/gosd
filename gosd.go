@@ -44,15 +44,12 @@ func boolToByte(b bool) uint8 {
 }
 
 func byteToBool(b uint8) bool {
-	if b > 0 {
-		return true
-	}
-	return false
+	return b > 0
 }
 
 func stringToChar(text string) *byte {
 	if strings.IndexByte(text, 0) != -1 {
-		panic(fmt.Errorf("stringToChar: %q already contains null byte\n", text))
+		panic(fmt.Errorf("stringToChar: %q already contains null byte", text))
 	}
 	a := make([]byte, len(text)+1)
 	copy(a, []byte(text))
@@ -71,7 +68,7 @@ func loadLibrary(lib string) (ffi.Lib, error) {
 		path = os.Getenv("GOSD_DYN_LIB")
 	}
 	if path == "" {
-		return ffi.Lib{}, fmt.Errorf("Can't find runtime stable-diffusion libraries")
+		return ffi.Lib{}, fmt.Errorf("gosd load library: can't find runtime stable-diffusion libraries")
 	}
 
 	filename := getLibraryFilename(path, lib)
