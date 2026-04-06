@@ -56,6 +56,6 @@ jobs:
         run: "LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH go test ./..."
       - name: Print coverages
         run: |
-          go test ./... -coverprofile=coverage.tmp
+          LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH go test ./... -coverprofile=coverage.tmp
           cat coverage.tmp | grep -v "examples/" > coverage.out
           go tool cover -func=coverage.out
