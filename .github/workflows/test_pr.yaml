@@ -58,7 +58,9 @@ jobs:
           lsblk -fs
       - name: Download test models
         run: |
-          wget https://huggingface.co/unsloth/FLUX.2-klein-4B-GGUF/resolve/main/flux-2-klein-4b-Q4_K_M.gguf?download=true
+          wget -q --show-progress \
+            https://huggingface.co/unsloth/FLUX.2-klein-4B-GGUF/resolve/main/flux-2-klein-4b-Q4_K_M.gguf?download=true
+          echo DIFFUSION_MODEL_PATH=$(realpath flux-2-klein-4b-Q4_K_M.gguf) >> GITHUB_ENV
       - name: Print disk usage
         run: |
           df -hT
