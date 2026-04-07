@@ -71,6 +71,20 @@ jobs:
           echo "DIFFUSION_MODEL_PATH=$(realpath flux-2-klein-4b-Q4_K_M.gguf)" >> $GITHUB_ENV
           echo "VAE_PATH=$(realpath ae.safetensors)" >> $GITHUB_ENV
           echo "LLM_PATH=$(realpath Qwen3-4B-Q4_K_M.gguf)" >> $GITHUB_ENV
+
+          wget --quiet \
+            https://huggingface.co/calcuis/wan-1.3b-gguf/resolve/main/wan2.1-fun-control-1.3b-q4_0.gguf \
+            -O wan2.1-fun-control-1.3b-q4_0.gguf
+          wget --quiet \
+            https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/vae/wan_2.1_vae.safetensors \
+            -O ae.safetensors
+          wget --quiet \
+            https://huggingface.co/city96/umt5-xxl-encoder-gguf/resolve/main/umt5-xxl-encoder-Q3_K_S.gguf \
+            -O umt5-xxl-encoder-Q3_K_S.gguf
+
+          echo "VIDEO_DIFFUSION_MODEL_PATH=$(realpath wan2.1-fun-control-1.3b-q4_0.gguf)" >> $GITHUB_ENV
+          echo "VIDEO_VAE_PATH=$(realpath ae.safetensors)" >> $GITHUB_ENV
+          echo "VIDEO_T5XXL_PATH=$(realpath umt5-xxl-encoder-Q3_K_S.gguf)" >> $GITHUB_ENV
       - name: Print memory
         run: |
           df -hT
@@ -85,6 +99,6 @@ jobs:
           sudo swapon /modelSwap
       - name: Run tests and print coverages
         run: |
-          LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH go test -v -coverprofile=coverage.tmp ./...
-          cat coverage.tmp | grep -v "examples/" > coverage.out
+          LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH \
+          go test -v -coverprofile=coverage.out "$(go list ./... | grep -v "examples")"
           go tool cover -func=coverage.out
