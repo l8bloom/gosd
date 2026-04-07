@@ -1,7 +1,8 @@
 # gosd
 ![gosd](https://github.com/l8bloom/gosd/blob/main/assets/images/gosd.webp)
 
-Pure Go bindings for [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp)
+High-performance diffusion model inference for Go.
+
 
 [![Linux](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml)
 
@@ -15,7 +16,7 @@ Pure Go bindings for [stable-diffusion.cpp](https://github.com/leejet/stable-dif
 
 ## Quick start
 
-gosd allows writing Go programs backed by the stable-diffusion.cpp powerhouse.  
+gosd library is a set of pure Go bindings for [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp). Equip your Go programs with image and video generation — hassle-free.
 
 ### Installation
 
@@ -32,9 +33,9 @@ The simplest approach is to download an official release from the [stable-diffus
 
 <details>
 <summary><strong>Manual installation (Linux + Vulkan example)</strong></summary>
-</br>
+<br>
 Here is a quick overview example of building entire gpu stack, stable-diffusion libs and gosd on Linux with [Khronos Vulkan](https://www.vulkan.org/) gpu driver for Radeon.
-</br>
+<br>
 
 ```bash
 # fetch the driver for your distribution, eg. on Ubuntu:
@@ -75,18 +76,14 @@ go run examples/image_gen/image_gen.go
 You may need to extend OS search path to load libraries sd depends on(eg on Linux `LD_LIBRARY_PATH`).
 
 ## Examples
-Getting started with gosd is rather straightforward.
+Generate an image in a few lines:
 
 ### Image generation
 
 ```go
 package main
 
-import (
-	"fmt"
-
-	sd "github.com/l8bloom/gosd"
-)
+import sd "github.com/l8bloom/gosd"
 
 func main() {
 	// load the dynamic libraries
@@ -139,6 +136,15 @@ provides more insights into library's features, examples, models etc.
 ## Portability
 
 Designed to be portable across major platforms, but currently tested primarily on Linux.
+
+| Platform | CPU  | GPU (Vulkan) | 
+|----------|------|--------------|
+| Linux    |  ✅  |      ✅      |
+| Windows  |  ⚠️  |      ⚠️      |
+| macOS    |  ⚠️  |      ⚠️      |
+
+✅ - tested(100% stable-diffusion API coverage)  
+⚠️ - not tested
 
 ## Thanks
 
