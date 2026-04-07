@@ -1,14 +1,12 @@
 # gosd
 ![gosd](https://github.com/l8bloom/gosd/blob/main/assets/images/gosd.webp)
 
-High-performance diffusion model inference for Go.
-
+High-performance diffusion model inference in pure Go.
 
 [![Linux](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml)
 
 ## Features
 
-- Pure Go bindings (no CGO)
 - Image and video generation
 - Minimal performance overhead compared to C/Cpp
 - GPU + CPU support
@@ -16,7 +14,7 @@ High-performance diffusion model inference for Go.
 
 ## Quick start
 
-gosd library is a set of pure Go bindings for [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp).  
+gosd library is a set of pure Go bindings(no CGO) for [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp).  
 Equip your Go programs with image and video generation — hassle-free.
 
 ### Installation
@@ -35,7 +33,7 @@ The simplest approach is to download an official release from the [stable-diffus
 <details>
 <summary><strong>Manual installation (Linux + Vulkan example)</strong></summary>
 <br>
-Here is a quick overview example of building entire gpu stack, stable-diffusion libs and gosd on Linux with [Khronos Vulkan](https://www.vulkan.org/) gpu driver for Radeon.
+Here is a quick overview example of building entire gpu stack, stable-diffusion libs and gosd on Linux with <a href="https://www.vulkan.org/">Khronos Vulkan</a> API for Radeon GPU.
 <br>
 
 ```bash
@@ -144,7 +142,7 @@ Designed to be portable across major platforms, but currently tested primarily o
 | Windows  |  ⚠️  |      ⚠️      |
 | macOS    |  ⚠️  |      ⚠️      |
 
-✅ - tested(100% stable-diffusion API coverage)  
+✅ - tested(100% stable-diffusion.cpp API coverage)  
 ⚠️ - not tested
 
 ## Thanks
