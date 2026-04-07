@@ -11,3 +11,5 @@ coverage.*
 
 # models
 models/
+
+.envrc
