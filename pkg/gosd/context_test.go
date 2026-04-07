@@ -27,27 +27,20 @@ func TestContextParamsInit(t *testing.T) {
 	}
 }
 
-func TestNewContext(t *testing.T) {
+func TestCreateDestroyContext(t *testing.T) {
 	ctxParams := ContextParamsInit()
 	ctxParams.DiffusionModelPath = os.Getenv("DIFFUSION_MODEL_PATH")
 	ctxParams.VAEPath = os.Getenv("VAE_PATH")
 	ctxParams.LLMPath = os.Getenv("LLM_PATH")
 
-	// ctxParams.RNG = CPURNG
-	// ctxParams.OffloadParamsToCPU = true
-	// ctxParams.KeepClipOnCPU = true
-	// ctxParams.KeepControlNetOnCPU = true
-	// ctxParams.KeepVAEOnCPU = true
 	ctx := NewContext(ctxParams)
 	if ctx == 0 {
 		t.Error("Expected context to be initialized, got nil pointer.")
 		t.Log(ctx)
 	}
-}
 
-// func TestFreeCtx(t *testing.T) {
-// 	freeCtx.Call(nil, unsafe.Pointer(&ctx))
-// }
+	FreeCtx(ctx)
+}
 
 func TestCtxParamsToStr(t *testing.T) {
 	ctxParams := ContextParamsInit()

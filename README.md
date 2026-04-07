@@ -82,7 +82,6 @@ func main() {
 	ctxParams.VAEPath = "/tmp/stable.diffusion/diffusion_pytorch_model.safetensors"
 	ctxParams.LLMPath = "/tmp/stable.diffusion/Qwen3-8B-Q8_0.gguf"
 
-	// create model's context
 	ctx := sd.NewContext(ctxParams)
 	defer sd.FreeCtx(ctx)
 
