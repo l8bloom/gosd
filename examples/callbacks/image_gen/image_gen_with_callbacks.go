@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"unsafe"
 
-	sd "github.com/l8bloom/gosd"
+	sd "github.com/l8bloom/gosd/pkg/gosd"
 )
 
 // all callbacks allow to be passed any type of app/user defined data

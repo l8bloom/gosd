@@ -1,0 +1,16 @@
+name: "Test PRs"
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/**.yaml'
+      - 'pkg/gosd/**.go'
+      - 'go.mod'
+      - 'go.sum'
+    types:
+      - opened
+      - synchronize
+      - reopened
+jobs:
+  linux:
+    uses: ./.github/workflows/build_and_test.yaml

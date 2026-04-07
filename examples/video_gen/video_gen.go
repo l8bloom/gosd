@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	sd "github.com/l8bloom/gosd"
+	sd "github.com/l8bloom/gosd/pkg/gosd"
 )
 
 func main() {
