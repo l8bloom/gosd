@@ -84,7 +84,7 @@ jobs:
           sudo mkswap /modelSwap
           sudo swapon /modelSwap
       - name: Run tests
-        run: "LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH go test ./..."
+        run: "LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH go test -v ./..."
       - name: Print coverages
         run: |
           LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH go test ./... -coverprofile=coverage.tmp
