@@ -5,6 +5,14 @@ Pure Go bindings for [stable-diffusion.cpp](https://github.com/leejet/stable-dif
 
 [![Linux](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml)
 
+## Features
+
+- Pure Go bindings (no CGO)
+- Image and video generation
+- Minimal performance overhead compared to C/Cpp
+- GPU + CPU support
+- Callback support for progressive previews during inference
+
 ## Quick start
 
 gosd allows writing Go programs backed by the stable-diffusion.cpp powerhouse.  
@@ -15,17 +23,18 @@ gosd allows writing Go programs backed by the stable-diffusion.cpp powerhouse.
 go get github.com/l8bloom/gosd
 ```
 
-To add the lib to project's dependency tree.
+to add gosd to your Go module.
 
 After that, the only thing left is to get the stable-diffusion shared libraries.  
 There are multiple ways to do it, and is directed with the underlying OS and hardware.
 
-The easiest way is to fetch an official release from the stable-diffusion project.
+The simplest approach is to download an official release from the [stable-diffusion](https://github.com/leejet/stable-diffusion.cpp/releases) project that matches your system. The gosd library is designed to be agnostic regarding which specific build you choose though.
 
-
-#### Manual installation
-
-Here is a quick overview example of building the stack and sd libs on Linux with [Khronos Vulkan](https://www.vulkan.org/) gpu driver for Radeon.
+<details>
+<summary><strong>Manual installation (Linux + Vulkan example)</strong></summary>
+</br>
+Here is a quick overview example of building entire gpu stack, stable-diffusion libs and gosd on Linux with [Khronos Vulkan](https://www.vulkan.org/) gpu driver for Radeon.
+</br>
 
 ```bash
 # fetch the driver for your distribution, eg. on Ubuntu:
@@ -57,6 +66,13 @@ export GOSD_DYN_LIB="$(realpath builds/vulkan/bin/)"
 git clone https://github.com/l8bloom/gosd && cd gosd
 go run examples/image_gen/image_gen.go
 ```
+</details>
+
+## Environment variables
+
+- `GOSD_DYN_LIB` indicates root of stable-diffusion shared lib(.so, .dll etc.)
+
+You may need to extend OS search path to load libraries sd depends on(eg on Linux `LD_LIBRARY_PATH`).
 
 ## Examples
 Getting started with gosd is rather straightforward.
@@ -120,18 +136,9 @@ Result:
 [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp) documentation
 provides more insights into library's features, examples, models etc.
 
-
-## Environment variables
-
-- `GOSD_DYN_LIB` indicates root of stable-diffusion shared lib(.so, .dll etc.)
-
-You may need to extend OS search path to load libraries sd depends on(eg on Linux `LD_LIBRARY_PATH`).
-
 ## Portability
 
-Built on top of purego and the inference libraries, gosd is portable across major systems  
-and vast range of GPU/CPU hardware, but is being regularly tested only on linux platforms at the moment.
-
+Designed to be portable across major platforms, but currently tested primarily on Linux.
 
 ## Thanks
 
