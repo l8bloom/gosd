@@ -83,10 +83,8 @@ jobs:
           sudo chmod  600 /modelSwap
           sudo mkswap /modelSwap
           sudo swapon /modelSwap
-      - name: Run tests
-        run: "LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH go test -v ./..."
-      - name: Print coverages
+      - name: Run tests and print coverages
         run: |
-          LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH go test ./... -coverprofile=coverage.tmp
+          LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH go test -v -coverprofile=coverage.tmp ./...
           cat coverage.tmp | grep -v "examples/" > coverage.out
           go tool cover -func=coverage.out
