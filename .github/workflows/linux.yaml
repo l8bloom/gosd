@@ -1,0 +1,13 @@
+name: "Linux"
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/**.yaml'
+      - 'pkg/gosd/**.go'
+      - 'go.mod'
+      - 'go.sum'
+jobs:
+  linux:
+    uses: ./.github/workflows/build_and_test.yaml

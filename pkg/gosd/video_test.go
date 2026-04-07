@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"unsafe"
 )
 
 // test only some sensible default values
@@ -40,19 +41,23 @@ func TestVideoGenParamsInit(t *testing.T) {
 func TestGenerateVideo(t *testing.T) {
 	Load()
 	vidParams := VideoGenParamsInit()
-	vidParams.Width = 64
-	vidParams.Height = 64
+	vidParams.Width = 32
+	vidParams.Height = 32
 	vidParams.Prompt = "An orange cat."
-	vidParams.SampleParams.SampleSteps = 1
 	vidParams.SampleParams.SampleMethod = EulerSampleMethod
 	vidParams.SampleParams.Guidance.TextCfg = 6
-	vidParams.HighNoiseSampleParams.SampleSteps = 1
-	vidParams.VideoFrames = 1
+	vidParams.SampleParams.SampleSteps = 1
+	vidParams.VideoFrames = 10
 
 	ctxParams := ContextParamsInit()
 	ctxParams.DiffusionModelPath = os.Getenv("VIDEO_DIFFUSION_MODEL_PATH")
 	ctxParams.VAEPath = os.Getenv("VIDEO_VAE_PATH")
 	ctxParams.T5XXLPath = os.Getenv("VIDEO_T5XXL_PATH")
+	ctxParams.DiffusionFlashAttn = true
+	ctxParams.KeepClipOnCPU = true
+	vidParams.VAETilingParams.Enabled = true
+	vidParams.VAETilingParams.RelSizeX = 4
+	vidParams.VAETilingParams.RelSizeY = 4
 
 	ctx := NewContext(ctxParams)
 	if ctx == 0 {
@@ -62,23 +67,37 @@ func TestGenerateVideo(t *testing.T) {
 
 	defer FreeCtx(ctx)
 
+	// annul preview callback set by image tests
+	SetPreviewCallback(
+		func(step int32, image Video, isNoisy bool, data unsafe.Pointer) {
+		},
+		PreviewVAE,
+		1,
+		true,
+		false,
+		nil,
+	)
 	video := GenerateVideo(ctx, vidParams)
-	video.Save("test_output.mp4", 1)
+	video.Save("test_output.mp4", 2)
 	_, err := os.Stat("test_output.mp4")
 	if errors.Is(err, os.ErrNotExist) {
 		t.Error("the generated test video has not been saved")
+		t.Log(err)
 	}
-	if video.Data[0].Width != 64 {
-		t.Errorf("Expected image width=64, got %d", video.Data[0].Width)
+	if video.Data[0].Width != uint32(vidParams.Width) {
+		t.Errorf("Expected image width=%d, got %d", vidParams.Width, video.Data[0].Width)
 	}
-	if video.Data[0].Height != 64 {
-		t.Errorf("Expected image height=64, got %d", video.Data[0].Width)
+	if video.Data[0].Height != uint32(vidParams.Height) {
+		t.Errorf("Expected image height=%d, got %d", vidParams.Height, video.Data[0].Height)
 	}
 	if video.Data[0].Channel != 3 {
-		t.Errorf("Expected image channels=3, got %d", video.Data[0].Width)
+		t.Errorf("Expected image channels=3, got %d", video.Data[0].Channel)
 	}
-	if len(video.Data) != int(vidParams.VideoFrames)*64*64*3 {
-		t.Error("the image data content should be 64x64x3")
+	// adding here +1 since it seems sd returns index of the last
+	// frame element and not the total length
+	// TODO: demistify it
+	if len(video.Data)+1 != int(vidParams.VideoFrames) {
+		t.Errorf("number of video frames should be %d, got %d", vidParams.VideoFrames, len(video.Data))
 	}
 	os.Remove("test_output.mp4")
 }

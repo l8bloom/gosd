@@ -196,12 +196,9 @@ func (gv Video) Save(filename string, fps int) error {
 		}
 	}
 
-	defer func() {
-		closeError := stdin.Close()
-		if err == nil {
-			err = closeError
-		}
-	}()
+	if err := stdin.Close(); err != nil {
+		return err
+	}
 
 	return cmd.Wait()
 }
@@ -235,6 +232,7 @@ func GenerateVideo(ctx Context, vidParams VideoParams) Video {
 
 	images := unsafe.Slice(image, int(*framesCnt))
 	gv := Video{}
+	gv.Data = make([]Image, 0, len(images))
 	for _, img := range images {
 		gv.Data = append(gv.Data, *img.toGo())
 	}

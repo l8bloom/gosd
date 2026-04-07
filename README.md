@@ -3,6 +3,8 @@
 
 Pure Go bindings for [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp)
 
+[![Linux](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml)
+
 ## Quick start
 
 gosd allows writing Go programs backed by the stable-diffusion.cpp powerhouse.  

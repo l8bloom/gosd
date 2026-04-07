@@ -47,8 +47,8 @@ func TestImageGenParamsToStr(t *testing.T) {
 
 func TestGenerateImage(t *testing.T) {
 	imgParams := ImageGenParamsInit()
-	imgParams.Width = 64
-	imgParams.Height = 64
+	imgParams.Width = 32
+	imgParams.Height = 32
 	imgParams.SampleParams.SampleSteps = 1
 	imgParams.Prompt = "An orange cat."
 
@@ -71,17 +71,17 @@ func TestGenerateImage(t *testing.T) {
 	if errors.Is(err, os.ErrNotExist) {
 		t.Error("the generated test image has not been saved")
 	}
-	if image.Width != 64 {
-		t.Errorf("Expected image width=64, got %d", image.Width)
+	if image.Width != uint32(imgParams.Width) {
+		t.Errorf("Expected image width=%d, got %d", imgParams.Width, image.Width)
 	}
-	if image.Height != 64 {
-		t.Errorf("Expected image height=64, got %d", image.Height)
+	if image.Height != uint32(imgParams.Height) {
+		t.Errorf("Expected image height=%d, got %d", imgParams.Height, image.Height)
 	}
 	if image.Channel != 3 {
 		t.Errorf("Expected image channels=3, got %d", image.Channel)
 	}
-	if len(image.Data) != 64*64*3 {
-		t.Error("the image data content should be 64x64x3")
+	if len(image.Data) != int(imgParams.Width*imgParams.Height)*3 {
+		t.Errorf("the image data content should be %dx%dx3", imgParams.Width, imgParams.Height)
 	}
 	os.Remove("test_output.png")
 }

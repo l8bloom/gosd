@@ -1,11 +1,6 @@
-name: "Test PRs"
+name: Build and test
 on:
-  workflow_dispatch:
-  pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
+  workflow_call:
 jobs:
   ubuntu-build:
     runs-on: ubuntu-latest
@@ -13,7 +8,7 @@ jobs:
       - name: Clone
         uses: actions/checkout@v6
       - name: Install go compiler
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: '1.22'
       - name: Verify go.mod
@@ -64,26 +59,26 @@ jobs:
             -O flux-2-klein-4b-Q4_K_M.gguf
           wget --quiet \
             https://huggingface.co/ai-toolkit/flux2_vae/resolve/main/ae.safetensors \
-            -O ae.safetensors
+            -O flux2-ae.safetensors
           wget --quiet \
             https://huggingface.co/unsloth/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q4_K_M.gguf \
             -O Qwen3-4B-Q4_K_M.gguf
           echo "DIFFUSION_MODEL_PATH=$(realpath flux-2-klein-4b-Q4_K_M.gguf)" >> $GITHUB_ENV
-          echo "VAE_PATH=$(realpath ae.safetensors)" >> $GITHUB_ENV
+          echo "VAE_PATH=$(realpath flux2-ae.safetensors)" >> $GITHUB_ENV
           echo "LLM_PATH=$(realpath Qwen3-4B-Q4_K_M.gguf)" >> $GITHUB_ENV
 
           wget --quiet \
-            https://huggingface.co/calcuis/wan-1.3b-gguf/resolve/main/wan2.1-fun-control-1.3b-q4_0.gguf \
-            -O wan2.1-fun-control-1.3b-q4_0.gguf
+            https://huggingface.co/QuantStack/Wan2.2-TI2V-5B-GGUF/resolve/main/Wan2.2-TI2V-5B-Q2_K.gguf \
+            -O Wan2.2-TI2V-5B-Q2_K.gguf
           wget --quiet \
-            https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/vae/wan_2.1_vae.safetensors \
-            -O ae.safetensors
+            https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/resolve/main/split_files/vae/wan2.2_vae.safetensors \
+            -O wan2.2_vae.safetensors
           wget --quiet \
             https://huggingface.co/city96/umt5-xxl-encoder-gguf/resolve/main/umt5-xxl-encoder-Q3_K_S.gguf \
             -O umt5-xxl-encoder-Q3_K_S.gguf
 
-          echo "VIDEO_DIFFUSION_MODEL_PATH=$(realpath wan2.1-fun-control-1.3b-q4_0.gguf)" >> $GITHUB_ENV
-          echo "VIDEO_VAE_PATH=$(realpath ae.safetensors)" >> $GITHUB_ENV
+          echo "VIDEO_DIFFUSION_MODEL_PATH=$(realpath Wan2.2-TI2V-5B-Q2_K.gguf)" >> $GITHUB_ENV
+          echo "VIDEO_VAE_PATH=$(realpath wan2.2_vae.safetensors)" >> $GITHUB_ENV
           echo "VIDEO_T5XXL_PATH=$(realpath umt5-xxl-encoder-Q3_K_S.gguf)" >> $GITHUB_ENV
       - name: Print memory
         run: |
@@ -93,10 +88,19 @@ jobs:
           ls -alF $DIFFUSION_MODEL_PATH
           ls -alF $VAE_PATH
           ls -alF $LLM_PATH
+          ls -alF $VIDEO_DIFFUSION_MODEL_PATH
+          ls -alF $VIDEO_VAE_PATH
+          ls -alF $VIDEO_T5XXL_PATH
           sudo fallocate -l 20GB /modelSwap
           sudo chmod  600 /modelSwap
           sudo mkswap /modelSwap
           sudo swapon /modelSwap
+      - name: Install ffmpeg
+        run: |
+          sudo apt update
+          sudo apt install -y ffmpeg
+          which ffmpeg
+          ffmpeg -version
       - name: Run tests and print coverages
         run: |
           LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH \
