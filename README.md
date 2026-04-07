@@ -16,7 +16,8 @@ High-performance diffusion model inference for Go.
 
 ## Quick start
 
-gosd library is a set of pure Go bindings for [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp). Equip your Go programs with image and video generation — hassle-free.
+gosd library is a set of pure Go bindings for [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp).  
+Equip your Go programs with image and video generation — hassle-free.
 
 ### Installation
 
