@@ -8,7 +8,7 @@ High-performance diffusion model inference in pure Go.
 ## Features
 
 - Image and video generation
-- Minimal performance overhead compared to C/Cpp
+- Minimal performance overhead compared to C/C++
 - GPU + CPU support
 - Callback support for progressive previews during inference
 
@@ -75,9 +75,10 @@ go run examples/image_gen/image_gen.go
 You may need to extend OS search path to load libraries sd depends on(eg on Linux `LD_LIBRARY_PATH`).
 
 ## Examples
-Generate an image in a few lines:
 
 ### Image generation
+
+Generate an image in a few lines:
 
 ```go
 package main
@@ -147,6 +148,6 @@ Designed to be portable across major platforms, but currently tested primarily o
 
 ## Thanks
 
-- C/Cpp: stable-diffusion.cpp, llama.cpp
+- C/C++: stable-diffusion.cpp, llama.cpp
 - Go: ffi, purego
 - Hugging Face
