@@ -42,13 +42,13 @@ jobs:
       - name: Build stable-diffusion.cpp
         run: |
           mkdir -p builds/cpu
-          cmake -B builds/cpu \
-            -DSD_BUILD_SHARED_LIBS=ON \
-            -DSD_BUILD_SHARED_GGML_LIB=ON \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DSD_BUILD_EXAMPLES=OFF \
-            -DSD_WEBP=OFF \
-            -DSD_WEBM=OFF \
-            -DGGML_AVX2=ON
-          cmake --build builds\cpu --config Release -j$(nproc)
+          cmake -B builds/cpu `
+            -DSD_BUILD_SHARED_LIBS=ON `
+            -DSD_BUILD_SHARED_GGML_LIB=ON `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DSD_BUILD_EXAMPLES=OFF `
+            -DSD_WEBP=OFF `
+            -DSD_WEBM=OFF `
+            -DGGML_AVX2=ON .
+          cmake --build builds/cpu --config Release -j $env:NUMBER_OF_PROCESSORS
         working-directory: ./sd
