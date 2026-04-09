@@ -141,13 +141,13 @@ provides more insights into library's features, examples, models etc.
 ## Portability
 
 CI/CD pipelines regularly test CPU-based inference on Linux, Windows, and macOS.  
-GPU acceleration via Vulkan is currently in private testing, with verified compatibility on Linux.
+gGPU acceleration via Vulkan is being tested on privately hosted hardware, with verified compatibility on Linux.
 
 | Platform | CPU  | GPU (Vulkan) |
 |----------|------|--------------|
 | Linux    |  ✅  |      ✅      |
 | Windows  |  ✅️  |      ⚠️      |
-| macOS    |  ⚠️  |      ⚠️      |
+| macOS    |  ✅️️  |      ⚠️      |
 
 ✅ - tested(100% stable-diffusion.cpp API coverage)  
 ⚠️ - not tested
