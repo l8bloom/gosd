@@ -91,15 +91,15 @@ package main
 import sd "github.com/l8bloom/gosd"
 
 func main() {
-	// load the dynamic libraries
+	// Load the dynamic libraries
 	if err := sd.Load(); err != nil {
 		panic(err.Error())
 	}
 
-	// create and configure the inference context
+	// Create and configure the inference context
 	ctxParams := sd.ContextParamsInit()
 
-	// declare models
+	// Declare models
 	ctxParams.DiffusionModelPath = "/tmp/stable.diffusion/flux-2-klein-9b-Q8_0.gguf"
 	ctxParams.VAEPath = "/tmp/stable.diffusion/diffusion_pytorch_model.safetensors"
 	ctxParams.LLMPath = "/tmp/stable.diffusion/Qwen3-8B-Q8_0.gguf"
@@ -107,10 +107,10 @@ func main() {
 	ctx := sd.NewContext(ctxParams)
 	defer sd.FreeCtx(ctx)
 
-	// configure parameters for image generation
+	// Initialize image generation parameters
 	imgParams := sd.ImageGenParamsInit()
 
-	// prompts
+	// Prompts
 	imgParams.Prompt = "An orange cat on palm beach playing with oranges."
 	imgParams.NegativePrompt = "mascots, watermark, signature"
 

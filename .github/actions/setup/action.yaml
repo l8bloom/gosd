@@ -59,14 +59,21 @@ runs:
       shell: pwsh
       run: |
         mkdir -p builds/cpu
-        cmake -B builds/cpu `
-          -DSD_BUILD_SHARED_LIBS=ON `
-          -DSD_BUILD_SHARED_GGML_LIB=ON `
-          -DCMAKE_BUILD_TYPE=Release `
-          -DSD_BUILD_EXAMPLES=OFF `
-          -DSD_WEBP=OFF `
-          -DSD_WEBM=OFF `
-          -DGGML_AVX2=ON .
+        $cmake_args = @("-B", "builds/cpu",
+                        "-DSD_BUILD_SHARED_LIBS=ON",
+                        "-DSD_BUILD_SHARED_GGML_LIB=ON",
+                        "-DCMAKE_BUILD_TYPE=Release",
+                        "-DSD_BUILD_EXAMPLES=OFF",
+                        "-DSD_WEBP=OFF",
+                        "-DSD_WEBM=OFF")
+        if ("${{ matrix.runner }}" -eq "windows-11-arm") {
+          $cmake_args += "-DCMAKE_C_COMPILER=clang-cl"
+          $cmake_args += "-DCMAKE_CXX_COMPILER=clang-cl"
+          $cmake_args += "-DGGML_AVX2=OFF"
+        } else {
+          $cmake_args += "-DGGML_AVX2=ON"
+        }
+        cmake @cmake_args .
         cmake --build builds/cpu --config Release -j $env:NUMBER_OF_PROCESSORS
       working-directory: ./sd
     - name: Fetch stable-diffusion .so root (Unix)
