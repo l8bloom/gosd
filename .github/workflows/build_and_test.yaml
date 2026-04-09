@@ -47,60 +47,22 @@ jobs:
           mv sd/builds/cpu/bin/* .
           rm -rf sd
           echo "GOSD_DYN_LIB=$(realpath .)" >> $GITHUB_ENV
-      - name: Print memory
-        run: |
-          df -hT
-          lsblk -fs
-          free -h
-      - name: Download test models
-        run: |
-          wget --quiet \
-            https://huggingface.co/unsloth/FLUX.2-klein-4B-GGUF/resolve/main/flux-2-klein-4b-Q4_K_M.gguf?download=true \
-            -O flux-2-klein-4b-Q4_K_M.gguf
-          wget --quiet \
-            https://huggingface.co/ai-toolkit/flux2_vae/resolve/main/ae.safetensors \
-            -O flux2-ae.safetensors
-          wget --quiet \
-            https://huggingface.co/unsloth/Qwen3-4B-GGUF/resolve/main/Qwen3-4B-Q4_K_M.gguf \
-            -O Qwen3-4B-Q4_K_M.gguf
-          echo "DIFFUSION_MODEL_PATH=$(realpath flux-2-klein-4b-Q4_K_M.gguf)" >> $GITHUB_ENV
-          echo "VAE_PATH=$(realpath flux2-ae.safetensors)" >> $GITHUB_ENV
-          echo "LLM_PATH=$(realpath Qwen3-4B-Q4_K_M.gguf)" >> $GITHUB_ENV
-
-          wget --quiet \
-            https://huggingface.co/QuantStack/Wan2.2-TI2V-5B-GGUF/resolve/main/Wan2.2-TI2V-5B-Q2_K.gguf \
-            -O Wan2.2-TI2V-5B-Q2_K.gguf
-          wget --quiet \
-            https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/resolve/main/split_files/vae/wan2.2_vae.safetensors \
-            -O wan2.2_vae.safetensors
-          wget --quiet \
-            https://huggingface.co/city96/umt5-xxl-encoder-gguf/resolve/main/umt5-xxl-encoder-Q3_K_S.gguf \
-            -O umt5-xxl-encoder-Q3_K_S.gguf
-
-          echo "VIDEO_DIFFUSION_MODEL_PATH=$(realpath Wan2.2-TI2V-5B-Q2_K.gguf)" >> $GITHUB_ENV
-          echo "VIDEO_VAE_PATH=$(realpath wan2.2_vae.safetensors)" >> $GITHUB_ENV
-          echo "VIDEO_T5XXL_PATH=$(realpath umt5-xxl-encoder-Q3_K_S.gguf)" >> $GITHUB_ENV
-      - name: Print memory
-        run: |
-          df -hT
-          lsblk -fs
-          free -h
-          ls -alF $DIFFUSION_MODEL_PATH
-          ls -alF $VAE_PATH
-          ls -alF $LLM_PATH
-          ls -alF $VIDEO_DIFFUSION_MODEL_PATH
-          ls -alF $VIDEO_VAE_PATH
-          ls -alF $VIDEO_T5XXL_PATH
-          sudo fallocate -l 20GB /modelSwap
-          sudo chmod  600 /modelSwap
-          sudo mkswap /modelSwap
-          sudo swapon /modelSwap
       - name: Install ffmpeg
         run: |
           sudo apt update
           sudo apt install -y ffmpeg
           which ffmpeg
           ffmpeg -version
+      - name: Create swap
+        run: |
+          sudo fallocate -l 20GB /modelSwap
+          sudo chmod  600 /modelSwap
+          sudo mkswap /modelSwap
+          sudo swapon /modelSwap
+      - name: Download test models
+        run: |
+          python3 -m pip install huggingface_hub
+          python3 .github/scripts/download_ci_models.py
       - name: Run tests and print coverages
         run: |
           LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH \
