@@ -1,4 +1,4 @@
-name: "Linux"
+name: "Windows"
 on:
   push:
     branches:
@@ -12,5 +12,5 @@ jobs:
   linux:
     uses: ./.github/workflows/setup.yaml
     with:
-      os: ubuntu-latest
-      runner_type: unix
+      os: windows-latest
+      runner_type: win

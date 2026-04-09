@@ -11,7 +11,9 @@ func myLogCallback(level LogLevel, text string, data unsafe.Pointer) {
 }
 
 func TestSetLogCallback(t *testing.T) {
-	Load()
+	if err := Load(); err != nil {
+		t.Fatal(err.Error())
+	}
 	data := new(int)
 	SetLogCallback(myLogCallback, unsafe.Pointer(data))
 

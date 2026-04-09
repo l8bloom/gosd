@@ -14,7 +14,7 @@ files_to_download = {
     ),
     "VIDEO_VAE_PATH": (
         "Comfy-Org/Wan_2.2_ComfyUI_Repackaged",
-        "vae/wan2.2_vae.safetensors",
+        "split_files/vae/wan2.2_vae.safetensors",
     ),
     "VIDEO_T5XXL_PATH": (
         "city96/umt5-xxl-encoder-gguf",

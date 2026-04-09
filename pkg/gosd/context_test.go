@@ -7,8 +7,9 @@ import (
 
 // test only some sensible default values
 func TestContextParamsInit(t *testing.T) {
-
-	Load()
+	if err := Load(); err != nil {
+		t.Fatal(err.Error())
+	}
 	cp := ContextParamsInit()
 	if !cp.VAEDecodeOnly {
 		t.Errorf("expected VAEDecodeOnly=true, got %t", cp.VAEDecodeOnly)

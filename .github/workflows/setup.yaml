@@ -1,0 +1,20 @@
+name: "Build and test"
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      runner_type:
+        required: true
+        type: string
+jobs:
+  run-build:
+    runs-on: ${{ inputs.runner_type }}
+    steps:
+      - name: Clone
+        uses: actions/checkout@v6
+      - name: setup
+        uses: ./.github/actions/setup
+        with:
+          os: ${{ inputs.os }}
