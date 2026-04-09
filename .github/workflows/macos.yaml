@@ -1,4 +1,4 @@
-name: "Windows"
+name: "macOS"
 on:
   push:
     branches:
@@ -9,8 +9,8 @@ on:
       - 'go.mod'
       - 'go.sum'
 jobs:
-  windows:
+  linux:
     uses: ./.github/workflows/setup.yaml
     with:
-      os: win
-      runner_type: windows-latest
+      os: unix
+      runner_type: macos-latest

@@ -20,6 +20,8 @@ jobs:
             runner: ubuntu-latest
           - os_name: win
             runner: windows-latest
+          - os_name: unix
+            runner: macos-latest
     uses: ./.github/workflows/setup.yaml
     with:
       os: ${{ matrix.os_name }}
