@@ -5,6 +5,7 @@ High-performance diffusion model inference in pure Go.
 
 [![Linux](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml)
 [![Windows](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml)
+[![macOS](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml)
 
 ## Features
 
@@ -73,7 +74,8 @@ go run examples/image_gen/image_gen.go
 
 - `GOSD_DYN_LIB` indicates root of stable-diffusion shared lib(.so, .dll etc.)
 
-You may need to extend OS search path to load libraries sd depends on(eg on Linux `LD_LIBRARY_PATH`).
+You may need to extend OS search path to load libraries sd depends on.  
+E.g. for Linux deployments: `export LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH`
 
 ## Examples
 
@@ -89,7 +91,7 @@ import sd "github.com/l8bloom/gosd"
 func main() {
 	// load the dynamic libraries
 	if err := sd.Load(); err != nil {
-		panic("can't load stable-diffusion.cpp shared libraries.")
+		panic(err.Error())
 	}
 
 	// create and configure the inference context
