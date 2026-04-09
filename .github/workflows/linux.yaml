@@ -13,8 +13,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+        include:
+          - os_name: unix
+            runner: ubuntu-24.04
+            arch: amd
+          - os_name: unix
+            runner: ubuntu-24.04-arm
+            arch: arm
     uses: ./.github/workflows/setup.yaml
     with:
       os: unix
       runner_type: ${{ matrix.runner }}
+      arch: ${{ matrix.arch }}

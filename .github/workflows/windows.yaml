@@ -13,8 +13,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [windows-2022, windows-2022]
+        include:
+          - os_name: win
+            runner: windows-2022
+            arch: amd
+          - os_name: win
+            runner: windows-11-arm
+            arch: arm
     uses: ./.github/workflows/setup.yaml
     with:
       os: win
       runner_type: ${{ matrix.runner }}
+      arch: ${{ matrix.arch }}
