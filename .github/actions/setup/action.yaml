@@ -101,21 +101,13 @@ runs:
       run: |
         python3 -m pip install huggingface_hub
         python3 -u .github/scripts/download_ci_models.py
-    # - name: Create swap
-    #   if: ${{ inputs.os == 'unix' }}
-    #   shell: bash
-    #   run: |
-    #     sudo fallocate -l 20GB /modelSwap
-    #     sudo chmod  600 /modelSwap
-    #     sudo mkswap /modelSwap
-    #     sudo swapon /modelSwap
     - name: Run tests and print coverages (Unix)
       if: ${{ inputs.os == 'unix' }}
       shell: bash
       run: |
         LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH \
         DYLD_LIBRARY_PATH=$GOSD_DYN_LIB:$DYLD_LIBRARY_PATH \
-        go test -v -coverprofile=coverage.out "$(go list ./... | grep -v "examples")"
+        go test -v -timeout 30m -coverprofile=coverage.out "$(go list ./... | grep -v "examples")"
         go tool cover -func=coverage.out
     - name: Run tests and print coverages (Windows)
       if: ${{ inputs.os == 'win' }}
