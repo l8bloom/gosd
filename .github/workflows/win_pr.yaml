@@ -80,6 +80,11 @@ jobs:
           Move-Item -Path "sd/builds/cpu/bin/*" -Destination "." -Force
           Remove-Item -Path "sd" -Recurse -Force
           echo "GOSD_DYN_LIB=$((Get-Item .).FullName)" >> $env:GITHUB_ENV
+      - name: Install ffmpeg
+        uses: FedericoCarboni/setup-ffmpeg@v3
+      - name: Verify ffmpeg
+        run: |
+          ffmpeg -version
       - name: Download test models
         run: |
           Invoke-WebRequest -Uri "https://huggingface.co/unsloth/FLUX.2-klein-4B-GGUF/resolve/main/flux-2-klein-4b-Q4_K_M.gguf?download=true" -OutFile "flux-2-klein-4b-Q4_K_M.gguf"
@@ -97,12 +102,9 @@ jobs:
           echo "VIDEO_DIFFUSION_MODEL_PATH=$((Get-Item Wan2.2-TI2V-5B-Q2_K.gguf).FullName)" >> $env:GITHUB_ENV
           echo "VIDEO_VAE_PATH=$((Get-Item wan2.2_vae.safetensors).FullName)" >> $env:GITHUB_ENV
           echo "VIDEO_T5XXL_PATH=$((Get-Item umt5-xxl-encoder-Q3_K_S.gguf).FullName)" >> $env:GITHUB_ENV
-      - name: Verify ffmpeg
-        run: |
-          ffmpeg -version
       - name: Run tests and print coverages
         run: |
           $env:PATH = "$($env:GOSD_DYN_LIB);$env:PATH"
           $packages = go list ./... | Select-String -Pattern "examples" -NotMatch
-          go test -v -coverprofile=coverage.out $packages
-          go tool cover -func=coverage.out
+          go test -v -coverprofile coverage.out $packages
+          go tool cover -func coverage.out
