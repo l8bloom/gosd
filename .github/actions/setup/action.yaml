@@ -83,21 +83,15 @@ runs:
         Move-Item -Path "sd/builds/cpu/bin/Release/*" -Destination "." -Force
         Remove-Item -Path "sd" -Recurse -Force
         echo "GOSD_DYN_LIB=$((Get-Item .).FullName)" >> $env:GITHUB_ENV
-    - name: Install ffmpeg (Unix)
-      if: ${{ inputs.os == 'unix' }}
-      shell: bash
-      run: |
-        sudo apt update
-        sudo apt install -y ffmpeg
-        ffmpeg -version
-    - name: Install ffmpeg (Windows)
-      if: ${{ inputs.os == 'win' }}
-      uses: FedericoCarboni/setup-ffmpeg@v3
+    - name: Setup FFmpeg
+      uses: AnimMouse/setup-ffmpeg@v1
     - name: Download test models (Unix)
       if: ${{ inputs.os == 'unix' }}
       shell: bash
       run: |
-        python3 -m pip install huggingface_hub
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install huggingface_hub
         python3 -u .github/scripts/download_ci_models.py
     - name: Download test models (Windows)
       if: ${{ inputs.os == 'win' }}
