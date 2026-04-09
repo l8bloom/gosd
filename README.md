@@ -107,7 +107,7 @@ func main() {
 	ctx := sd.NewContext(ctxParams)
 	defer sd.FreeCtx(ctx)
 
-	// fetch some default image values and further configure
+	// configure parameters for image generation
 	imgParams := sd.ImageGenParamsInit()
 
 	// prompts
@@ -145,14 +145,14 @@ provides more insights into library's features, examples, models etc.
 CI/CD pipelines regularly test CPU-based inference on Linux, Windows, and macOS.  
 gGPU acceleration via Vulkan is being tested on privately hosted hardware, with verified compatibility on Linux.
 
-| Platform | CPU  | GPU (Vulkan) |
-|----------|------|--------------|
-| Linux    |  ✅  |      ✅      |
-| Windows  |  ✅️  |      ⚠️      |
-| macOS    |  ✅️️  |      ⚠️      |
 
-✅ - tested(100% stable-diffusion.cpp API coverage)  
-⚠️ - not tested
+| Platform | CPU (AMD64) | CPU (ARM64) | GPU (Vulkan) |
+|----------|:-----------:|:-----------:|:------------:|
+| Linux    |      ✅     |      ✅     |      ✅      |
+| Windows  |      ✅     |      ✅     |      -       |
+| macOS    |      -      |      ✅     |      -       |
+
+✅ - regularly tested
 
 ## Thanks
 
