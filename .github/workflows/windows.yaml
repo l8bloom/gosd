@@ -10,7 +10,11 @@ on:
       - 'go.sum'
 jobs:
   windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [windows-11, windows-11-arm]
     uses: ./.github/workflows/setup.yaml
     with:
       os: win
-      runner_type: windows-latest
+      runner_type: ${{ matrix.runner }}

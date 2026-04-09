@@ -17,9 +17,13 @@ jobs:
       matrix:
         include:
           - os_name: unix
-            runner: ubuntu-latest
+            runner: ubuntu-24.04
+          - os_name: unix
+            runner: ubuntu-24.04-arm
           - os_name: win
-            runner: windows-latest
+            runner: windows-11
+          - os_name: win
+            runner: windows-11-arm
           - os_name: unix
             runner: macos-latest
     uses: ./.github/workflows/setup.yaml
