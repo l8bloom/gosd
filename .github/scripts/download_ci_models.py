@@ -1,4 +1,5 @@
 import os
+import time
 from huggingface_hub import hf_hub_download
 
 files_to_download = {
@@ -27,9 +28,12 @@ results = {}
 for env_var, (repo, filename) in files_to_download.items():
     print(f"Downloading {filename}...")
 
+    start_time = time.time()
     absolute_path = hf_hub_download(repo_id=repo, filename=filename)
+    duration = int(time.time() - start_time)
+
     results[env_var] = absolute_path
-    print(f"Stored at: {absolute_path}")
+    print(f"Done in {duration}s | Stored at: {absolute_path}")
 
 if "GITHUB_ENV" in os.environ:
     with open(os.environ["GITHUB_ENV"], "a") as f:
