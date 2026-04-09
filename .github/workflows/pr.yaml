@@ -12,5 +12,15 @@ on:
       - synchronize
       - reopened
 jobs:
-  linux:
-    uses: ./.github/workflows/build_and_test.yaml
+  build-and-test:
+    strategy:
+      matrix:
+        include:
+          - os_name: unix
+            runner: ubuntu-latest
+          - os_name: win
+            runner: windows-latest
+    uses: ./.github/workflows/setup.yaml
+    with:
+      os: ${{ matrix.os_name }}
+      runner_type: ${{ matrix.runner }}

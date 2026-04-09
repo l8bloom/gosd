@@ -5,7 +5,9 @@ import (
 )
 
 func TestGetSystemInfo(t *testing.T) {
-	Load()
+	if err := Load(); err != nil {
+		t.Fatal(err.Error())
+	}
 	systemInfo := GetSystemInfo()
 
 	if len(systemInfo) == 0 {

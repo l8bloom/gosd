@@ -1,0 +1,134 @@
+name: 'Setup'
+description: 'Sets up tools, downloads models and runs CI tests'
+inputs:
+  os:
+    description: 'Which OS to test for'
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Install go compiler
+      uses: actions/setup-go@v6
+      with:
+        go-version: '1.22'
+    - name: Verify go.mod
+      run: "go mod tidy && git diff --exit-code"
+      shell: bash
+    - name: Run linter
+      uses: golangci/golangci-lint-action@v9
+      with:
+        version: v2.11
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+    - name: Fetch stable-diffusion release (Unix)
+      if: ${{ inputs.os == 'unix' }}
+      shell: bash
+      id: sd_release_unix
+      run: echo "file_content=$(cat stable_diffusion.release)" >> $GITHUB_OUTPUT
+    - name: Fetch stable-diffusion release (Windows)
+      if: ${{ inputs.os == 'win' }}
+      shell: pwsh
+      id: sd_release_win
+      run: |
+        $content = Get-Content stable_diffusion.release -Raw
+        echo "file_content=$content" >> $env:GITHUB_OUTPUT
+    - name: Clone stable-diffusion.cpp
+      uses: actions/checkout@v4
+      with:
+        repository: leejet/stable-diffusion.cpp
+        submodules: recursive
+        ref: ${{ steps.sd_release_unix.outputs.file_content || steps.sd_release_win.outputs.file_content }}
+        path: sd
+    - name: Build stable-diffusion.cpp (Unix)
+      if: ${{ inputs.os == 'unix' }}
+      shell: bash
+      run: |
+        mkdir -p builds/cpu
+        cmake -B builds/cpu \
+          -DSD_BUILD_SHARED_LIBS=ON \
+          -DSD_BUILD_SHARED_GGML_LIB=ON \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DSD_BUILD_EXAMPLES=OFF \
+          -DSD_WEBP=OFF \
+          -DSD_WEBM=OFF \
+          -DGGML_AVX2=ON
+        time cmake --build builds/cpu --config Release -j$(nproc)
+      working-directory: ./sd
+    - name: Build stable-diffusion.cpp (Windows)
+      if: ${{ inputs.os == 'win' }}
+      shell: pwsh
+      run: |
+        mkdir -p builds/cpu
+        cmake -B builds/cpu `
+          -DSD_BUILD_SHARED_LIBS=ON `
+          -DSD_BUILD_SHARED_GGML_LIB=ON `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DSD_BUILD_EXAMPLES=OFF `
+          -DSD_WEBP=OFF `
+          -DSD_WEBM=OFF `
+          -DGGML_AVX2=ON .
+        cmake --build builds/cpu --config Release -j $env:NUMBER_OF_PROCESSORS
+      working-directory: ./sd
+    - name: Fetch stable-diffusion .so root (Unix)
+      if: ${{ inputs.os == 'unix' }}
+      shell: bash
+      run: |
+        mv sd/builds/cpu/bin/* .
+        rm -rf sd
+        echo "GOSD_DYN_LIB=$(realpath .)" >> $GITHUB_ENV
+    - name: Fetch stable-diffusion .so root (Windows)
+      if: ${{ inputs.os == 'win' }}
+      shell: pwsh
+      run: |
+        Move-Item -Path "sd/builds/cpu/bin/Release/*" -Destination "." -Force
+        Remove-Item -Path "sd" -Recurse -Force
+        echo "GOSD_DYN_LIB=$((Get-Item .).FullName)" >> $env:GITHUB_ENV
+    - name: Install ffmpeg (Unix)
+      if: ${{ inputs.os == 'unix' }}
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install -y ffmpeg
+        ffmpeg -version
+    - name: Install ffmpeg (Windows)
+      if: ${{ inputs.os == 'win' }}
+      uses: FedericoCarboni/setup-ffmpeg@v3
+    - name: Download test models (Unix)
+      if: ${{ inputs.os == 'unix' }}
+      shell: bash
+      run: |
+        python3 -m pip install huggingface_hub
+        python3 -u .github/scripts/download_ci_models.py
+    - name: Download test models (Windows)
+      if: ${{ inputs.os == 'win' }}
+      shell: pwsh
+      env:
+        HF_HOME: "D:/hf_cache"
+      run: |
+        python3 -m pip install huggingface_hub
+        python3 -u .github/scripts/download_ci_models.py
+    - name: Create swap
+      if: ${{ inputs.os == 'unix' }}
+      shell: bash
+      run: |
+        sudo fallocate -l 20GB /modelSwap
+        sudo chmod  600 /modelSwap
+        sudo mkswap /modelSwap
+        sudo swapon /modelSwap
+    - name: Run tests and print coverages (Unix)
+      if: ${{ inputs.os == 'unix' }}
+      shell: bash
+      run: |
+        LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH \
+        go test -v -coverprofile=coverage.out "$(go list ./... | grep -v "examples")"
+        go tool cover -func=coverage.out
+    - name: Run tests and print coverages (Windows)
+      if: ${{ inputs.os == 'win' }}
+      shell: pwsh
+      run: |
+        Set-MpPreference -DisableRealtimeMonitoring $true
+        $env:PATH = "$($env:GOSD_DYN_LIB);$env:PATH"
+        $packages = go list ./... | Select-String -Pattern "examples" -NotMatch
+        go test -v -timeout 30m -coverprofile coverage.out $packages
+        if ($LASTEXITCODE) { exit $LASTEXITCODE }
+        go tool cover -func coverage.out

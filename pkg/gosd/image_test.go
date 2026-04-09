@@ -8,7 +8,9 @@ import (
 
 // test only some sensible default values
 func TestImageGenParamsInit(t *testing.T) {
-	Load()
+	if err := Load(); err != nil {
+		t.Fatal(err.Error())
+	}
 	imgParams := ImageGenParamsInit()
 
 	if imgParams.Width != 512 {
@@ -66,11 +68,6 @@ func TestGenerateImage(t *testing.T) {
 	defer FreeCtx(ctx)
 
 	image := GenerateImage(ctx, imgParams)
-	image.SavePNG("test_output.png")
-	_, err := os.Stat("test_output.png")
-	if errors.Is(err, os.ErrNotExist) {
-		t.Error("the generated test image has not been saved")
-	}
 	if image.Width != uint32(imgParams.Width) {
 		t.Errorf("Expected image width=%d, got %d", imgParams.Width, image.Width)
 	}
@@ -82,6 +79,12 @@ func TestGenerateImage(t *testing.T) {
 	}
 	if len(image.Data) != int(imgParams.Width*imgParams.Height)*3 {
 		t.Errorf("the image data content should be %dx%dx3", imgParams.Width, imgParams.Height)
+	}
+
+	image.SavePNG("test_output.png")
+	_, err := os.Stat("test_output.png")
+	if errors.Is(err, os.ErrNotExist) {
+		t.Error("the generated test image has not been saved")
 	}
 	os.Remove("test_output.png")
 }

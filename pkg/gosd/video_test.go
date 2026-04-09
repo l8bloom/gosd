@@ -9,7 +9,9 @@ import (
 
 // test only some sensible default values
 func TestVideoGenParamsInit(t *testing.T) {
-	Load()
+	if err := Load(); err != nil {
+		t.Fatal(err.Error())
+	}
 	vidParams := VideoGenParamsInit()
 
 	if vidParams.Width != 512 {
@@ -39,7 +41,6 @@ func TestVideoGenParamsInit(t *testing.T) {
 }
 
 func TestGenerateVideo(t *testing.T) {
-	Load()
 	vidParams := VideoGenParamsInit()
 	vidParams.Width = 32
 	vidParams.Height = 32
