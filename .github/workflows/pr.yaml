@@ -17,12 +17,22 @@ jobs:
       matrix:
         include:
           - os_name: unix
-            runner: ubuntu-latest
+            runner: ubuntu-24.04
+            arch: amd
+          - os_name: unix
+            runner: ubuntu-24.04-arm
+            arch: arm
           - os_name: win
-            runner: windows-latest
+            runner: windows-2022
+            arch: amd
+          - os_name: win
+            runner: windows-11-arm
+            arch: arm
           - os_name: unix
             runner: macos-latest
+            arch: arm
     uses: ./.github/workflows/setup.yaml
     with:
       os: ${{ matrix.os_name }}
       runner_type: ${{ matrix.runner }}
+      arch: ${{ matrix.arch }}

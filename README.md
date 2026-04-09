@@ -91,15 +91,15 @@ package main
 import sd "github.com/l8bloom/gosd"
 
 func main() {
-	// load the dynamic libraries
+	// Load the dynamic libraries
 	if err := sd.Load(); err != nil {
 		panic(err.Error())
 	}
 
-	// create and configure the inference context
+	// Create and configure the inference context
 	ctxParams := sd.ContextParamsInit()
 
-	// declare models
+	// Declare models
 	ctxParams.DiffusionModelPath = "/tmp/stable.diffusion/flux-2-klein-9b-Q8_0.gguf"
 	ctxParams.VAEPath = "/tmp/stable.diffusion/diffusion_pytorch_model.safetensors"
 	ctxParams.LLMPath = "/tmp/stable.diffusion/Qwen3-8B-Q8_0.gguf"
@@ -107,10 +107,10 @@ func main() {
 	ctx := sd.NewContext(ctxParams)
 	defer sd.FreeCtx(ctx)
 
-	// fetch some default image values and further configure
+	// Initialize image generation parameters
 	imgParams := sd.ImageGenParamsInit()
 
-	// prompts
+	// Prompts
 	imgParams.Prompt = "An orange cat on palm beach playing with oranges."
 	imgParams.NegativePrompt = "mascots, watermark, signature"
 
@@ -145,14 +145,14 @@ provides more insights into library's features, examples, models etc.
 CI/CD pipelines regularly test CPU-based inference on Linux, Windows, and macOS.  
 gGPU acceleration via Vulkan is being tested on privately hosted hardware, with verified compatibility on Linux.
 
-| Platform | CPU  | GPU (Vulkan) |
-|----------|------|--------------|
-| Linux    |  ✅  |      ✅      |
-| Windows  |  ✅️  |      ⚠️      |
-| macOS    |  ✅️️  |      ⚠️      |
 
-✅ - tested(100% stable-diffusion.cpp API coverage)  
-⚠️ - not tested
+| Platform | CPU (AMD64) | CPU (ARM64) | GPU (Vulkan) |
+|----------|:-----------:|:-----------:|:------------:|
+| Linux    |      ✅     |      ✅     |      ✅      |
+| Windows  |      ✅     |      ✅     |      -       |
+| macOS    |      -      |      ✅     |      -       |
+
+✅ - regularly tested
 
 ## Thanks
 

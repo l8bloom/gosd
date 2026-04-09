@@ -8,6 +8,9 @@ on:
       runner_type:
         required: true
         type: string
+      arch:
+        required: true
+        type: string
 jobs:
   run-build:
     runs-on: ${{ inputs.runner_type }}
@@ -18,3 +21,4 @@ jobs:
         uses: ./.github/actions/setup
         with:
           os: ${{ inputs.os }}
+          arch: ${{ inputs.arch }}

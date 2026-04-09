@@ -14,3 +14,4 @@ jobs:
     with:
       os: unix
       runner_type: macos-latest
+      arch: arm

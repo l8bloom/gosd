@@ -10,7 +10,18 @@ on:
       - 'go.sum'
 jobs:
   linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os_name: unix
+            runner: ubuntu-24.04
+            arch: amd
+          - os_name: unix
+            runner: ubuntu-24.04-arm
+            arch: arm
     uses: ./.github/workflows/setup.yaml
     with:
       os: unix
-      runner_type: ubuntu-latest
+      runner_type: ${{ matrix.runner }}
+      arch: ${{ matrix.arch }}
