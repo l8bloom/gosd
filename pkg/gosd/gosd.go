@@ -1,6 +1,7 @@
 package gosd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -79,17 +80,17 @@ Fix options:
 func loadLibrary(lib string) (ffi.Lib, error) {
 	path := os.Getenv("GOSD_DYN_LIB")
 	if path == "" {
-		return ffi.Lib{}, fmt.Errorf("gosd load library: %q env var undefined\n", "GOSD_DYN_LIB")
+		return ffi.Lib{}, fmt.Errorf("gosd: %q env var undefined", "GOSD_DYN_LIB")
 	}
 
 	filename := getLibraryFilename(path, lib)
 	if _, err := os.Stat(filename); err != nil {
-		return ffi.Lib{}, fmt.Errorf("library not found at %q\n", filename)
+		return ffi.Lib{}, fmt.Errorf("gosd: library not found at %q", filename)
 	}
 
 	l, err := ffi.Load(filename)
 	if err != nil {
-		err = fmt.Errorf(stableDiffusionLoadError())
+		err = errors.New(stableDiffusionLoadError())
 	}
 	return l, err
 }
