@@ -62,34 +62,56 @@ func loadError(name string, err error) error {
 	return fmt.Errorf("could not load %q: %w", name, err)
 }
 
+func stableDiffusionLoadError() string {
+	return `
+Failed to load stablediffusion.so
+
+It looks like dependent libraries (e.g. ggml.so) could not be found.
+
+Fix options:
+1. Put all .so/.dll files in the same directory and set:
+	export LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH (Linux)
+	export PATH=$GOSD_DYN_LIB:$PATH (Windows)
+	export DYLD_LIBRARY_PATH=$GOSD_DYN_LIB:$DYLD_LIBRARY_PATH (Mac)
+`
+}
+
 func loadLibrary(lib string) (ffi.Lib, error) {
 	path := os.Getenv("GOSD_DYN_LIB")
-	if path != "" {
-		path = os.Getenv("GOSD_DYN_LIB")
-	}
 	if path == "" {
-		return ffi.Lib{}, fmt.Errorf("gosd load library: can't find runtime stable-diffusion libraries")
+		return ffi.Lib{}, fmt.Errorf("gosd load library: %q env var undefined\n", "GOSD_DYN_LIB")
 	}
 
 	filename := getLibraryFilename(path, lib)
-	return ffi.Load(filename)
+	if _, err := os.Stat(filename); err != nil {
+		return ffi.Lib{}, fmt.Errorf("library not found at %q\n", filename)
+	}
+
+	l, err := ffi.Load(filename)
+	if err != nil {
+		err = fmt.Errorf(stableDiffusionLoadError())
+	}
+	return l, err
 }
 
 func getLibraryFilename(path, lib string) string {
 	switch runtime.GOOS {
 	case "linux", "freebsd":
 		return filepath.Join(path, fmt.Sprintf("lib%s.so", lib))
+	case "windows":
+		return filepath.Join(path, fmt.Sprintf("%s.dll", lib))
+	case "darwin":
+		return filepath.Join(path, fmt.Sprintf("lib%s.dylib", lib))
 	default:
-		// TODO: fix this
 		panic(fmt.Sprintf("OS %q not supported", runtime.GOOS))
 	}
 }
 
-// Load loads the stable-diffusion.cpp shared library and all dependent libs
+// Load loads the stable-diffusion.cpp shared library at runtime and all dependent libs
 func Load() error {
 	lib, err := loadLibrary("stable-diffusion")
 	if err != nil {
-		return loadError("stable-diffusion", err)
+		return err
 	}
 	if err := loadContextRoutines(lib); err != nil {
 		return err

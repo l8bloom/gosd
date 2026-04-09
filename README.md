@@ -87,7 +87,9 @@ import sd "github.com/l8bloom/gosd"
 
 func main() {
 	// load the dynamic libraries
-	sd.Load()
+	if err := sd.Load(); err != nil {
+		panic("can't load stable-diffusion.cpp shared libraries.")
+	}
 
 	// create and configure the inference context
 	ctxParams := sd.ContextParamsInit()
