@@ -2,7 +2,6 @@ package gosd
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"testing"
 )
@@ -81,7 +80,6 @@ func TestGenerateImage(t *testing.T) {
 	if len(image.Data) != int(imgParams.Width*imgParams.Height)*3 {
 		t.Errorf("the image data content should be %dx%dx3", imgParams.Width, imgParams.Height)
 	}
-	fmt.Println("Image generated")
 
 	image.SavePNG("test_output.png")
 	_, err := os.Stat("test_output.png")
