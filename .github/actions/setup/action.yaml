@@ -4,6 +4,9 @@ inputs:
   os:
     description: 'Which OS to test for'
     required: true
+  arch:
+    description: 'Which architecture to test for'
+    required: true
 runs:
   using: composite
   steps:
@@ -66,13 +69,17 @@ runs:
                         "-DSD_BUILD_EXAMPLES=OFF",
                         "-DSD_WEBP=OFF",
                         "-DSD_WEBM=OFF")
-        if ("${{ matrix.runner }}" -eq "windows-11-arm") {
+
+        if ("${{ inputs.arch }}" -match "arm") {
+          # Force Ninja generator to allow overriding the compiler to clang-cl
+          $cmake_args += "-G", "Ninja"
           $cmake_args += "-DCMAKE_C_COMPILER=clang-cl"
           $cmake_args += "-DCMAKE_CXX_COMPILER=clang-cl"
           $cmake_args += "-DGGML_AVX2=OFF"
         } else {
           $cmake_args += "-DGGML_AVX2=ON"
         }
+
         cmake @cmake_args .
         cmake --build builds/cpu --config Release -j $env:NUMBER_OF_PROCESSORS
       working-directory: ./sd
@@ -87,27 +94,37 @@ runs:
       if: ${{ inputs.os == 'win' }}
       shell: pwsh
       run: |
-        Move-Item -Path "sd/builds/cpu/bin/Release/*" -Destination "." -Force
+        # amd and arm installatino paths
+        $amdPath = "sd/builds/cpu/bin/Release"
+        $armPath = "sd/builds/cpu/bin"
+
+        if (Test-Path $amdPath) {
+            $source = "$amdPath/*"
+        } elseif (Test-Path $armPath) {
+            $source = "$armPath/*"
+        } else {
+            Write-Error "Could not find build output in $amdPath or $armPath"
+            exit 1
+        }
+
+        Move-Item -Path $source -Destination "." -Force
         Remove-Item -Path "sd" -Recurse -Force
         echo "GOSD_DYN_LIB=$((Get-Item .).FullName)" >> $env:GITHUB_ENV
     - name: Setup FFmpeg
       uses: AnimMouse/setup-ffmpeg@v1
-    - name: Download test models (Unix)
-      if: ${{ inputs.os == 'unix' }}
+    - name: Download test models
       shell: bash
       run: |
         python3 -m venv venv
-        source venv/bin/activate
-        pip install huggingface_hub
-        python3 -u .github/scripts/download_ci_models.py
-    - name: Download test models (Windows)
-      if: ${{ inputs.os == 'win' }}
-      shell: pwsh
-      env:
-        HF_HOME: "D:/hf_cache"
-      run: |
-        python3 -m pip install huggingface_hub
-        python3 -u .github/scripts/download_ci_models.py
+
+        if [ ${{ inputs.os }} == "win" ]; then
+          VENV_BIN="venv/Scripts"
+          else
+          VENV_BIN="venv/bin"
+        fi
+
+        $VENV_BIN/pip install huggingface_hub
+        $VENV_BIN/python -u .github/scripts/download_ci_models.py
     - name: Run tests and print coverages (Unix)
       if: ${{ inputs.os == 'unix' }}
       shell: bash
