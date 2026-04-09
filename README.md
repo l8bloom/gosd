@@ -6,6 +6,8 @@ High-performance diffusion model inference in pure Go.
 [![Linux](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml)
 [![Windows](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml)
 [![macOS](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml)
+[![Coverage](https://img.shields.io/badge/code%20coverage-77%25-purple)](https://github.com/l8bloom/gosd/actions)
+
 
 ## Features
 

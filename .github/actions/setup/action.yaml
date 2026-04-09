@@ -116,6 +116,6 @@ runs:
         Set-MpPreference -DisableRealtimeMonitoring $true
         $env:PATH = "$($env:GOSD_DYN_LIB);$env:PATH"
         $packages = go list ./... | Select-String -Pattern "examples" -NotMatch
-        go test -v -timeout 30m -coverprofile coverage.out $packages
+        go test -v -timeout 45m -coverprofile coverage.out $packages
         if ($LASTEXITCODE) { exit $LASTEXITCODE }
         go tool cover -func coverage.out

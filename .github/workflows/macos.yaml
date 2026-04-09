@@ -9,7 +9,7 @@ on:
       - 'go.mod'
       - 'go.sum'
 jobs:
-  linux:
+  macos:
     uses: ./.github/workflows/setup.yaml
     with:
       os: unix
