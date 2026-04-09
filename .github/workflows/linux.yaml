@@ -12,5 +12,5 @@ jobs:
   linux:
     uses: ./.github/workflows/setup.yaml
     with:
-      os: ubuntu-latest
-      runner_type: unix
+      os: unix
+      runner_type: ubuntu-latest

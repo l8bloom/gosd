@@ -138,12 +138,13 @@ provides more insights into library's features, examples, models etc.
 
 ## Portability
 
-Designed to be portable across major platforms, but currently tested primarily on Linux.
+CI/CD pipelines regularly test CPU-based inference on Linux, Windows, and macOS.  
+GPU acceleration via Vulkan is currently in private testing, with verified compatibility on Linux.
 
-| Platform | CPU  | GPU (Vulkan) | 
+| Platform | CPU  | GPU (Vulkan) |
 |----------|------|--------------|
 | Linux    |  ✅  |      ✅      |
-| Windows  |  ⚠️  |      ⚠️      |
+| Windows  |  ✅️  |      ⚠️      |
 | macOS    |  ⚠️  |      ⚠️      |
 
 ✅ - tested(100% stable-diffusion.cpp API coverage)  
