@@ -39,4 +39,5 @@ jobs:
             free -h
             echo -e "\nDisk Info:"
             df -h --total | grep 'total'
+            nproc
           fi
