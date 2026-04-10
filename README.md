@@ -3,9 +3,11 @@
 
 High-performance diffusion model inference in pure Go.
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/l8bloom/gosd.svg)](https://pkg.go.dev/github.com/l8bloom/gosd)
 [![Linux](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml)
 [![Windows](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml)
 [![macOS](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Coverage](https://img.shields.io/badge/code%20coverage-78%25-purple)](https://github.com/l8bloom/gosd/actions)
 
 
@@ -73,13 +75,6 @@ go run examples/image_gen/image_gen.go
 ```
 </details>
 
-## Environment variables
-
-- `GOSD_DYN_LIB` indicates root of stable-diffusion shared lib(.so, .dll etc.)
-
-You may need to extend OS search path to load libraries sd depends on.  
-E.g. for Linux deployments: `export LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH`
-
 ## Examples
 
 ### Image generation
@@ -140,6 +135,13 @@ Result:
 
 [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp) documentation
 provides more insights into library's features, examples, models etc.
+
+## Environment variables
+
+- `GOSD_DYN_LIB` indicates root of stable-diffusion shared lib(.so, .dll etc.)
+
+You may need to extend OS search path to load libraries sd depends on.  
+E.g. for Linux deployments: `export LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH`
 
 ## Portability
 
