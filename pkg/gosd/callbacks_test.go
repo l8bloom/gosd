@@ -30,7 +30,7 @@ func TestSetLogCallback(t *testing.T) {
 
 	ctx := NewContext(ctxParams)
 	if ctx == 0 {
-		t.Error("Expected context to be initialized, got nil pointer.")
+		t.Error("expected context to be initialized, got nil pointer.")
 		t.Log(ctx)
 	}
 

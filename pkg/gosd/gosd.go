@@ -85,7 +85,7 @@ func loadLibrary(lib string) (ffi.Lib, error) {
 
 	filename := getLibraryFilename(path, lib)
 	if _, err := os.Stat(filename); err != nil {
-		return ffi.Lib{}, fmt.Errorf("gosd: library not found at %q", filename)
+		return ffi.Lib{}, fmt.Errorf("gosd: library %q does not exist", filename)
 	}
 
 	l, err := ffi.Load(filename)
