@@ -146,14 +146,14 @@ E.g. for Linux deployments: `export LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PA
 ## Portability
 
 CI/CD pipelines regularly test CPU-based inference on Linux, Windows, and macOS.  
-GPU acceleration via Vulkan is being tested on privately hosted hardware, with verified compatibility on Linux.
+GPU acceleration via Vulkan and AMD ROCm/HIP stack are being tested on privately hosted hardware, with verified compatibility on Linux.
 
 
-| Platform | CPU (AMD64) | CPU (ARM64) | GPU (Vulkan) |
-|----------|:-----------:|:-----------:|:------------:|
-| Linux    |      ✅     |      ✅     |      ✅      |
-| Windows  |      ✅     |      ✅     |      -       |
-| macOS    |      -      |      ✅     |      -       |
+| Platform | CPU (AMD64) | CPU (ARM64) | GPU (Vulkan 1.4.3) | GPU (ROCm 7.2.1) |
+|----------|:-----------:|:-----------:|:------------------:|:----------------:|
+| Linux    |      ✅     |      ✅     |         ✅         |         ✅       |
+| Windows  |      ✅     |      ✅     |         -          |         -        |
+| macOS    |      -      |      ✅     |         -          |         -        |
 
 ✅ - regularly tested
 
