@@ -8,6 +8,7 @@ on:
       - 'pkg/gosd/**.go'
       - 'go.mod'
       - 'go.sum'
+      - 'stable_diffusion.release'
 jobs:
   linux:
     strategy:
