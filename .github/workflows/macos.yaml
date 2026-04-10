@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/**.yaml'
+      - '.github/**.yaml'
       - 'pkg/gosd/**.go'
       - 'go.mod'
       - 'go.sum'
