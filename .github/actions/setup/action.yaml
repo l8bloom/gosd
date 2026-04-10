@@ -56,7 +56,7 @@ runs:
           -DSD_WEBP=OFF \
           -DSD_WEBM=OFF \
           -DGGML_AVX2=ON
-        time cmake --build builds/cpu --config Release -j$(nproc)
+        time cmake --build builds/cpu --config Release
       working-directory: ./sd
     - name: Build stable-diffusion.cpp (Windows)
       if: ${{ inputs.os == 'win' }}
@@ -65,6 +65,8 @@ runs:
         mkdir -p builds/cpu
         $cmake_args = @("-B", "builds/cpu",
                         "-G", "Ninja",
+                        "-DCMAKE_C_COMPILER=clang-cl",
+                        "-DCMAKE_CXX_COMPILER=clang-cl",
                         "-DSD_BUILD_SHARED_LIBS=ON",
                         "-DSD_BUILD_SHARED_GGML_LIB=ON",
                         "-DCMAKE_BUILD_TYPE=Release",
@@ -73,15 +75,13 @@ runs:
                         "-DSD_WEBM=OFF")
 
         if ("${{ inputs.arch }}" -match "arm") {
-          $cmake_args += "-DCMAKE_C_COMPILER=clang-cl"
-          $cmake_args += "-DCMAKE_CXX_COMPILER=clang-cl"
           $cmake_args += "-DGGML_AVX2=OFF"
         } else {
           $cmake_args += "-DGGML_AVX2=ON"
         }
 
         cmake @cmake_args .
-        cmake --build builds/cpu --config Release -j $env:NUMBER_OF_PROCESSORS
+        cmake --build builds/cpu --config Release
       working-directory: ./sd
     - name: Fetch stable-diffusion .so root (Unix)
       if: ${{ inputs.os == 'unix' }}
@@ -94,16 +94,18 @@ runs:
       if: ${{ inputs.os == 'win' }}
       shell: pwsh
       run: |
-        # amd and arm installatino paths
-        $amdPath = "sd/builds/cpu/bin/Release"
-        $armPath = "sd/builds/cpu/bin"
+        Get-ChildItem sd/builds/cpu/bin
+        $binPath = "sd/builds/cpu/bin"
+        $releasePath = "sd/builds/cpu/bin/Release"
 
-        if (Test-Path $amdPath) {
-            $source = "$amdPath/*"
-        } elseif (Test-Path $armPath) {
-            $source = "$armPath/*"
+        if (Test-Path "$releasePath/*.dll") {
+            # MSBuild-style output
+            $source = "$releasePath/*"
+        } elseif (Test-Path "$binPath/*.dll") {
+            # Ninja-style (flat) output
+            $source = "$binPath/*"
         } else {
-            Write-Error "Could not find build output in $amdPath or $armPath"
+            Write-Error "Could not find any .dll files in $binPath or $releasePath"
             exit 1
         }
 
