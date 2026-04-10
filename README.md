@@ -6,7 +6,7 @@ High-performance diffusion model inference in pure Go.
 [![Linux](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml)
 [![Windows](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml)
 [![macOS](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml)
-[![Coverage](https://img.shields.io/badge/code%20coverage-77%25-purple)](https://github.com/l8bloom/gosd/actions)
+[![Coverage](https://img.shields.io/badge/code%20coverage-78%25-purple)](https://github.com/l8bloom/gosd/actions)
 
 
 ## Features
@@ -143,7 +143,7 @@ provides more insights into library's features, examples, models etc.
 ## Portability
 
 CI/CD pipelines regularly test CPU-based inference on Linux, Windows, and macOS.  
-gGPU acceleration via Vulkan is being tested on privately hosted hardware, with verified compatibility on Linux.
+GPU acceleration via Vulkan is being tested on privately hosted hardware, with verified compatibility on Linux.
 
 
 | Platform | CPU (AMD64) | CPU (ARM64) | GPU (Vulkan) |

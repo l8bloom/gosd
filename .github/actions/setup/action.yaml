@@ -48,6 +48,7 @@ runs:
       run: |
         mkdir -p builds/cpu
         cmake -B builds/cpu \
+          -G Ninja \
           -DSD_BUILD_SHARED_LIBS=ON \
           -DSD_BUILD_SHARED_GGML_LIB=ON \
           -DCMAKE_BUILD_TYPE=Release \
@@ -63,6 +64,7 @@ runs:
       run: |
         mkdir -p builds/cpu
         $cmake_args = @("-B", "builds/cpu",
+                        "-G", "Ninja",
                         "-DSD_BUILD_SHARED_LIBS=ON",
                         "-DSD_BUILD_SHARED_GGML_LIB=ON",
                         "-DCMAKE_BUILD_TYPE=Release",
@@ -71,8 +73,6 @@ runs:
                         "-DSD_WEBM=OFF")
 
         if ("${{ inputs.arch }}" -match "arm") {
-          # Force Ninja generator to allow overriding the compiler to clang-cl
-          $cmake_args += "-G", "Ninja"
           $cmake_args += "-DCMAKE_C_COMPILER=clang-cl"
           $cmake_args += "-DCMAKE_CXX_COMPILER=clang-cl"
           $cmake_args += "-DGGML_AVX2=OFF"
