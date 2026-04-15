@@ -84,7 +84,7 @@ Generate an image in a few lines:
 ```go
 package main
 
-import sd "github.com/l8bloom/gosd"
+import sd "github.com/l8bloom/gosd/pkg/gosd"
 
 func main() {
 	// Load the dynamic libraries
@@ -155,7 +155,7 @@ GPU acceleration via Vulkan and AMD ROCm/HIP stack are being tested on privately
 | Windows  |      ✅     |      ✅     |         -          |         -        |
 | macOS    |      -      |      ✅     |         -          |         -        |
 
-✅ - regularly tested
+✅ = regularly tested
 
 ## Thanks
 
