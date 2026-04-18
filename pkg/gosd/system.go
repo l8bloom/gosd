@@ -18,6 +18,48 @@ var (
 
 	// SD_API int32_t sd_get_num_physical_cores();
 	getNumPhysicalCores ffi.Fun
+
+	// SD_API const char* sd_type_name(enum sd_type_t type);
+	typeName ffi.Fun
+
+	// SD_API enum sd_type_t str_to_sd_type(const char* str);
+	strToSDType ffi.Fun
+
+	// SD_API const char* sd_rng_type_name(enum rng_type_t rng_type);
+	rngTypeName ffi.Fun
+
+	// SD_API enum rng_type_t str_to_rng_type(const char* str);
+	strToRNGType ffi.Fun
+
+	// SD_API const char* sd_sample_method_name(enum sample_method_t sample_method);
+	sampleMethodName ffi.Fun
+
+	// SD_API enum sample_method_t str_to_sample_method(const char* str);
+	strToSampleMethod ffi.Fun
+
+	// SD_API const char* sd_scheduler_name(enum scheduler_t scheduler);
+	schedulerName ffi.Fun
+
+	// SD_API enum scheduler_t str_to_scheduler(const char* str);
+	strToScheduler ffi.Fun
+
+	// SD_API const char* sd_prediction_name(enum prediction_t prediction);
+	predictionName ffi.Fun
+
+	// SD_API enum prediction_t str_to_prediction(const char* str);
+	strToPrediction ffi.Fun
+
+	// SD_API const char* sd_preview_name(enum preview_t preview);
+	previewName ffi.Fun
+
+	// SD_API enum preview_t str_to_preview(const char* str);
+	strToPreview ffi.Fun
+
+	// SD_API const char* sd_lora_apply_mode_name(enum lora_apply_mode_t mode);
+	loraApplyModeName ffi.Fun
+
+	// SD_API enum lora_apply_mode_t str_to_lora_apply_mode(const char* str);
+	strToLoraApplyMode ffi.Fun
 )
 
 func loadSystemRoutines(lib ffi.Lib) error {
@@ -36,6 +78,62 @@ func loadSystemRoutines(lib ffi.Lib) error {
 
 	if getNumPhysicalCores, err = lib.Prep("sd_get_num_physical_cores", &ffi.TypeSint32); err != nil {
 		return loadError("sd_get_num_physical_cores", err)
+	}
+
+	if typeName, err = lib.Prep("sd_type_name", &ffi.TypePointer, &ffi.TypeSint32); err != nil {
+		return loadError("sd_type_name", err)
+	}
+
+	if strToSDType, err = lib.Prep("str_to_sd_type", &ffi.TypeSint32, &ffi.TypePointer); err != nil {
+		return loadError("str_to_sd_type", err)
+	}
+
+	if rngTypeName, err = lib.Prep("sd_rng_type_name", &ffi.TypePointer, &ffi.TypeSint32); err != nil {
+		return loadError("sd_rng_type_name", err)
+	}
+
+	if strToRNGType, err = lib.Prep("str_to_rng_type", &ffi.TypeSint32, &ffi.TypePointer); err != nil {
+		return loadError("str_to_rng_type", err)
+	}
+
+	if sampleMethodName, err = lib.Prep("sd_sample_method_name", &ffi.TypePointer, &ffi.TypeSint32); err != nil {
+		return loadError("sd_sample_method_name", err)
+	}
+
+	if strToSampleMethod, err = lib.Prep("str_to_sample_method", &ffi.TypeSint32, &ffi.TypePointer); err != nil {
+		return loadError("str_to_sample_method", err)
+	}
+
+	if schedulerName, err = lib.Prep("sd_scheduler_name", &ffi.TypePointer, &ffi.TypeSint32); err != nil {
+		return loadError("sd_scheduler_name", err)
+	}
+
+	if strToScheduler, err = lib.Prep("str_to_scheduler", &ffi.TypeSint32, &ffi.TypePointer); err != nil {
+		return loadError("str_to_scheduler", err)
+	}
+
+	if predictionName, err = lib.Prep("sd_prediction_name", &ffi.TypePointer, &ffi.TypeSint32); err != nil {
+		return loadError("sd_prediction_name", err)
+	}
+
+	if strToPrediction, err = lib.Prep("str_to_prediction", &ffi.TypeSint32, &ffi.TypePointer); err != nil {
+		return loadError("str_to_prediction", err)
+	}
+
+	if previewName, err = lib.Prep("sd_preview_name", &ffi.TypePointer, &ffi.TypeSint32); err != nil {
+		return loadError("sd_preview_name", err)
+	}
+
+	if strToPreview, err = lib.Prep("str_to_preview", &ffi.TypeSint32, &ffi.TypePointer); err != nil {
+		return loadError("str_to_preview", err)
+	}
+
+	if loraApplyModeName, err = lib.Prep("sd_lora_apply_mode_name", &ffi.TypePointer, &ffi.TypeSint32); err != nil {
+		return loadError("sd_lora_apply_mode_name", err)
+	}
+
+	if strToLoraApplyMode, err = lib.Prep("str_to_lora_apply_mode", &ffi.TypeSint32, &ffi.TypePointer); err != nil {
+		return loadError("str_to_lora_apply_mode", err)
 	}
 
 	return nil
@@ -79,4 +177,109 @@ func GetNumPhysicalCores() int {
 
 	getNumPhysicalCores.Call(unsafe.Pointer(&count))
 	return count
+}
+
+func TypeName(sdType SDType) string {
+	res := utilsGetNulString()
+
+	typeName.Call(unsafe.Pointer(&res), unsafe.Pointer(&sdType))
+	return charToString(res)
+}
+
+func StrToSDType(typeName string) SDType {
+	var sdType SDType
+	name := utilsStrToNulString(typeName)
+
+	strToSDType.Call(unsafe.Pointer(&sdType), unsafe.Pointer(&name))
+	return sdType
+}
+
+func RNGTypeName(rngType RNGType) string {
+	res := utilsGetNulString()
+
+	rngTypeName.Call(unsafe.Pointer(&res), unsafe.Pointer(&rngType))
+	return charToString(res)
+}
+
+func StrToRNGType(typeName string) RNGType {
+	var rngType RNGType
+	name := utilsStrToNulString(typeName)
+
+	strToRNGType.Call(unsafe.Pointer(&rngType), unsafe.Pointer(&name))
+	return rngType
+}
+
+func SampleMethodName(sampleMethod SampleMethodType) string {
+	res := utilsGetNulString()
+
+	sampleMethodName.Call(unsafe.Pointer(&res), unsafe.Pointer(&sampleMethod))
+	return charToString(res)
+}
+
+func StrToSampleMethod(typeName string) SampleMethodType {
+	var sampleMethodType SampleMethodType
+	name := utilsStrToNulString(typeName)
+
+	strToSampleMethod.Call(unsafe.Pointer(&sampleMethodType), unsafe.Pointer(&name))
+	return sampleMethodType
+}
+
+func SchedulerName(schedulerType SchedulerType) string {
+	res := utilsGetNulString()
+
+	schedulerName.Call(unsafe.Pointer(&res), unsafe.Pointer(&schedulerType))
+	return charToString(res)
+}
+
+func StrToScheduler(typeName string) SchedulerType {
+	var schedulerType SchedulerType
+	name := utilsStrToNulString(typeName)
+
+	strToScheduler.Call(unsafe.Pointer(&schedulerType), unsafe.Pointer(&name))
+	return schedulerType
+}
+
+func PredictionName(predictionType PredictionType) string {
+	res := utilsGetNulString()
+
+	predictionName.Call(unsafe.Pointer(&res), unsafe.Pointer(&predictionType))
+	return charToString(res)
+}
+
+func StrToPrediction(typeName string) PredictionType {
+	var predictionType PredictionType
+	name := utilsStrToNulString(typeName)
+
+	strToPrediction.Call(unsafe.Pointer(&predictionType), unsafe.Pointer(&name))
+	return predictionType
+}
+
+func PreviewName(previewType PreviewMode) string {
+	res := utilsGetNulString()
+
+	previewName.Call(unsafe.Pointer(&res), unsafe.Pointer(&previewType))
+	return charToString(res)
+}
+
+func StrToPreview(typeName string) PreviewMode {
+	var previewMode PreviewMode
+	name := utilsStrToNulString(typeName)
+
+	strToPreview.Call(unsafe.Pointer(&previewMode), unsafe.Pointer(&name))
+	return previewMode
+}
+
+func LoraApplyModeName(loraMode LoraApplyModeType) string {
+	res := utilsGetNulString()
+
+	loraApplyModeName.Call(unsafe.Pointer(&res), unsafe.Pointer(&loraMode))
+	return charToString(res)
+}
+
+func StrToLoraApplyMode(typeName string) LoraApplyModeType {
+	var loraMode LoraApplyModeType
+	name := utilsStrToNulString(typeName)
+
+	strToLoraApplyMode.Call(unsafe.Pointer(&loraMode), unsafe.Pointer(&name))
+	return loraMode
 }
