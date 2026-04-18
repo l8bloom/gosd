@@ -161,6 +161,7 @@ const (
 	TCDSampleMethod
 	RESMultistepSampleMethod
 	RES2SSampleMethod
+	ERSDESampleMethod
 	SampleMethodCount
 )
 
@@ -242,71 +243,6 @@ func (slg *SLGParams) toC() *sLGParams {
 		LayerStart: slg.LayerStart,
 		LayerEnd:   slg.LayerEnd,
 		Scale:      slg.Scale,
-	}
-}
-
-type sampleParamsType struct {
-	Guidance          guidanceParams   // sd_guidance_params_t guidance;
-	Scheduler         SchedulerType    // enum scheduler_t scheduler;
-	SampleMethod      SampleMethodType // enum sample_method_t sample_method;
-	SampleSteps       int32            // int sample_steps;
-	ETA               float32          // float eta;
-	ShiftedTimestamp  int32            // int shifted_timestep;
-	CustomSigmas      *float32         // float* custom_sigmas;
-	CustomSigmasCount int32            // int custom_sigmas_count;
-	FlowShift         float32          // float flow_shift;
-}
-
-func (slg *sampleParamsType) toGo() *SampleParamsType {
-	size := int(slg.CustomSigmasCount)
-	newSigma := make([]float32, size)
-
-	srcSigma := unsafe.Slice(slg.CustomSigmas, size)
-	copy(newSigma, srcSigma)
-
-	return &SampleParamsType{
-		Guidance:          *slg.Guidance.toGo(),
-		Scheduler:         slg.Scheduler,
-		SampleMethod:      slg.SampleMethod,
-		SampleSteps:       slg.SampleSteps,
-		ETA:               slg.ETA,
-		ShiftedTimestamp:  slg.ShiftedTimestamp,
-		CustomSigmas:      newSigma,
-		CustomSigmasCount: slg.CustomSigmasCount,
-		FlowShift:         slg.FlowShift,
-	}
-}
-
-type SampleParamsType struct {
-	Guidance          GuidanceParams
-	Scheduler         SchedulerType
-	SampleMethod      SampleMethodType
-	SampleSteps       int32
-	ETA               float32
-	ShiftedTimestamp  int32
-	CustomSigmas      []float32
-	CustomSigmasCount int32
-	FlowShift         float32
-}
-
-func (slg *SampleParamsType) toC() *sampleParamsType {
-	size := int(slg.CustomSigmasCount)
-	var _data *float32
-
-	if size != 0 {
-		_data = &slg.CustomSigmas[0]
-	}
-
-	return &sampleParamsType{
-		Guidance:          *slg.Guidance.toC(),
-		Scheduler:         slg.Scheduler,
-		SampleMethod:      slg.SampleMethod,
-		SampleSteps:       slg.SampleSteps,
-		ETA:               slg.ETA,
-		ShiftedTimestamp:  slg.ShiftedTimestamp,
-		CustomSigmas:      _data,
-		CustomSigmasCount: slg.CustomSigmasCount,
-		FlowShift:         slg.FlowShift,
 	}
 }
 
@@ -406,6 +342,7 @@ const (
 	CacheDBcache
 	CacheTaylorseer
 	CacheCacheDit
+	CacheSpectrum
 )
 
 type cacheParams struct {
@@ -426,6 +363,13 @@ type cacheParams struct {
 	TaylorSeerSkipInterval   int32         // int taylorseer_skip_interval;
 	SCMMask                  *byte         // const char* scm_mask;
 	SCMPolicyDynamic         uint8         // bool scm_policy_dynamic;
+	SpectrumW                float32       // float spectrum_w;
+	SpectrumM                int32         // int spectrum_m;
+	SpectrumLAM              float32       // float spectrum_lam;
+	SpectrumWindowSize       int32         // int spectrum_window_size;
+	SpectrumFlexWindow       float32       // float spectrum_flex_window;
+	SpectrumWarmupSteps      int32         // int spectrum_warmup_steps;
+	SpectrumStopPercent      float32       // float spectrum_stop_percent;
 }
 
 func (c *cacheParams) toGo() *CacheParams {
@@ -447,6 +391,13 @@ func (c *cacheParams) toGo() *CacheParams {
 		TaylorSeerSkipInterval:   c.TaylorSeerSkipInterval,
 		SCMMask:                  charToString(c.SCMMask),
 		SCMPolicyDynamic:         c.SCMPolicyDynamic,
+		SpectrumW:                c.SpectrumW,
+		SpectrumM:                c.SpectrumM,
+		SpectrumLAM:              c.SpectrumLAM,
+		SpectrumWindowSize:       c.SpectrumWindowSize,
+		SpectrumFlexWindow:       c.SpectrumFlexWindow,
+		SpectrumWarmupSteps:      c.SpectrumWarmupSteps,
+		SpectrumStopPercent:      c.SpectrumStopPercent,
 	}
 }
 
@@ -468,6 +419,13 @@ type CacheParams struct {
 	TaylorSeerSkipInterval   int32
 	SCMMask                  string
 	SCMPolicyDynamic         uint8
+	SpectrumW                float32
+	SpectrumM                int32
+	SpectrumLAM              float32
+	SpectrumWindowSize       int32
+	SpectrumFlexWindow       float32
+	SpectrumWarmupSteps      int32
+	SpectrumStopPercent      float32
 }
 
 func (c *CacheParams) toC() *cacheParams {
@@ -489,6 +447,13 @@ func (c *CacheParams) toC() *cacheParams {
 		TaylorSeerSkipInterval:   c.TaylorSeerSkipInterval,
 		SCMMask:                  stringToChar(c.SCMMask),
 		SCMPolicyDynamic:         c.SCMPolicyDynamic,
+		SpectrumW:                c.SpectrumW,
+		SpectrumM:                c.SpectrumM,
+		SpectrumLAM:              c.SpectrumLAM,
+		SpectrumWindowSize:       c.SpectrumWindowSize,
+		SpectrumFlexWindow:       c.SpectrumFlexWindow,
+		SpectrumWarmupSteps:      c.SpectrumWarmupSteps,
+		SpectrumStopPercent:      c.SpectrumStopPercent,
 	}
 }
 
