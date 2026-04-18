@@ -8,15 +8,17 @@ High-performance diffusion model inference in pure Go.
 [![Windows](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml)
 [![macOS](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Coverage](https://img.shields.io/badge/code%20coverage-78%25-purple)](https://github.com/l8bloom/gosd/actions)
+[![Coverage](https://img.shields.io/badge/code%20coverage-79%25-purple)](https://github.com/l8bloom/gosd/actions)
 
 
 ## Features
 
 - Image and video generation
+- Image editing
+- Resolution upscaling via Neural upscaling (ESRGAN)
+- Callback support for progressive previews during inference
 - Minimal performance overhead compared to C/C++
 - GPU + CPU support
-- Callback support for progressive previews during inference
 
 ## Quick start
 
