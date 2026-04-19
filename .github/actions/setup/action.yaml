@@ -27,13 +27,13 @@ runs:
       if: ${{ inputs.os == 'unix' }}
       shell: bash
       id: sd_release_unix
-      run: echo "file_content=$(cat stable_diffusion.release)" >> $GITHUB_OUTPUT
+      run: echo "file_content=$(cat stable_diffusion.release | head -1)" >> $GITHUB_OUTPUT
     - name: Fetch stable-diffusion release (Windows)
       if: ${{ inputs.os == 'win' }}
       shell: pwsh
       id: sd_release_win
       run: |
-        $content = Get-Content stable_diffusion.release -Raw
+        $content = Get-Content stable_diffusion.release -TotalCount 1
         echo "file_content=$content" >> $env:GITHUB_OUTPUT
     - name: Clone stable-diffusion.cpp
       uses: actions/checkout@v4
