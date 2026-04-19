@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"unsafe"
 )
 
 // test only some sensible default values
@@ -47,7 +48,28 @@ func TestImageGenParamsToStr(t *testing.T) {
 	}
 }
 
+func myProgressCallback(step int32, steps int32, time float32, data unsafe.Pointer) {
+	*(*int)(data)++
+}
+
+func myImagePreviewCallback(step int32, image Image, isNoisy bool, data unsafe.Pointer) {
+	*(*int)(data)++
+}
+
+func myLogCallback(level LogLevel, text string, data unsafe.Pointer) {
+	*(*int)(data)++
+}
+
 func TestGenerateImage(t *testing.T) {
+	data := new(int)
+	SetPreviewCallback(myImagePreviewCallback, PreviewVAE, 1, true, false, unsafe.Pointer(data))
+
+	data2 := new(int)
+	SetProgressCallback(myProgressCallback, unsafe.Pointer(data2))
+
+	data3 := new(int)
+	SetLogCallback(myLogCallback, unsafe.Pointer(data3))
+
 	imgParams := ImageGenParamsInit()
 	imgParams.Width = 32
 	imgParams.Height = 32
@@ -65,7 +87,10 @@ func TestGenerateImage(t *testing.T) {
 		t.Log(ctx)
 	}
 
-	defer FreeCtx(ctx)
+	if !CtxSupportsImageGeneration(ctx) {
+		t.Error("expected context to support image generation, but got False")
+		t.Log(ctx)
+	}
 
 	image := GenerateImage(ctx, imgParams)
 	if image.Width != uint32(imgParams.Width) {
@@ -87,4 +112,44 @@ func TestGenerateImage(t *testing.T) {
 		t.Error("the generated test image has not been saved")
 	}
 	os.Remove("test_output.png")
+
+	if *data == 0 {
+		t.Errorf("preview callback: data counter sentinel should be positive, got %d", *data)
+	}
+
+	if *data2 == 0 {
+		t.Errorf("progress callback: data counter sentinel should be positive, got %d", *data2)
+	}
+
+	if *data3 == 0 {
+		t.Errorf("log callback: data counter sentinel should be positive, got %d", *data3)
+	}
+
+	defaultMethod := SampleMethodName(GetDefaultSampleMethod(ctx))
+	if defaultMethod != "euler" {
+		t.Errorf("expected default sampler method to be `euler`, got %s", defaultMethod)
+	}
+
+	defaultScheduler := SchedulerName(GetDefaultScheduler(ctx, EulerSampleMethod))
+	if defaultScheduler != "discrete" {
+		t.Errorf("expected default scheduler method to be `discrete`, got %s", defaultScheduler)
+	}
+
+	FreeCtx(ctx)
+
+	uctx := NewUpscalerCtx(
+		os.Getenv("UPSCALER_PATH"),
+		true,
+		true,
+		4,
+		int(imgParams.Width),
+	)
+
+	if uctx == 0 {
+		t.Error("expected upscaler's context to be initialized, got nil pointer.")
+		t.Log(ctx)
+	}
+	defer FreeUpscalerCtx(uctx)
+
+	Upscale(uctx, image, 4)
 }

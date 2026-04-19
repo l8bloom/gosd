@@ -161,6 +161,7 @@ const (
 	TCDSampleMethod
 	RESMultistepSampleMethod
 	RES2SSampleMethod
+	ERSDESampleMethod
 	SampleMethodCount
 )
 
@@ -242,71 +243,6 @@ func (slg *SLGParams) toC() *sLGParams {
 		LayerStart: slg.LayerStart,
 		LayerEnd:   slg.LayerEnd,
 		Scale:      slg.Scale,
-	}
-}
-
-type sampleParamsType struct {
-	Guidance          guidanceParams   // sd_guidance_params_t guidance;
-	Scheduler         SchedulerType    // enum scheduler_t scheduler;
-	SampleMethod      SampleMethodType // enum sample_method_t sample_method;
-	SampleSteps       int32            // int sample_steps;
-	ETA               float32          // float eta;
-	ShiftedTimestamp  int32            // int shifted_timestep;
-	CustomSigmas      *float32         // float* custom_sigmas;
-	CustomSigmasCount int32            // int custom_sigmas_count;
-	FlowShift         float32          // float flow_shift;
-}
-
-func (slg *sampleParamsType) toGo() *SampleParamsType {
-	size := int(slg.CustomSigmasCount)
-	newSigma := make([]float32, size)
-
-	srcSigma := unsafe.Slice(slg.CustomSigmas, size)
-	copy(newSigma, srcSigma)
-
-	return &SampleParamsType{
-		Guidance:          *slg.Guidance.toGo(),
-		Scheduler:         slg.Scheduler,
-		SampleMethod:      slg.SampleMethod,
-		SampleSteps:       slg.SampleSteps,
-		ETA:               slg.ETA,
-		ShiftedTimestamp:  slg.ShiftedTimestamp,
-		CustomSigmas:      newSigma,
-		CustomSigmasCount: slg.CustomSigmasCount,
-		FlowShift:         slg.FlowShift,
-	}
-}
-
-type SampleParamsType struct {
-	Guidance          GuidanceParams
-	Scheduler         SchedulerType
-	SampleMethod      SampleMethodType
-	SampleSteps       int32
-	ETA               float32
-	ShiftedTimestamp  int32
-	CustomSigmas      []float32
-	CustomSigmasCount int32
-	FlowShift         float32
-}
-
-func (slg *SampleParamsType) toC() *sampleParamsType {
-	size := int(slg.CustomSigmasCount)
-	var _data *float32
-
-	if size != 0 {
-		_data = &slg.CustomSigmas[0]
-	}
-
-	return &sampleParamsType{
-		Guidance:          *slg.Guidance.toC(),
-		Scheduler:         slg.Scheduler,
-		SampleMethod:      slg.SampleMethod,
-		SampleSteps:       slg.SampleSteps,
-		ETA:               slg.ETA,
-		ShiftedTimestamp:  slg.ShiftedTimestamp,
-		CustomSigmas:      _data,
-		CustomSigmasCount: slg.CustomSigmasCount,
-		FlowShift:         slg.FlowShift,
 	}
 }
 
@@ -394,101 +330,6 @@ func (vae *VAETilingParams) toC() *vAETilingParams {
 		TargetOverlap: vae.TargetOverlap,
 		RelSizeX:      vae.RelSizeX,
 		RelSizeY:      vae.RelSizeY,
-	}
-}
-
-type CacheModeType int32
-
-const (
-	CacheDisabled CacheModeType = iota
-	CacheEasyCache
-	CacheUcache
-	CacheDBcache
-	CacheTaylorseer
-	CacheCacheDit
-)
-
-type cacheParams struct {
-	Mode                     CacheModeType // enum sd_cache_mode_t mode;
-	ReuseThreshold           float32       // float reuse_threshold;
-	StartPercent             float32       // float start_percent;
-	EndPercent               float32       // float end_percent;
-	ErrorDecayRate           float32       // float error_decay_rate;
-	UseRelativeThreshold     uint8         // bool use_relative_threshold;
-	ResetErrorOnCompute      uint8         // bool reset_error_on_compute;
-	FNComputeBlocks          int32         // int Fn_compute_blocks;
-	BNComputeBlocks          int32         // int Bn_compute_blocks;
-	ResidualDiffThreshold    float32       // float residual_diff_threshold;
-	MaxWarmupSteps           int32         // int max_warmup_steps;
-	MaxCachedSteps           int32         // int max_cached_steps;
-	MaxContinuousCachedSteps int32         // int max_continuous_cached_steps;
-	TaylorSeerNDerivatives   int32         // int taylorseer_n_derivatives;
-	TaylorSeerSkipInterval   int32         // int taylorseer_skip_interval;
-	SCMMask                  *byte         // const char* scm_mask;
-	SCMPolicyDynamic         uint8         // bool scm_policy_dynamic;
-}
-
-func (c *cacheParams) toGo() *CacheParams {
-	return &CacheParams{
-		Mode:                     c.Mode,
-		ReuseThreshold:           c.ReuseThreshold,
-		StartPercent:             c.StartPercent,
-		EndPercent:               c.EndPercent,
-		ErrorDecayRate:           c.ErrorDecayRate,
-		UseRelativeThreshold:     c.UseRelativeThreshold,
-		ResetErrorOnCompute:      c.ResetErrorOnCompute,
-		FNComputeBlocks:          c.FNComputeBlocks,
-		BNComputeBlocks:          c.BNComputeBlocks,
-		ResidualDiffThreshold:    c.ResidualDiffThreshold,
-		MaxWarmupSteps:           c.MaxWarmupSteps,
-		MaxCachedSteps:           c.MaxCachedSteps,
-		MaxContinuousCachedSteps: c.MaxContinuousCachedSteps,
-		TaylorSeerNDerivatives:   c.TaylorSeerNDerivatives,
-		TaylorSeerSkipInterval:   c.TaylorSeerSkipInterval,
-		SCMMask:                  charToString(c.SCMMask),
-		SCMPolicyDynamic:         c.SCMPolicyDynamic,
-	}
-}
-
-type CacheParams struct {
-	Mode                     CacheModeType
-	ReuseThreshold           float32
-	StartPercent             float32
-	EndPercent               float32
-	ErrorDecayRate           float32
-	UseRelativeThreshold     uint8
-	ResetErrorOnCompute      uint8
-	FNComputeBlocks          int32
-	BNComputeBlocks          int32
-	ResidualDiffThreshold    float32
-	MaxWarmupSteps           int32
-	MaxCachedSteps           int32
-	MaxContinuousCachedSteps int32
-	TaylorSeerNDerivatives   int32
-	TaylorSeerSkipInterval   int32
-	SCMMask                  string
-	SCMPolicyDynamic         uint8
-}
-
-func (c *CacheParams) toC() *cacheParams {
-	return &cacheParams{
-		Mode:                     c.Mode,
-		ReuseThreshold:           c.ReuseThreshold,
-		StartPercent:             c.StartPercent,
-		EndPercent:               c.EndPercent,
-		ErrorDecayRate:           c.ErrorDecayRate,
-		UseRelativeThreshold:     c.UseRelativeThreshold,
-		ResetErrorOnCompute:      c.ResetErrorOnCompute,
-		FNComputeBlocks:          c.FNComputeBlocks,
-		BNComputeBlocks:          c.BNComputeBlocks,
-		ResidualDiffThreshold:    c.ResidualDiffThreshold,
-		MaxWarmupSteps:           c.MaxWarmupSteps,
-		MaxCachedSteps:           c.MaxCachedSteps,
-		MaxContinuousCachedSteps: c.MaxContinuousCachedSteps,
-		TaylorSeerNDerivatives:   c.TaylorSeerNDerivatives,
-		TaylorSeerSkipInterval:   c.TaylorSeerSkipInterval,
-		SCMMask:                  stringToChar(c.SCMMask),
-		SCMPolicyDynamic:         c.SCMPolicyDynamic,
 	}
 }
 

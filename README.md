@@ -8,15 +8,17 @@ High-performance diffusion model inference in pure Go.
 [![Windows](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml)
 [![macOS](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Coverage](https://img.shields.io/badge/code%20coverage-78%25-purple)](https://github.com/l8bloom/gosd/actions)
+[![Coverage](https://img.shields.io/badge/code%20coverage-79%25-purple)](https://github.com/l8bloom/gosd/actions)
 
 
 ## Features
 
 - Image and video generation
+- Image editing
+- Resolution upscaling via Neural upscaling (ESRGAN)
+- Callback support for progressive previews during inference
 - Minimal performance overhead compared to C/C++
 - GPU + CPU support
-- Callback support for progressive previews during inference
 
 ## Quick start
 
@@ -31,7 +33,7 @@ go get github.com/l8bloom/gosd
 
 to add gosd to your Go module.
 
-After that, the only thing left is to get the stable-diffusion shared libraries. Currently, [master-560-e8323ca](https://github.com/leejet/stable-diffusion.cpp/releases/tag/master-559-dd75372) is supported.  
+After that, the only thing left is to get the stable-diffusion shared libraries. Currently, [master-583-6614334](https://github.com/leejet/stable-diffusion.cpp/releases/tag/master-583-6614334) is supported.  
 There are multiple ways to do it, and is directed with the underlying OS and hardware.
 
 The simplest approach is to download an official release from the [stable-diffusion](https://github.com/leejet/stable-diffusion.cpp/releases) project that matches your system. The gosd library is designed to be agnostic regarding which specific build you choose though.  

@@ -16,19 +16,18 @@ var (
 	// SD_API char* sd_ctx_params_to_str(const sd_ctx_params_t* sd_ctx_params);
 	ctxParamsToStr ffi.Fun
 
+	// SD_API bool sd_ctx_supports_image_generation(const sd_ctx_t* sd_ctx);
+	ctxSupportsImageGeneration ffi.Fun
+
+	// SD_API bool sd_ctx_supports_video_generation(const sd_ctx_t* sd_ctx);
+	ctxSupportsVideoGeneration ffi.Fun
+
 	// SD_API void free_sd_ctx(sd_ctx_t* sd_ctx);
 	freeCtx ffi.Fun
 )
 
 func loadContextRoutines(lib ffi.Lib) error {
 	var err error
-	if newContext, err = lib.Prep(
-		"new_sd_ctx",
-		&ffi.TypePointer,
-		&ffi.TypePointer,
-	); err != nil {
-		return loadError("new_sd_ctx", err)
-	}
 
 	if contextParamsInit, err = lib.Prep(
 		"sd_ctx_params_init",
@@ -38,12 +37,12 @@ func loadContextRoutines(lib ffi.Lib) error {
 		return loadError("sd_ctx_params_init", err)
 	}
 
-	if freeCtx, err = lib.Prep(
-		"free_sd_ctx",
-		&ffi.TypeVoid,
+	if newContext, err = lib.Prep(
+		"new_sd_ctx",
+		&ffi.TypePointer,
 		&ffi.TypePointer,
 	); err != nil {
-		return loadError("free_sd_ctx", err)
+		return loadError("new_sd_ctx", err)
 	}
 
 	if ctxParamsToStr, err = lib.Prep(
@@ -52,6 +51,30 @@ func loadContextRoutines(lib ffi.Lib) error {
 		&ffi.TypePointer,
 	); err != nil {
 		return loadError("sd_ctx_params_to_str", err)
+	}
+
+	if ctxSupportsImageGeneration, err = lib.Prep(
+		"sd_ctx_supports_image_generation",
+		&ffi.TypeUint8,
+		&ffi.TypePointer,
+	); err != nil {
+		return loadError("sd_ctx_supports_image_generation", err)
+	}
+
+	if ctxSupportsVideoGeneration, err = lib.Prep(
+		"sd_ctx_supports_video_generation",
+		&ffi.TypeUint8,
+		&ffi.TypePointer,
+	); err != nil {
+		return loadError("sd_ctx_supports_video_generation", err)
+	}
+
+	if freeCtx, err = lib.Prep(
+		"free_sd_ctx",
+		&ffi.TypeVoid,
+		&ffi.TypePointer,
+	); err != nil {
+		return loadError("free_sd_ctx", err)
 	}
 
 	return nil
@@ -382,6 +405,22 @@ func CtxParamsToStr(ctxParams ContextParams) string {
 	ctxParamsToStr.Call(unsafe.Pointer(&str), unsafe.Pointer(&_params))
 
 	return charToString(str)
+}
+
+func CtxSupportsImageGeneration(ctx Context) bool {
+	var res uint8
+
+	ctxSupportsImageGeneration.Call(unsafe.Pointer(&res), unsafe.Pointer(&ctx))
+
+	return byteToBool(res)
+}
+
+func CtxSupportsVideoGeneration(ctx Context) bool {
+	var res uint8
+
+	ctxSupportsVideoGeneration.Call(unsafe.Pointer(&res), unsafe.Pointer(&ctx))
+
+	return byteToBool(res)
 }
 
 func newContextParams() *contextParams {

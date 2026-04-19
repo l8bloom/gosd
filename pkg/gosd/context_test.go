@@ -1,7 +1,6 @@
 package gosd
 
 import (
-	"os"
 	"testing"
 )
 
@@ -26,21 +25,6 @@ func TestContextParamsInit(t *testing.T) {
 	if cp.ChromaT5MaskPad != 1 {
 		t.Errorf("expected ChromaT5MaskPad=1, got %d", cp.ChromaT5MaskPad)
 	}
-}
-
-func TestCreateDestroyContext(t *testing.T) {
-	ctxParams := ContextParamsInit()
-	ctxParams.DiffusionModelPath = os.Getenv("DIFFUSION_MODEL_PATH")
-	ctxParams.VAEPath = os.Getenv("VAE_PATH")
-	ctxParams.LLMPath = os.Getenv("LLM_PATH")
-
-	ctx := NewContext(ctxParams)
-	if ctx == 0 {
-		t.Error("Expected context to be initialized, got nil pointer.")
-		t.Log(ctx)
-	}
-
-	FreeCtx(ctx)
 }
 
 func TestCtxParamsToStr(t *testing.T) {

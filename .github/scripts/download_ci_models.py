@@ -1,6 +1,7 @@
 import os
 import time
 from huggingface_hub import hf_hub_download
+import requests
 
 files_to_download = {
     "DIFFUSION_MODEL_PATH": (
@@ -23,6 +24,11 @@ files_to_download = {
     ),
 }
 
+# for non-huggingface sources
+direct_downloads = {
+    "UPSCALER_PATH": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth"
+}
+
 results = {}
 
 for env_var, (repo, filename) in files_to_download.items():
@@ -34,6 +40,23 @@ for env_var, (repo, filename) in files_to_download.items():
 
     results[env_var] = absolute_path
     print(f"Done in {duration}s | Stored at: {absolute_path}")
+
+for env_var, url in direct_downloads.items():
+    filename = url.split("/")[-1]
+    save_path = os.path.abspath(filename)  # Saves to current CI directory
+
+    print(f"Downloading {filename}...")
+
+    start_time = time.time()
+    with requests.get(url, stream=True) as r:
+        r.raise_for_status()
+        with open(save_path, "wb") as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
+
+    duration = int(time.time() - start_time)
+    print(f"Done in {duration}s | Stored at: {save_path}")
+    results[env_var] = save_path
 
 if "GITHUB_ENV" in os.environ:
     with open(os.environ["GITHUB_ENV"], "a") as f:
