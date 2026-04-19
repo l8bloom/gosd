@@ -1,6 +1,63 @@
 package gosd
 
-import "unsafe"
+import (
+	"unsafe"
+
+	"github.com/jupiterrider/ffi"
+)
+
+var (
+	// SD_API void sd_sample_params_init(sd_sample_params_t* sample_params);
+	sampleParamsInit ffi.Fun
+
+	// SD_API char* sd_sample_params_to_str(const sd_sample_params_t* sample_params);
+	sampleParamsToStr ffi.Fun
+
+	// SD_API enum sample_method_t sd_get_default_sample_method(const sd_ctx_t* sd_ctx);
+	getDefaultSampleMethod ffi.Fun
+
+	// SD_API enum scheduler_t sd_get_default_scheduler(const sd_ctx_t* sd_ctx, enum sample_method_t sample_method);
+	getDefaultScheduler ffi.Fun
+)
+
+func loadSamplerRoutines(lib ffi.Lib) error {
+	var err error
+
+	if sampleParamsInit, err = lib.Prep(
+		"sd_sample_params_init",
+		&ffi.TypeVoid,
+		&ffi.TypePointer,
+	); err != nil {
+		return loadError("sd_sample_params_init", err)
+	}
+
+	if sampleParamsToStr, err = lib.Prep(
+		"sd_sample_params_to_str",
+		&ffi.TypePointer,
+		&ffi.TypePointer,
+	); err != nil {
+		return loadError("sd_sample_params_to_str", err)
+	}
+
+	if getDefaultSampleMethod, err = lib.Prep(
+		"sd_get_default_sample_method",
+		&ffi.TypeSint32,
+		&ffi.TypePointer,
+	); err != nil {
+		return loadError("sd_get_default_sample_method", err)
+	}
+
+	if getDefaultScheduler, err = lib.Prep(
+		"sd_get_default_scheduler",
+		&ffi.TypeSint32,
+		&ffi.TypePointer,
+		&ffi.TypeSint32,
+	); err != nil {
+		return loadError("sd_get_default_scheduler", err)
+	}
+
+	return nil
+}
 
 type sampleParamsType struct {
 	Guidance          guidanceParams   // sd_guidance_params_t guidance;
@@ -65,4 +122,41 @@ func (slg *SampleParamsType) toC() *sampleParamsType {
 		CustomSigmasCount: slg.CustomSigmasCount,
 		FlowShift:         slg.FlowShift,
 	}
+}
+
+func newSampleParams() *sampleParamsType {
+	return &sampleParamsType{}
+}
+
+func SampleParamsInit() SampleParamsType {
+	sp := newSampleParams()
+
+	sampleParamsInit.Call(nil, unsafe.Pointer(&sp))
+
+	return *sp.toGo()
+}
+
+func SampleParamsToStr(params SampleParamsType) string {
+	sp := params.toC()
+	str := utilsGetNulString()
+
+	sampleParamsToStr.Call(unsafe.Pointer(&str), unsafe.Pointer(&sp))
+
+	return charToString(str)
+}
+
+func GetDefaultSampleMethod(ctx Context) SampleMethodType {
+	var sampleType SampleMethodType
+
+	getDefaultSampleMethod.Call(unsafe.Pointer(&sampleType), unsafe.Pointer(&ctx))
+
+	return sampleType
+}
+
+func GetDefaultScheduler(ctx Context, sampler SampleMethodType) SchedulerType {
+	var schedulerType SchedulerType
+
+	getDefaultScheduler.Call(unsafe.Pointer(&schedulerType), unsafe.Pointer(&ctx), unsafe.Pointer(&sampler))
+
+	return schedulerType
 }

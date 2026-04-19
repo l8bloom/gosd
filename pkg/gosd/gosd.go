@@ -137,5 +137,9 @@ func Load() error {
 	if err := loadCacheRoutines(lib); err != nil {
 		return err
 	}
+
+	if err := loadSamplerRoutines(lib); err != nil {
+		return err
+	}
 	return nil
 }
