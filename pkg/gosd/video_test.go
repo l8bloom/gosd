@@ -68,6 +68,11 @@ func TestGenerateVideo(t *testing.T) {
 
 	defer FreeCtx(ctx)
 
+	if !CtxSupportsVideoGeneration(ctx) {
+		t.Error("expected context to support video generation, but got False")
+		t.Log(ctx)
+	}
+
 	// annul preview callback set by image tests
 	SetPreviewCallback(
 		func(step int32, image Video, isNoisy bool, data unsafe.Pointer) {

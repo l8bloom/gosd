@@ -1,7 +1,6 @@
 package gosd
 
 import (
-	"os"
 	"testing"
 )
 
@@ -28,45 +27,5 @@ func TestSampleParamsToStr(t *testing.T) {
 
 	if len(spStr) == 0 {
 		t.Errorf("expected non-empty sampler params string, got %s", spStr)
-	}
-}
-
-func TestGetDefaultSampleMethod(t *testing.T) {
-	ctxParams := ContextParamsInit()
-	ctxParams.DiffusionModelPath = os.Getenv("DIFFUSION_MODEL_PATH")
-	ctxParams.VAEPath = os.Getenv("VAE_PATH")
-	ctxParams.LLMPath = os.Getenv("LLM_PATH")
-
-	ctx := NewContext(ctxParams)
-	if ctx == 0 {
-		t.Error("expected context to be initialized, got nil pointer.")
-		t.Log(ctx)
-	}
-
-	defer FreeCtx(ctx)
-
-	defaultMethod := SampleMethodName(GetDefaultSampleMethod(ctx))
-	if defaultMethod != "euler" {
-		t.Errorf("expected default sampler method to be `euler`, got %s", defaultMethod)
-	}
-}
-
-func TestGetDefaultScheduler(t *testing.T) {
-	ctxParams := ContextParamsInit()
-	ctxParams.DiffusionModelPath = os.Getenv("DIFFUSION_MODEL_PATH")
-	ctxParams.VAEPath = os.Getenv("VAE_PATH")
-	ctxParams.LLMPath = os.Getenv("LLM_PATH")
-
-	ctx := NewContext(ctxParams)
-	if ctx == 0 {
-		t.Error("expected context to be initialized, got nil pointer.")
-		t.Log(ctx)
-	}
-
-	defer FreeCtx(ctx)
-
-	defaultScheduler := SchedulerName(GetDefaultScheduler(ctx, EulerSampleMethod))
-	if defaultScheduler != "discrete" {
-		t.Errorf("expected default scheduler method to be `discrete`, got %s", defaultScheduler)
 	}
 }

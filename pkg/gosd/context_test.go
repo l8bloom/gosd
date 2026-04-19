@@ -1,7 +1,6 @@
 package gosd
 
 import (
-	"os"
 	"testing"
 )
 
@@ -28,21 +27,6 @@ func TestContextParamsInit(t *testing.T) {
 	}
 }
 
-func TestCreateDestroyContext(t *testing.T) {
-	ctxParams := ContextParamsInit()
-	ctxParams.DiffusionModelPath = os.Getenv("DIFFUSION_MODEL_PATH")
-	ctxParams.VAEPath = os.Getenv("VAE_PATH")
-	ctxParams.LLMPath = os.Getenv("LLM_PATH")
-
-	ctx := NewContext(ctxParams)
-	if ctx == 0 {
-		t.Error("Expected context to be initialized, got nil pointer.")
-		t.Log(ctx)
-	}
-
-	FreeCtx(ctx)
-}
-
 func TestCtxParamsToStr(t *testing.T) {
 	ctxParams := ContextParamsInit()
 	ctxParamsStr := CtxParamsToStr(ctxParams)
@@ -50,46 +34,4 @@ func TestCtxParamsToStr(t *testing.T) {
 		t.Error("expected non-empty string representation of context params.")
 		t.Log(ctxParamsStr)
 	}
-}
-
-func TestCtxSupportsImageGeneration(t *testing.T) {
-	ctxParams := ContextParamsInit()
-	ctxParams.DiffusionModelPath = os.Getenv("DIFFUSION_MODEL_PATH")
-	ctxParams.VAEPath = os.Getenv("VAE_PATH")
-	ctxParams.LLMPath = os.Getenv("LLM_PATH")
-
-	ctx := NewContext(ctxParams)
-	if ctx == 0 {
-		t.Error("expected context to be initialized, got nil pointer.")
-		t.Log(ctx)
-	}
-
-	if !CtxSupportsImageGeneration(ctx) {
-		t.Error("expected context to support image generation, but got False")
-		t.Log(ctx)
-	}
-
-	FreeCtx(ctx)
-}
-
-func TestCtxSupportsVideoGeneration(t *testing.T) {
-	ctxParams := ContextParamsInit()
-	ctxParams.DiffusionModelPath = os.Getenv("VIDEO_DIFFUSION_MODEL_PATH")
-	ctxParams.VAEPath = os.Getenv("VIDEO_VAE_PATH")
-	ctxParams.T5XXLPath = os.Getenv("VIDEO_T5XXL_PATH")
-	ctxParams.DiffusionFlashAttn = true
-	ctxParams.KeepClipOnCPU = true
-
-	ctx := NewContext(ctxParams)
-	if ctx == 0 {
-		t.Error("expected context to be initialized, got nil pointer.")
-		t.Log(ctx)
-	}
-
-	if !CtxSupportsVideoGeneration(ctx) {
-		t.Error("expected context to support video generation, but got False")
-		t.Log(ctx)
-	}
-
-	FreeCtx(ctx)
 }
