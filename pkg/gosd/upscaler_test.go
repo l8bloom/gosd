@@ -65,7 +65,7 @@ func TestUpscale(t *testing.T) {
 	}
 
 	image := GenerateImage(ctx, imgParams)
-	FreeCtx(ctx)
+	defer FreeCtx(ctx)
 
 	uctx := NewUpscalerCtx(
 		os.Getenv("UPSCALER_PATH"),

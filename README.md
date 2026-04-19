@@ -33,7 +33,7 @@ go get github.com/l8bloom/gosd
 
 to add gosd to your Go module.
 
-After that, the only thing left is to get the stable-diffusion shared libraries. Currently, [master-580-7d33d4b](https://github.com/leejet/stable-diffusion.cpp/releases/tag/master-580-7d33d4b) is supported.  
+After that, the only thing left is to get the stable-diffusion shared libraries. Currently, [master-583-6614334](https://github.com/leejet/stable-diffusion.cpp/releases/tag/master-583-6614334) is supported.  
 There are multiple ways to do it, and is directed with the underlying OS and hardware.
 
 The simplest approach is to download an official release from the [stable-diffusion](https://github.com/leejet/stable-diffusion.cpp/releases) project that matches your system. The gosd library is designed to be agnostic regarding which specific build you choose though.  

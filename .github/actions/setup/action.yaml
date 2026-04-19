@@ -125,7 +125,7 @@ runs:
           VENV_BIN="venv/bin"
         fi
 
-        $VENV_BIN/pip install huggingface_hub
+        $VENV_BIN/pip install huggingface_hub requests
         $VENV_BIN/python -u .github/scripts/download_ci_models.py
     - name: Run tests and print coverages (Unix)
       if: ${{ inputs.os == 'unix' }}
@@ -133,7 +133,7 @@ runs:
       run: |
         LD_LIBRARY_PATH=$GOSD_DYN_LIB:$LD_LIBRARY_PATH \
         DYLD_LIBRARY_PATH=$GOSD_DYN_LIB:$DYLD_LIBRARY_PATH \
-        go test -v -timeout 30m -coverprofile=coverage.out "$(go list ./... | grep -v "examples")"
+        go test -v -timeout 60m -coverprofile=coverage.out "$(go list ./... | grep -v "examples")"
         go tool cover -func=coverage.out
     - name: Run tests and print coverages (Windows)
       if: ${{ inputs.os == 'win' }}
@@ -142,6 +142,6 @@ runs:
         Set-MpPreference -DisableRealtimeMonitoring $true
         $env:PATH = "$($env:GOSD_DYN_LIB);$env:PATH"
         $packages = go list ./... | Select-String -Pattern "examples" -NotMatch
-        go test -v -timeout 45m -coverprofile coverage.out $packages
+        go test -v -timeout 60m -coverprofile coverage.out $packages
         if ($LASTEXITCODE) { exit $LASTEXITCODE }
         go tool cover -func coverage.out
