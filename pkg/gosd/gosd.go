@@ -141,5 +141,11 @@ func Load() error {
 	if err := loadSamplerRoutines(lib); err != nil {
 		return err
 	}
+
+	if err := loadUpscalerRoutines(lib); err != nil {
+		return err
+	}
+
 	return nil
+
 }
