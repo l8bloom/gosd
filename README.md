@@ -3,11 +3,12 @@
 
 High-performance diffusion model inference in pure Go.
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Go Reference](https://pkg.go.dev/badge/github.com/l8bloom/gosd.svg)](https://pkg.go.dev/github.com/l8bloom/gosd)
 [![Linux](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml)
 [![Windows](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml)
 [![macOS](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![stable-diffusion.cpp](https://img.shields.io/badge/sd.cpp-6614334-yellow)](https://github.com/leejet/stable-diffusion.cpp/releases/tag/master-583-6614334)
 [![Coverage](https://img.shields.io/badge/code%20coverage-79%25-purple)](https://github.com/l8bloom/gosd/actions)
 
 
@@ -33,8 +34,7 @@ go get github.com/l8bloom/gosd
 
 to add gosd to your Go module.
 
-After that, the only thing left is to get the stable-diffusion shared libraries. Currently, [master-583-6614334](https://github.com/leejet/stable-diffusion.cpp/releases/tag/master-583-6614334) is supported.  
-There are multiple ways to do it, and is directed with the underlying OS and hardware.
+After that, the only thing left is to get the stable-diffusion shared libraries. There are multiple ways to do it, and is directed with the underlying OS and hardware.
 
 The simplest approach is to download an official release from the [stable-diffusion](https://github.com/leejet/stable-diffusion.cpp/releases) project that matches your system. The gosd library is designed to be agnostic regarding which specific build you choose though.  
 
