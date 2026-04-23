@@ -1,0 +1,34 @@
+name: "Check if stable-diffusion.cpp API changed"
+on:
+  push:
+    branches:
+      - main
+jobs:
+  check-sd-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone
+        uses: actions/checkout@v6
+      - name: Fetch stable-diffusion release
+        id: sd_release_unix
+        run: echo "file_content=$(cat stable_diffusion.release | head -1)" >> $GITHUB_OUTPUT
+      - name: Clone stable-diffusion.cpp
+        uses: actions/checkout@v6
+        with:
+          repository: leejet/stable-diffusion.cpp
+          submodules: recursive
+          path: sd
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Check disparity
+        run: |
+          sd_release_date="$(git show -s --format=%cd --date=short "${{ steps.sd_release_unix.outputs.file_content }}")"
+          if git diff --quiet \
+            --exit-code ${{ steps.sd_release_unix.outputs.file_content }} HEAD \
+            -- include/stable-diffusion.h; then
+              echo GREAT: No new API changes introduced since "${sd_release_date}";
+          else
+            echo WARNING: New API changes introduced since "${sd_release_date}":
+            git diff "${{ steps.sd_release_unix.outputs.file_content }}" HEAD -- include/stable-diffusion.h
+          fi
+        working-directory: ./sd
