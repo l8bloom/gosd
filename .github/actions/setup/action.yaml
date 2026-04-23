@@ -36,12 +36,14 @@ runs:
         $content = Get-Content stable_diffusion.release -TotalCount 1
         echo "file_content=$content" >> $env:GITHUB_OUTPUT
     - name: Clone stable-diffusion.cpp
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: leejet/stable-diffusion.cpp
         submodules: recursive
         ref: ${{ steps.sd_release_unix.outputs.file_content || steps.sd_release_win.outputs.file_content }}
         path: sd
+        fetch-depth: 0
+        fetch-tags: true
     - name: Build stable-diffusion.cpp (Unix)
       if: ${{ inputs.os == 'unix' }}
       shell: bash
