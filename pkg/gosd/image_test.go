@@ -153,3 +153,35 @@ func TestGenerateImage(t *testing.T) {
 
 	Upscale(uctx, image, 4)
 }
+
+func TestHiresParamsInit(t *testing.T) {
+	hiresParams := HiresParamsInit()
+
+	if hiresParams.Enabled {
+		t.Errorf("expected Enabled=false, got %t", hiresParams.Enabled)
+	}
+	if hiresParams.Upscaler != HiresUpscalerLatent {
+		t.Errorf("expected Upscaler=HiresUpscalerLatent, got %d", hiresParams.Upscaler)
+	}
+	if hiresParams.ModelPath != "" {
+		t.Errorf("expected ModelPath=\"\", got %s", hiresParams.ModelPath)
+	}
+	if hiresParams.Scale != 2.0 {
+		t.Errorf("expected Scale=2.0, got %f", hiresParams.Scale)
+	}
+	if hiresParams.TargetHeight != 0 {
+		t.Errorf("expected TargetHeight=0, got %d", hiresParams.TargetHeight)
+	}
+	if hiresParams.TargetWidth != 0 {
+		t.Errorf("expected TargetWidth=0, got %d", hiresParams.TargetWidth)
+	}
+	if hiresParams.Steps != 0 {
+		t.Errorf("expected Steps=0, got %d", hiresParams.Steps)
+	}
+	if hiresParams.DenoisingStrength != 0.7 {
+		t.Errorf("expected DenoisingStrength=0.7, got %f", hiresParams.DenoisingStrength)
+	}
+	if hiresParams.UpscaleTileSize != 128 {
+		t.Errorf("expected UpscaleTileSize=128, got %d", hiresParams.UpscaleTileSize)
+	}
+}
