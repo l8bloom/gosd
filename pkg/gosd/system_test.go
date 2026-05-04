@@ -248,3 +248,40 @@ func TestStrToLoraApplyMode(t *testing.T) {
 		t.Errorf("expected `2` for `LoraApplyAtRuntime`, got  %d", loraMode)
 	}
 }
+
+func TestHiresUpscalerName(t *testing.T) {
+	name := HiresUpscalerName(HiresUpscalerNone)
+
+	if name != "None" {
+		t.Errorf("expected `None` for `HiresUpscalerNone`, got  %q", name)
+	}
+
+	name = HiresUpscalerName(HiresUpscalerLatent)
+
+	if name != "Latent" {
+		t.Errorf("expected `Latent` for `HiresUpscalerLatent`, got  %q", name)
+	}
+
+	name = HiresUpscalerName(HiresUpscalerModel)
+
+	if name != "Model" {
+		t.Errorf("expected `Model` for `HiresUpscalerModel`, got  %q", name)
+	}
+
+}
+
+func TestStrToHiresUpscaler(t *testing.T) {
+	name := "Latent (nearest-exact)"
+	hiresMode := StrToHiresUpscaler(name)
+
+	if hiresMode != HiresUpscalerLatentNearestExact {
+		t.Errorf("expected `%d` for `nearest-exact`, got  %d", HiresUpscalerLatentNearestExact, hiresMode)
+	}
+
+	name = "Latent (bicubic antialiased)"
+	hiresMode = StrToHiresUpscaler(name)
+
+	if hiresMode != HiresUpscalerLatentBicubicAntialiased {
+		t.Errorf("expected `%d` for `bicubic antialiased`, got  %d", HiresUpscalerLatentBicubic, hiresMode)
+	}
+}

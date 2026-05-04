@@ -60,6 +60,12 @@ var (
 
 	// SD_API enum lora_apply_mode_t str_to_lora_apply_mode(const char* str);
 	strToLoraApplyMode ffi.Fun
+
+	// SD_API const char* sd_hires_upscaler_name(enum sd_hires_upscaler_t upscaler);
+	hiresUpscalerName ffi.Fun
+
+	// SD_API enum sd_hires_upscaler_t str_to_sd_hires_upscaler(const char* str);
+	strToHiresUpscaler ffi.Fun
 )
 
 func loadSystemRoutines(lib ffi.Lib) error {
@@ -134,6 +140,14 @@ func loadSystemRoutines(lib ffi.Lib) error {
 
 	if strToLoraApplyMode, err = lib.Prep("str_to_lora_apply_mode", &ffi.TypeSint32, &ffi.TypePointer); err != nil {
 		return loadError("str_to_lora_apply_mode", err)
+	}
+
+	if hiresUpscalerName, err = lib.Prep("sd_hires_upscaler_name", &ffi.TypePointer, &ffi.TypeSint32); err != nil {
+		return loadError("sd_hires_upscaler_name", err)
+	}
+
+	if strToHiresUpscaler, err = lib.Prep("str_to_sd_hires_upscaler", &ffi.TypeSint32, &ffi.TypePointer); err != nil {
+		return loadError("str_to_sd_hires_upscaler", err)
 	}
 
 	return nil
@@ -282,4 +296,19 @@ func StrToLoraApplyMode(typeName string) LoraApplyModeType {
 
 	strToLoraApplyMode.Call(unsafe.Pointer(&loraMode), unsafe.Pointer(&name))
 	return loraMode
+}
+
+func HiresUpscalerName(hiresMode HiresUpscalerType) string {
+	res := utilsGetNulString()
+
+	hiresUpscalerName.Call(unsafe.Pointer(&res), unsafe.Pointer(&hiresMode))
+	return charToString(res)
+}
+
+func StrToHiresUpscaler(typeName string) HiresUpscalerType {
+	var hiresMode HiresUpscalerType
+	name := utilsStrToNulString(typeName)
+
+	strToHiresUpscaler.Call(unsafe.Pointer(&hiresMode), unsafe.Pointer(&name))
+	return hiresMode
 }
