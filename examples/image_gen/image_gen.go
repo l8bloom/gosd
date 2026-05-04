@@ -2,20 +2,23 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	sd "github.com/l8bloom/gosd/pkg/gosd"
 )
 
 func main() {
 	// load the dynamic libraries
-	sd.Load()
+	if err := sd.Load(); err != nil {
+		panic(err.Error())
+	}
 
 	// create and conifgure the inference context
 	ctxParams := sd.ContextParamsInit()
 
-	ctxParams.DiffusionModelPath = "/tmp/stable.diffusion/flux-2-klein-9b-Q8_0.gguf"
-	ctxParams.VAEPath = "/tmp/stable.diffusion/diffusion_pytorch_model.safetensors"
-	ctxParams.LLMPath = "/tmp/stable.diffusion/Qwen3-8B-Q8_0.gguf"
+	ctxParams.DiffusionModelPath = os.Getenv("DIFFUSION_MODEL_PATH")
+	ctxParams.VAEPath = os.Getenv("VAE_PATH")
+	ctxParams.LLMPath = os.Getenv("LLM_PATH")
 
 	ctxParams.DiffusionFlashAttn = true // potential hardware optimizations
 	// ctxParams.KeepClipOnCPU = true // in case of lower vram
@@ -29,11 +32,13 @@ func main() {
 	imgParams := sd.ImageGenParamsInit()
 
 	// prompts
-	imgParams.Prompt = "An orange cat on palm beach playing with oranges."
+	imgParams.Prompt = "a beautiful landscape, ultra-detailed, 8K resolution, photorealistic, cinematic lighting"
 	imgParams.NegativePrompt = "mascots, watermark, signature"
+	// follow the instruction more closely
+	imgParams.SampleParams.Guidance.TextCfg = 7
 
 	// sampler config
-	imgParams.SampleParams.SampleSteps = 20
+	imgParams.SampleParams.SampleSteps = 10
 
 	// vram saving configuration in case of lower vram
 	imgParams.VAETilingParams.Enabled = true
@@ -41,11 +46,23 @@ func main() {
 	imgParams.VAETilingParams.RelSizeY = 4
 
 	// image resolution
-	imgParams.Width = 1536
-	imgParams.Height = 768
+	imgParams.Width = 512
+	imgParams.Height = 512
+
+	// optionally refine/upscale the image after 1st generation pass
+	// Hires = High Resolution
+	imgParams.HiresParams.Enabled = true
+	imgParams.HiresParams.Steps = 10
+	// lower keeps it similar to 1st pass image, higher brings more variance
+	imgParams.HiresParams.DenoisingStrength = 0.4
+	imgParams.HiresParams.Scale = 2
+	// HiresUpscalerLatent is the default mode
+	// imgParams.HiresParams.Upscaler = sd.HiresUpscalerLatent
 
 	fmt.Printf("\nImage params:\n%s", sd.ImageGenParamsToStr(imgParams))
 
 	genImage := sd.GenerateImage(ctx, imgParams)
 	genImage.SavePNG("output.png")
+	fmt.Println(sd.Version())
+	fmt.Println(sd.Commit())
 }
