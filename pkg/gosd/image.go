@@ -443,6 +443,7 @@ type imageParams struct {
 	PMParams           pMParamsType     // sd_pm_params_t pm_params;
 	VAETilingParams    vAETilingParams  // sd_tiling_params_t vae_tiling_params;
 	Cache              cacheParams      // sd_cache_params_t cache;
+	HiresParams        hiresParams      // sd_hires_params_t hires;
 }
 
 func (i *imageParams) toGo() *ImageParams {
@@ -487,6 +488,7 @@ func (i *imageParams) toGo() *ImageParams {
 		PMParams:           *i.PMParams.toGo(),
 		VAETilingParams:    *i.VAETilingParams.toGo(),
 		Cache:              *i.Cache.toGo(),
+		HiresParams:        *i.HiresParams.toGo(),
 	}
 }
 
@@ -513,6 +515,7 @@ type ImageParams struct {
 	PMParams           PMParamsType
 	VAETilingParams    VAETilingParams
 	Cache              CacheParams
+	HiresParams        HiresParams
 }
 
 func (i *ImageParams) toC() *imageParams {
@@ -548,6 +551,7 @@ func (i *ImageParams) toC() *imageParams {
 		PMParams:           *i.PMParams.toC(),
 		VAETilingParams:    *i.VAETilingParams.toC(),
 		Cache:              *i.Cache.toC(),
+		HiresParams:        *i.HiresParams.toC(),
 	}
 }
 

@@ -184,6 +184,4 @@ func TestHiresParamsInit(t *testing.T) {
 	if hiresParams.UpscaleTileSize != 128 {
 		t.Errorf("expected UpscaleTileSize=128, got %d", hiresParams.UpscaleTileSize)
 	}
-
-	hiresParams.toC() // call for now to please the golangci-lint
 }
