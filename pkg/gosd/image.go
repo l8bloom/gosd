@@ -18,6 +18,9 @@ var (
 
 	// SD_API char* sd_img_gen_params_to_str(const sd_img_gen_params_t* sd_img_gen_params);
 	imageGenParamsToStr ffi.Fun
+
+	// SD_API void sd_hires_params_init(sd_hires_params_t* hires_params);
+	hiresParamsInit ffi.Fun
 )
 
 func loadImageRoutines(lib ffi.Lib) error {
@@ -44,6 +47,14 @@ func loadImageRoutines(lib ffi.Lib) error {
 		&ffi.TypePointer,
 	); err != nil {
 		return loadError("sd_img_gen_params_to_str", err)
+	}
+
+	if hiresParamsInit, err = lib.Prep(
+		"sd_hires_params_init",
+		&ffi.TypeVoid,
+		&ffi.TypePointer,
+	); err != nil {
+		return loadError("sd_hires_params_init", err)
 	}
 
 	return nil
@@ -164,6 +175,82 @@ const (
 	ERSDESampleMethod
 	SampleMethodCount
 )
+
+type HiresUpscalerType int32
+
+const (
+	HiresUpscalerNone HiresUpscalerType = iota
+	HiresUpscalerLatent
+	HiresUpscalerLatentNearest
+	HiresUpscalerLatentNearestExact
+	HiresUpscalerLatentAntialiased
+	HiresUpscalerLatentBicubic
+	HiresUpscalerLatentBicubicAntialiased
+	HiresUpscalerLanczos
+	HiresUpscalerNearest
+	HiresUpscalerModel
+	HiresUpscalerCount
+)
+
+type hiresParams struct {
+	Enabled           uint8             // bool enabled;
+	Upscaler          HiresUpscalerType // enum sd_hires_upscaler_t upscaler;
+	ModelPath         *byte             // const char* model_path;
+	Scale             float32           // float scale;
+	TargetWidth       int32             // int target_width;
+	TargetHeight      int32             // int target_height;
+	Steps             int32             // int steps;
+	DenoisingStrength float32           // float denoising_strength;
+	UpscaleTileSize   int32             // int upscale_tile_size;
+}
+
+func (hp *hiresParams) toGo() *HiresParams {
+	return &HiresParams{
+		Enabled:           byteToBool(hp.Enabled),
+		Upscaler:          hp.Upscaler,
+		ModelPath:         charToString(hp.ModelPath),
+		Scale:             hp.Scale,
+		TargetWidth:       hp.TargetWidth,
+		TargetHeight:      hp.TargetHeight,
+		Steps:             hp.Steps,
+		DenoisingStrength: hp.DenoisingStrength,
+		UpscaleTileSize:   hp.UpscaleTileSize,
+	}
+}
+
+func newHiresParams() *hiresParams {
+	hp := &hiresParams{
+		ModelPath: utilsGetNulString(),
+	}
+
+	return hp
+}
+
+type HiresParams struct {
+	Enabled           bool
+	Upscaler          HiresUpscalerType
+	ModelPath         string
+	Scale             float32
+	TargetWidth       int32
+	TargetHeight      int32
+	Steps             int32
+	DenoisingStrength float32
+	UpscaleTileSize   int32
+}
+
+func (hp *HiresParams) toC() *hiresParams {
+	return &hiresParams{
+		Enabled:           boolToByte(hp.Enabled),
+		Upscaler:          hp.Upscaler,
+		ModelPath:         stringToChar(hp.ModelPath),
+		Scale:             hp.Scale,
+		TargetWidth:       hp.TargetWidth,
+		TargetHeight:      hp.TargetHeight,
+		Steps:             hp.Steps,
+		DenoisingStrength: hp.DenoisingStrength,
+		UpscaleTileSize:   hp.UpscaleTileSize,
+	}
+}
 
 type guidanceParams struct {
 	TextCfg           float32   // float txt_cfg;
@@ -548,4 +635,11 @@ func (img Image) Pixelize() imgPckg.RGBA {
 		j += 4
 	}
 	return *rgba
+}
+
+func HiresParamsInit() HiresParams {
+	hp := newHiresParams()
+
+	hiresParamsInit.Call(nil, unsafe.Pointer(&hp))
+	return *hp.toGo()
 }
