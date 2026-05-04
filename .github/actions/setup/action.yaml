@@ -128,8 +128,8 @@ runs:
           VENV_BIN="venv/bin"
         fi
 
-        $VENV_BIN/pip install --upgrade pip
-        $VENV_BIN/pip install huggingface_hub requests
+        $VENV_BIN/python -m pip install --upgrade pip
+        $VENV_BIN/python -m pip install huggingface_hub requests
         $VENV_BIN/python -u .github/scripts/download_ci_models.py
     - name: Run tests and print coverages (Unix)
       if: ${{ inputs.os == 'unix' }}
