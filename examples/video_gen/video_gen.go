@@ -1,3 +1,5 @@
+// example on how to use gosd to generate an image with stable-diffusion.cpp
+
 package main
 
 import (

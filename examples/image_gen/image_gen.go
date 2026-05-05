@@ -1,3 +1,5 @@
+// example on how to use gosd to generate an image with stable-diffusion.cpp
+
 package main
 
 import (
@@ -40,7 +42,7 @@ func main() {
 	imgParams := sd.ImageGenParamsInit()
 
 	// prompts
-	imgParams.Prompt = "a beautiful landscape, ultra-detailed, 8K resolution, photorealistic, cinematic lighting"
+	imgParams.Prompt = "A breathtaking, asymmetrical ancient forest interior; on the left, a massive gnarled oak tree with hanging vines; on the right, a cluster of slender silver birches and flowering shrubs; a winding, irregular rocky stream flowing toward the viewer with small splashing waterfalls; vibrant colorful butterflies fluttering through beams of volumetric sunlight; thick uneven blankets of moss and ferns; hyper-detailed bark textures and leaf veins; 8k resolution, photorealistic, cinematic lighting, shot on 35mm lens, natural color grading, scattered fallen leaves, highly detailed environment."
 	imgParams.NegativePrompt = "mascots, watermark, signature"
 	// follow the instruction more closely
 	imgParams.SampleParams.Guidance.TextCfg = 7
@@ -54,10 +56,10 @@ func main() {
 	imgParams.VAETilingParams.RelSizeY = 4
 
 	// image resolution
-	imgParams.Width = 512
-	imgParams.Height = 512
+	imgParams.Width = 768
+	imgParams.Height = 384
 
-	// optionally refine/upscale the image after 1st generation pass
+	// optionally refine/upscale the image after the 1st generation pass
 	// Hires = High Resolution
 	imgParams.HiresParams.Enabled = true
 	imgParams.HiresParams.Steps = 10
