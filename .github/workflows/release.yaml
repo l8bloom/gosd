@@ -1,0 +1,20 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Fetch stable-diffusion release
+        id: sd_release
+        run: echo "file_content=$(cat stable_diffusion.release | head -1)" >> $GITHUB_OUTPUT
+      - name: Release
+        uses: softprops/action-gh-release@v3
+        with:
+          generate_release_notes: true
+          name: ${{ github.ref_name }} - ${{ steps.sd_release.outputs.file_content }}
