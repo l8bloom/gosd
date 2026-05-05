@@ -15,3 +15,6 @@ run_gen_image_example:
 
 run_gen_video_example:
 	time go run examples/video_gen/video_gen.go
+
+run_gen_image_with_callbacks_example:
+	time go run examples/callbacks/image_gen/image_gen_with_callbacks.go

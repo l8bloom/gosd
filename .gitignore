@@ -41,3 +41,4 @@ lib64/
 venv/
 
 output*
+!examples/**/output*
