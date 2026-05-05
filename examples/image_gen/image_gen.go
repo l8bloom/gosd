@@ -7,6 +7,9 @@ import (
 	sd "github.com/l8bloom/gosd/pkg/gosd"
 )
 
+// have a look at https://github.com/leejet/stable-diffusion.cpp/blob/master/README.md
+// for list of supported models
+
 func main() {
 	// load the dynamic libraries
 	if err := sd.Load(); err != nil {
@@ -16,8 +19,13 @@ func main() {
 	// create and conifgure the inference context
 	ctxParams := sd.ContextParamsInit()
 
+	// https://huggingface.co/leejet/FLUX.2-klein-9B-GGUF/blob/main/flux-2-klein-9b-Q8_0.gguf
 	ctxParams.DiffusionModelPath = os.Getenv("DIFFUSION_MODEL_PATH")
+
+	// https://huggingface.co/black-forest-labs/FLUX.2-dev/blob/main/ae.safetensors
 	ctxParams.VAEPath = os.Getenv("VAE_PATH")
+
+	// https://huggingface.co/unsloth/Qwen3-8B-GGUF/blob/main/Qwen3-8B-Q8_0.gguf
 	ctxParams.LLMPath = os.Getenv("LLM_PATH")
 
 	ctxParams.DiffusionFlashAttn = true // potential hardware optimizations
@@ -63,6 +71,5 @@ func main() {
 
 	genImage := sd.GenerateImage(ctx, imgParams)
 	genImage.SavePNG("output.png")
-	fmt.Println(sd.Version())
-	fmt.Println(sd.Commit())
+	fmt.Printf("Image %q saved.\n", "output.png")
 }
