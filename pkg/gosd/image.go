@@ -122,6 +122,16 @@ type Image struct {
 	Data    []uint8
 }
 
+// deep copy Image resource
+// advisable for preview callbacks to avoid data hazards and race conditions
+func (img Image) Clone() Image {
+	clone := img
+	clone.Data = make([]uint8, len(img.Data))
+	copy(clone.Data, img.Data)
+
+	return clone
+}
+
 func (lt *Image) toC() *image {
 	size := int(lt.Width * lt.Height * lt.Channel)
 	var _data *uint8
