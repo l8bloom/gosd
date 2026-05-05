@@ -1,3 +1,6 @@
+SHELL := /bin/bash
+
+
 test:
 	go clean -testcache
 	go test -v -coverprofile=coverage.out "$(shell go list ./... | grep -v "examples")"
@@ -5,7 +8,13 @@ test:
 
 sd_parity:
 	release=$$(cat stable_diffusion.release); \
-	cd "$$SD" && git diff $$release HEAD -- include/stable-diffusion.h
+	cd "$$SD" && git pull && git diff $$release HEAD -- include/stable-diffusion.h
 
 run_gen_image_example:
-	go run examples/image_gen/image_gen.go
+	time go run examples/image_gen/image_gen.go
+
+run_gen_video_example:
+	time go run examples/video_gen/video_gen.go
+
+run_gen_image_with_callbacks_example:
+	time go run examples/callbacks/image_gen/image_gen_with_callbacks.go
