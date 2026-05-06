@@ -22,6 +22,10 @@ files_to_download = {
         "city96/umt5-xxl-encoder-gguf",
         "umt5-xxl-encoder-Q3_K_S.gguf",
     ),
+    "MODEL_TO_CONVERT": (
+        "black-forest-labs/FLUX.2-small-decoder",
+        "diffusion_pytorch_model.safetensors",
+    ),
 }
 
 # for non-huggingface sources

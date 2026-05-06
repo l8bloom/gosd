@@ -33,6 +33,9 @@ func main() {
 	ctxParams.DiffusionFlashAttn = true // potential hardware optimizations
 	// ctxParams.KeepClipOnCPU = true // in case of lower vram
 
+	// optionally set maximum VRAM budget in GiB(enables inference with larger models)
+	// ctxParams.MaxVRAM = 2.0
+
 	fmt.Printf("\nContext values:\n%s", sd.CtxParamsToStr(ctxParams))
 
 	ctx := sd.NewContext(ctxParams)

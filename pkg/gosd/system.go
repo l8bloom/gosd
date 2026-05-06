@@ -66,6 +66,9 @@ var (
 
 	// SD_API enum sd_hires_upscaler_t str_to_sd_hires_upscaler(const char* str);
 	strToHiresUpscaler ffi.Fun
+
+	// SD_API bool convert(const char* input_path, const char* vae_path, const char* output_path, enum sd_type_t output_type, const char* tensor_type_rules, bool convert_name);
+	convert ffi.Fun
 )
 
 func loadSystemRoutines(lib ffi.Lib) error {
@@ -148,6 +151,10 @@ func loadSystemRoutines(lib ffi.Lib) error {
 
 	if strToHiresUpscaler, err = lib.Prep("str_to_sd_hires_upscaler", &ffi.TypeSint32, &ffi.TypePointer); err != nil {
 		return loadError("str_to_sd_hires_upscaler", err)
+	}
+
+	if convert, err = lib.Prep("convert", &ffi.TypeUint8, &ffi.TypePointer, &ffi.TypePointer, &ffi.TypePointer, &ffi.TypeSint32, &ffi.TypePointer, &ffi.TypeUint8); err != nil {
+		return loadError("convert", err)
 	}
 
 	return nil
@@ -311,4 +318,26 @@ func StrToHiresUpscaler(typeName string) HiresUpscalerType {
 
 	strToHiresUpscaler.Call(unsafe.Pointer(&hiresMode), unsafe.Pointer(&name))
 	return hiresMode
+}
+
+// CPU-bound API
+func Convert(modelPath string, vaePath string, outputPath string, outputType SDType, tensorTypeRules string, convertName bool) bool {
+	mp := stringToChar(modelPath)
+	vp := stringToChar(vaePath)
+	op := stringToChar(outputPath)
+	ttr := stringToChar(tensorTypeRules)
+	cn := boolToByte(convertName)
+
+	res := uint8(0)
+
+	convert.Call(
+		unsafe.Pointer(&res),
+		unsafe.Pointer(&mp),
+		unsafe.Pointer(&vp),
+		unsafe.Pointer(&op),
+		unsafe.Pointer(&outputType),
+		unsafe.Pointer(&ttr),
+		unsafe.Pointer(&cn),
+	)
+	return byteToBool(res)
 }
