@@ -113,6 +113,26 @@ func TestGenerateImage(t *testing.T) {
 	}
 	os.Remove("test_output.png")
 
+	// test canny preprocessing
+	clone := image.Clone()
+	var highThreshold float32 = 0.05
+	var lowThreshold float32 = 0.04
+	var weak float32 = 0.8
+	var strong float32 = 1.0
+	inverse := false
+	processed := PreprocessCanny(
+		clone,
+		highThreshold,
+		lowThreshold,
+		weak,
+		strong,
+		inverse,
+	)
+
+	if !processed {
+		t.Error("the canny preprocessing failed")
+	}
+
 	if *data == 0 {
 		t.Errorf("preview callback: data counter sentinel should be positive, got %d", *data)
 	}

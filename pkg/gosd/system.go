@@ -69,6 +69,9 @@ var (
 
 	// SD_API bool convert(const char* input_path, const char* vae_path, const char* output_path, enum sd_type_t output_type, const char* tensor_type_rules, bool convert_name);
 	convert ffi.Fun
+
+	// SD_API bool preprocess_canny(sd_image_t image, float high_threshold, float low_threshold, float weak, float strong, bool inverse);
+	preprocessCanny ffi.Fun
 )
 
 func loadSystemRoutines(lib ffi.Lib) error {
@@ -155,6 +158,10 @@ func loadSystemRoutines(lib ffi.Lib) error {
 
 	if convert, err = lib.Prep("convert", &ffi.TypeUint8, &ffi.TypePointer, &ffi.TypePointer, &ffi.TypePointer, &ffi.TypeSint32, &ffi.TypePointer, &ffi.TypeUint8); err != nil {
 		return loadError("convert", err)
+	}
+
+	if preprocessCanny, err = lib.Prep("preprocess_canny", &ffi.TypeUint8, &ffiTypeImage, &ffi.TypeFloat, &ffi.TypeFloat, &ffi.TypeFloat, &ffi.TypeFloat, &ffi.TypeUint8); err != nil {
+		return loadError("preprocess_canny", err)
 	}
 
 	return nil
@@ -338,6 +345,25 @@ func Convert(modelPath string, vaePath string, outputPath string, outputType SDT
 		unsafe.Pointer(&outputType),
 		unsafe.Pointer(&ttr),
 		unsafe.Pointer(&cn),
+	)
+	return byteToBool(res)
+}
+
+func PreprocessCanny(image Image, highThreshold float32, lowThreshold float32, weak float32, strong float32, inverse bool) bool {
+
+	img := *image.toC()
+	inv := boolToByte(inverse)
+
+	res := uint8(0)
+
+	preprocessCanny.Call(
+		unsafe.Pointer(&res),
+		unsafe.Pointer(&img),
+		unsafe.Pointer(&highThreshold),
+		unsafe.Pointer(&lowThreshold),
+		unsafe.Pointer(&weak),
+		unsafe.Pointer(&strong),
+		unsafe.Pointer(&inv),
 	)
 	return byteToBool(res)
 }
