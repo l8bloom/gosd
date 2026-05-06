@@ -1,6 +1,8 @@
 package gosd
 
 import (
+	"errors"
+	"os"
 	"testing"
 )
 
@@ -284,4 +286,25 @@ func TestStrToHiresUpscaler(t *testing.T) {
 	if hiresMode != HiresUpscalerLatentBicubicAntialiased {
 		t.Errorf("expected `%d` for `bicubic antialiased`, got  %d", HiresUpscalerLatentBicubic, hiresMode)
 	}
+}
+
+func TestConvert(t *testing.T) {
+	modelPath := os.Getenv("MODEL_TO_CONVERT")
+	vaePath := ""
+	outputPath := "converted_model.gguf"
+	outputType := TypeQ2_K
+	tensorTypeRules := ""
+	convertName := false
+
+	res := Convert(modelPath, vaePath, outputPath, SDType(outputType), tensorTypeRules, convertName)
+
+	if !res {
+		t.Error("Conversion failed.")
+	}
+
+	_, err := os.Stat(outputPath)
+	if errors.Is(err, os.ErrNotExist) {
+		t.Error("converted model not saved.")
+	}
+	os.Remove(outputPath)
 }

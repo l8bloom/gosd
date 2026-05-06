@@ -16,10 +16,11 @@ High-performance diffusion model inference in pure Go.
 
 - Image and video generation
 - Image editing
-- Resolution upscaling via Neural upscaling (ESRGAN)
+- High-resolution upscaling (Neural ESRGAN models + Latent-space methods)
 - Callback support for progressive previews during inference
+- Model conversion (to SafeTensors / GGUF, optional VAE merging, tensor type rules)
+- Hardware-accelerated inference (CUDA, Metal, Vulkan, ROCm and CPU)
 - Minimal performance overhead compared to C/C++
-- GPU + CPU support
 
 ## Quick start
 
