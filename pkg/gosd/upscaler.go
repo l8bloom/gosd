@@ -25,7 +25,7 @@ var (
 	upscale ffi.Fun
 
 	// ffiTypeImage represents the C struct sd_image_t,
-	// stable-diffusion.cpp expects value and not a pointer for upscale API
+	// stable-diffusion.cpp upscale(and others) API expect value and not a pointer
 	ffiTypeImage = ffi.NewType(
 		&ffi.TypeUint32,
 		&ffi.TypeUint32,

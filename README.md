@@ -134,6 +134,18 @@ Result:
 #### 10th(last) image
 ![image10](https://github.com/l8bloom/gosd/blob/main/assets/images/readmeFinalImage.png)
 
+### ControlNet Preprocessing
+Canny Edge Detection: Extract structural outlines from any image to guide ControlNet inference with pixel-perfect precision.
+
+#### Generated Image
+![cannyImage1](https://github.com/l8bloom/gosd/blob/main/examples/system/canny/output.png)
+#### Canny Preprocessed
+![cannyImage2](https://github.com/l8bloom/gosd/blob/main/examples/system/canny/canny_output.png)
+#### ControlNet Output
+![cannyImage3](https://github.com/l8bloom/gosd/blob/main/examples/system/canny/image_from_canny_output.png)
+
+(See `examples/system/canny/preprocess_canny.go` for a full implementation.)
+
 `examples` folder has more snippets showcasing classic use-cases.
 
 [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp) documentation

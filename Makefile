@@ -18,3 +18,9 @@ run_gen_video_example:
 
 run_gen_image_with_callbacks_example:
 	time go run examples/callbacks/image_gen/image_gen_with_callbacks.go
+
+convert:
+	time go run examples/system/convert/convert.go
+
+run_canny_preprocessing:
+	time go run examples/system/canny/preprocess_canny.go
