@@ -40,5 +40,5 @@ lib64/
 # Virtual environment
 venv/
 
-output*
-!examples/**/output*
+*output*
+!examples/**/*output*
