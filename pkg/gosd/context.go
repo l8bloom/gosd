@@ -128,6 +128,7 @@ type contextParams struct {
 	ChromaUseT5Mask             uint8             // bool chroma_use_t5_mask;
 	ChromaT5MaskPad             int32             // int chroma_t5_mask_pad;
 	QwenImageZeroCond           uint8             // bool qwen_image_zero_cond_t;
+	MaxVRAM                     float32           // float max_vram;
 }
 
 func (ctx *contextParams) toGo() *ContextParams {
@@ -177,6 +178,7 @@ func (ctx *contextParams) toGo() *ContextParams {
 		ChromaUseT5Mask:             byteToBool(ctx.ChromaUseT5Mask),
 		ChromaT5MaskPad:             ctx.ChromaT5MaskPad,
 		QwenImageZeroCond:           byteToBool(ctx.QwenImageZeroCond),
+		MaxVRAM:                     ctx.MaxVRAM,
 	}
 }
 
@@ -222,6 +224,7 @@ type ContextParams struct {
 	ChromaUseT5Mask             bool
 	ChromaT5MaskPad             int32
 	QwenImageZeroCond           bool
+	MaxVRAM                     float32
 }
 
 func (ctx *ContextParams) toC() *contextParams {
@@ -271,6 +274,7 @@ func (ctx *ContextParams) toC() *contextParams {
 		ChromaUseT5Mask:             boolToByte(ctx.ChromaUseT5Mask),
 		ChromaT5MaskPad:             ctx.ChromaT5MaskPad,
 		QwenImageZeroCond:           boolToByte(ctx.QwenImageZeroCond),
+		MaxVRAM:                     ctx.MaxVRAM,
 	}
 }
 
