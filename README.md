@@ -138,14 +138,13 @@ Result:
 Canny Edge Detection: Extract structural outlines from any image to guide ControlNet inference with pixel-perfect precision.
 
 #### Generated Image
-![cannyImage2](https://github.com/l8bloom/gosd/examples/system/canny/output.png)
+![cannyImage1](https://github.com/l8bloom/gosd/blob/main/examples/system/canny/output.png)
 #### Canny Preprocessed
-![cannyImage2](https://github.com/l8bloom/gosd/examples/system/canny/canny_output.png)
+![cannyImage2](https://github.com/l8bloom/gosd/blob/main/examples/system/canny/canny_output.png)
 #### ControlNet Output
-![cannyImage3](https://github.com/l8bloom/gosd/examples/system/canny/image_from_canny_output.png)
+![cannyImage3](https://github.com/l8bloom/gosd/blob/main/examples/system/canny/image_from_canny_output.png)
 
 (See `examples/system/canny/preprocess_canny.go` for a full implementation.)
-
 
 `examples` folder has more snippets showcasing classic use-cases.
 
