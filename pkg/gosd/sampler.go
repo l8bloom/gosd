@@ -128,6 +128,7 @@ func newSampleParams() *sampleParamsType {
 	return &sampleParamsType{}
 }
 
+// SampleParamsInit initializes default values for the inference sampler.
 func SampleParamsInit() SampleParamsType {
 	sp := newSampleParams()
 
@@ -136,6 +137,7 @@ func SampleParamsInit() SampleParamsType {
 	return *sp.toGo()
 }
 
+// SampleParamsToStr stringifies structure encapsulating sampler parameters.
 func SampleParamsToStr(params SampleParamsType) string {
 	sp := params.toC()
 	str := utilsGetNulString()
@@ -145,6 +147,7 @@ func SampleParamsToStr(params SampleParamsType) string {
 	return charToString(str)
 }
 
+// GetDefaultSampleMethod returns default sampler method from a context.
 func GetDefaultSampleMethod(ctx Context) SampleMethodType {
 	var sampleType SampleMethodType
 
@@ -153,6 +156,7 @@ func GetDefaultSampleMethod(ctx Context) SampleMethodType {
 	return sampleType
 }
 
+// GetDefaultScheduler returns default scheduler type from a context.
 func GetDefaultScheduler(ctx Context, sampler SampleMethodType) SchedulerType {
 	var schedulerType SchedulerType
 

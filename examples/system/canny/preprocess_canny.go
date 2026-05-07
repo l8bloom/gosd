@@ -1,6 +1,7 @@
 // example on how to use gosd for Canny processing
 // 1st step: generate image
 // 2nd step: apply canny algorithm
+// 3rd step: pass the canny-processed image to a ControlNet
 
 package main
 

@@ -142,6 +142,7 @@ Canny Edge Detection: Extract structural outlines from any image to guide Contro
 #### Canny Preprocessed
 ![cannyImage2](https://github.com/l8bloom/gosd/blob/main/examples/system/canny/canny_output.png)
 #### ControlNet Output
+With `A futuristic office with neon lights` prompt.
 ![cannyImage3](https://github.com/l8bloom/gosd/blob/main/examples/system/canny/image_from_canny_output.png)
 
 (See `examples/system/canny/preprocess_canny.go` for a full implementation.)

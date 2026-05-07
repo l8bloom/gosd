@@ -108,7 +108,7 @@ func getLibraryFilename(path, lib string) string {
 	}
 }
 
-// Load loads the stable-diffusion.cpp shared library at runtime and all dependent libs
+// Load loads the stable-diffusion.cpp shared library at runtime and all dependent libs.
 func Load() error {
 	lib, err := loadLibrary("stable-diffusion")
 	if err != nil {

@@ -163,9 +163,10 @@ type Video struct {
 	Data []Image
 }
 
-// this is not a core feature of the library,
+// Save saves generated video to the local disk with the help of ffmpeg.
+// NOTE: This is not a core feature of the library,
 // just an example of what can be done with
-// the generated video after stable diffusion finishes
+// the generated video after stable diffusion finishes.
 func (gv Video) Save(filename string, fps int) error {
 	// requires ffmpeg installed
 	cmd := exec.Command("ffmpeg",
@@ -191,7 +192,7 @@ func (gv Video) Save(filename string, fps int) error {
 	}
 
 	for _, img := range gv.Data {
-		if _, err := stdin.Write(img.Pixelize().Pix); err != nil {
+		if _, err := stdin.Write(img.pixelize().Pix); err != nil {
 			return err
 		}
 	}
@@ -210,6 +211,7 @@ func newVideoParams() *videoParams {
 	}
 }
 
+// VideoGenParamsInit creates a set of default values for video generation.
 func VideoGenParamsInit() VideoParams {
 	params := newVideoParams()
 
@@ -218,6 +220,7 @@ func VideoGenParamsInit() VideoParams {
 	return *params.toGo()
 }
 
+// GenerateVideo starts the inference loop for video generation.
 func GenerateVideo(ctx Context, vidParams VideoParams) Video {
 	image := &image{}
 	_vidParams := vidParams.toC()
