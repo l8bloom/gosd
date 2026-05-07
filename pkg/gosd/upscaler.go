@@ -78,6 +78,7 @@ func loadUpscalerRoutines(lib ffi.Lib) error {
 	return nil
 }
 
+// NewUpscalerCtx creates context for the upscaler.
 func NewUpscalerCtx(esrganPath string, offloadParamsToCPU bool, direct bool, nThreads int, tileSize int) UpscalerContext {
 	var ctx UpscalerContext
 
@@ -99,10 +100,12 @@ func NewUpscalerCtx(esrganPath string, offloadParamsToCPU bool, direct bool, nTh
 	return ctx
 }
 
+// FreeUpscalerCtx deallocates memory reserved by the upscaler context.
 func FreeUpscalerCtx(ctx UpscalerContext) {
 	freeUpscalerCtx.Call(nil, unsafe.Pointer(&ctx))
 }
 
+// GetUpscaleFactor returns upscaler's factor.
 func GetUpscaleFactor(ctx UpscalerContext) int {
 	var res int32
 
@@ -111,6 +114,7 @@ func GetUpscaleFactor(ctx UpscalerContext) int {
 	return int(res)
 }
 
+// Upscale upscales provided image with ESRGAN.
 func Upscale(ctx UpscalerContext, img Image, upscaleFactor uint) Image {
 	var resImage image
 	inImage := *img.toC()

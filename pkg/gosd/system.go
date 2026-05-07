@@ -167,6 +167,9 @@ func loadSystemRoutines(lib ffi.Lib) error {
 	return nil
 }
 
+// GetSystemInfo returns a formatted string containing the CPU instruction sets
+// supported by the current hardware (e.g., AVX, AVX2, FMA). This is used
+// to verify which hardware acceleration features are active for GGML operations.
 func GetSystemInfo() string {
 	var systemInfo *byte
 
@@ -178,6 +181,7 @@ func GetSystemInfo() string {
 	return charToString(systemInfo)
 }
 
+// Commit returns stable-diffusion.cpp commit hash.
 func Commit() string {
 	var commitInfo *byte
 
@@ -189,6 +193,7 @@ func Commit() string {
 	return charToString(commitInfo)
 }
 
+// Version returns stable-diffusion.cpp release version.
 func Version() string {
 	var versionInfo *byte
 
@@ -200,6 +205,7 @@ func Version() string {
 	return charToString(versionInfo)
 }
 
+// GetNumPhysicalCores returns number of physical cores in the system.
 func GetNumPhysicalCores() int {
 	var count int
 
@@ -207,6 +213,7 @@ func GetNumPhysicalCores() int {
 	return count
 }
 
+// TypeName stringifies SDType
 func TypeName(sdType SDType) string {
 	res := utilsGetNulString()
 
@@ -214,6 +221,7 @@ func TypeName(sdType SDType) string {
 	return charToString(res)
 }
 
+// StrToSDType converts SDType name to its enumeration.
 func StrToSDType(typeName string) SDType {
 	var sdType SDType
 	name := utilsStrToNulString(typeName)
@@ -222,6 +230,7 @@ func StrToSDType(typeName string) SDType {
 	return sdType
 }
 
+// RNGTypeName stringifies RNGType.
 func RNGTypeName(rngType RNGType) string {
 	res := utilsGetNulString()
 
@@ -229,6 +238,7 @@ func RNGTypeName(rngType RNGType) string {
 	return charToString(res)
 }
 
+// StrToRNGType converts RNGType name to its enumeration.
 func StrToRNGType(typeName string) RNGType {
 	var rngType RNGType
 	name := utilsStrToNulString(typeName)
@@ -237,6 +247,7 @@ func StrToRNGType(typeName string) RNGType {
 	return rngType
 }
 
+// SampleMethodName stringifies SampleMethodType.
 func SampleMethodName(sampleMethod SampleMethodType) string {
 	res := utilsGetNulString()
 
@@ -244,6 +255,7 @@ func SampleMethodName(sampleMethod SampleMethodType) string {
 	return charToString(res)
 }
 
+// StrToSampleMethod converts SampleMethodType name to its enumeration.
 func StrToSampleMethod(typeName string) SampleMethodType {
 	var sampleMethodType SampleMethodType
 	name := utilsStrToNulString(typeName)
@@ -252,6 +264,7 @@ func StrToSampleMethod(typeName string) SampleMethodType {
 	return sampleMethodType
 }
 
+// SchedulerName stringifies SchedulerType.
 func SchedulerName(schedulerType SchedulerType) string {
 	res := utilsGetNulString()
 
@@ -259,6 +272,7 @@ func SchedulerName(schedulerType SchedulerType) string {
 	return charToString(res)
 }
 
+// StrToScheduler converts SchedulerType name to its enumeration.
 func StrToScheduler(typeName string) SchedulerType {
 	var schedulerType SchedulerType
 	name := utilsStrToNulString(typeName)
@@ -267,6 +281,7 @@ func StrToScheduler(typeName string) SchedulerType {
 	return schedulerType
 }
 
+// PredictionName stringifies PredictionType.
 func PredictionName(predictionType PredictionType) string {
 	res := utilsGetNulString()
 
@@ -274,6 +289,7 @@ func PredictionName(predictionType PredictionType) string {
 	return charToString(res)
 }
 
+// StrToPrediction converts PredictionType name to its enumeration.
 func StrToPrediction(typeName string) PredictionType {
 	var predictionType PredictionType
 	name := utilsStrToNulString(typeName)
@@ -282,6 +298,7 @@ func StrToPrediction(typeName string) PredictionType {
 	return predictionType
 }
 
+// PreviewName stringifies PreviewMode
 func PreviewName(previewType PreviewMode) string {
 	res := utilsGetNulString()
 
@@ -289,6 +306,7 @@ func PreviewName(previewType PreviewMode) string {
 	return charToString(res)
 }
 
+// StrToPreview converts PreviewMode name to its enumeration.
 func StrToPreview(typeName string) PreviewMode {
 	var previewMode PreviewMode
 	name := utilsStrToNulString(typeName)
@@ -297,6 +315,7 @@ func StrToPreview(typeName string) PreviewMode {
 	return previewMode
 }
 
+// LoraApplyModeName stringifies LoraApplyModeType.
 func LoraApplyModeName(loraMode LoraApplyModeType) string {
 	res := utilsGetNulString()
 
@@ -304,6 +323,7 @@ func LoraApplyModeName(loraMode LoraApplyModeType) string {
 	return charToString(res)
 }
 
+// StrToLoraApplyMode converts LoraApplyModeType to its enumeration.
 func StrToLoraApplyMode(typeName string) LoraApplyModeType {
 	var loraMode LoraApplyModeType
 	name := utilsStrToNulString(typeName)
@@ -312,6 +332,7 @@ func StrToLoraApplyMode(typeName string) LoraApplyModeType {
 	return loraMode
 }
 
+// HiresUpscalerName stringifies HiresUpscalerType.
 func HiresUpscalerName(hiresMode HiresUpscalerType) string {
 	res := utilsGetNulString()
 
@@ -319,6 +340,7 @@ func HiresUpscalerName(hiresMode HiresUpscalerType) string {
 	return charToString(res)
 }
 
+// StrToHiresUpscaler converts HiresUpscalerType to its enumeration.
 func StrToHiresUpscaler(typeName string) HiresUpscalerType {
 	var hiresMode HiresUpscalerType
 	name := utilsStrToNulString(typeName)
@@ -327,7 +349,9 @@ func StrToHiresUpscaler(typeName string) HiresUpscalerType {
 	return hiresMode
 }
 
-// CPU-bound API
+// Convert converts model to safetensor/gguf format.
+// If VAE model is provided it will be merged with the diffusion model.
+// CPU-bound API.
 func Convert(modelPath string, vaePath string, outputPath string, outputType SDType, tensorTypeRules string, convertName bool) bool {
 	mp := stringToChar(modelPath)
 	vp := stringToChar(vaePath)
@@ -349,8 +373,9 @@ func Convert(modelPath string, vaePath string, outputPath string, outputType SDT
 	return byteToBool(res)
 }
 
+// PreprocessCanny applies Canny algorithm for edge detection in an image.
+// CPU-bound API.
 func PreprocessCanny(image Image, highThreshold float32, lowThreshold float32, weak float32, strong float32, inverse bool) bool {
-
 	img := *image.toC()
 	inv := boolToByte(inverse)
 

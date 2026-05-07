@@ -381,7 +381,7 @@ func (e *Embedding) toC() *embedding {
 	}
 }
 
-// Creates default context params
+// ContextParamsInit creates default context params.
 func ContextParamsInit() ContextParams {
 	cp := newContextParams()
 
@@ -389,6 +389,7 @@ func ContextParamsInit() ContextParams {
 	return *cp.toGo()
 }
 
+// NewContext creates new inference context.
 func NewContext(ctxParams ContextParams) Context {
 	var context Context
 
@@ -398,10 +399,12 @@ func NewContext(ctxParams ContextParams) Context {
 	return context
 }
 
+// FreeCtx deallocates memory used during the inference.
 func FreeCtx(ctx Context) {
 	freeCtx.Call(nil, unsafe.Pointer(&ctx))
 }
 
+// CtxParamsToStr strigifies context structure.
 func CtxParamsToStr(ctxParams ContextParams) string {
 	str := utilsGetNulString()
 
@@ -411,6 +414,7 @@ func CtxParamsToStr(ctxParams ContextParams) string {
 	return charToString(str)
 }
 
+// CtxSupportsImageGeneration checks if the context can be used for image generation.
 func CtxSupportsImageGeneration(ctx Context) bool {
 	var res uint8
 
@@ -419,6 +423,7 @@ func CtxSupportsImageGeneration(ctx Context) bool {
 	return byteToBool(res)
 }
 
+// CtxSupportsVideoGeneration checks if the context can be used for video generation.
 func CtxSupportsVideoGeneration(ctx Context) bool {
 	var res uint8
 

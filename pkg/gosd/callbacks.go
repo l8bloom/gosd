@@ -52,7 +52,7 @@ func loadCallbacks(lib ffi.Lib) error {
 	return nil
 }
 
-// Type used for SetPreviewCallback representing generated data
+// Type used for SetPreviewCallback representing generated data.
 type PreviewFrames interface {
 	Image | Video
 }
@@ -81,6 +81,7 @@ type LogCallback func(level LogLevel, text string, data unsafe.Pointer)
 var logCallback unsafe.Pointer
 var sizeOfClosure = unsafe.Sizeof(ffi.Closure{})
 
+// SetLogCallback sets custom logging for inference.
 func SetLogCallback(callback LogCallback, data unsafe.Pointer) {
 	if callback == nil {
 		panic("Can't set nil as a callback")
@@ -134,6 +135,7 @@ type ProgressCallback func(step int32, steps int32, time float32, data unsafe.Po
 
 var progressCallback unsafe.Pointer
 
+// SetProgressCallback sets custom callback used after each inference iteration step.
 func SetProgressCallback(callback ProgressCallback, data unsafe.Pointer) {
 	if callback == nil {
 		panic("Can't set nil as a callback")
@@ -189,6 +191,7 @@ type PreviewCallback[T PreviewFrames] func(step int32, frames T, isNoisy bool, d
 
 var previewCallback unsafe.Pointer // keep in global due to GC
 
+// SetPreviewCallback sets custom callback to preview images as they are generated during the inference loop.
 // previewMode: mode in which to do the preview
 // interval: iteration step slider
 // denoised: should preview denoised images?

@@ -157,6 +157,8 @@ func newCacheParams() *cacheParams {
 	return cp
 }
 
+// CacheParamsInit creates a set of default cache values for inference.
+// The cache values can be used for both video and image generation.
 func CacheParamsInit() CacheParams {
 	cp := newCacheParams()
 

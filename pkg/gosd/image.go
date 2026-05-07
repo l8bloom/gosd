@@ -565,6 +565,7 @@ func (i *ImageParams) toC() *imageParams {
 	}
 }
 
+// GenerateImage starts the inference loop for image generation.
 func GenerateImage(ctx Context, ip ImageParams) Image {
 	var image *image
 
@@ -583,6 +584,7 @@ func newImageParams() *imageParams {
 	return ip
 }
 
+// ImageGenParamsInit creates a set of default values for image generation.
 func ImageGenParamsInit() ImageParams {
 	ip := newImageParams()
 
@@ -590,6 +592,7 @@ func ImageGenParamsInit() ImageParams {
 	return *ip.toGo()
 }
 
+// ImageGenParamsToStr stringifies structure encapsulating image generation parameters.
 func ImageGenParamsToStr(ip ImageParams) string {
 	str := utilsGetNulString()
 
@@ -599,11 +602,12 @@ func ImageGenParamsToStr(ip ImageParams) string {
 	return charToString(str)
 }
 
-// this is not a core feature of the library,
+// SavePNG saves generated images as .png to the local disk.
+// NOTE: This is not a core feature of the library,
 // just an example of what can be done with
-// the generated image from the stable diffusion
+// the generated image from the stable diffusion.
 func (img Image) SavePNG(filename string) error {
-	pix := img.Pixelize()
+	pix := img.pixelize()
 
 	f, err := os.Create(filename)
 	if err != nil {
@@ -619,7 +623,7 @@ func (img Image) SavePNG(filename string) error {
 	return png.Encode(f, &pix)
 }
 
-func (img Image) Pixelize() imgPckg.RGBA {
+func (img Image) pixelize() imgPckg.RGBA {
 	if len(img.Data) == 0 {
 		panic("Image with 0 length.")
 	}
@@ -651,6 +655,7 @@ func (img Image) Pixelize() imgPckg.RGBA {
 	return *rgba
 }
 
+// HiresParamsInit initializes default values for high-resolution upscaling.
 func HiresParamsInit() HiresParams {
 	hp := newHiresParams()
 
