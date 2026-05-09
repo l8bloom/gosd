@@ -59,18 +59,8 @@ func main() {
 	imgParams.VAETilingParams.RelSizeY = 4
 
 	// image resolution
-	imgParams.Width = 768
-	imgParams.Height = 384
-
-	// optionally refine/upscale the image after the 1st generation pass
-	// Hires = High Resolution
-	imgParams.HiresParams.Enabled = true
-	imgParams.HiresParams.Steps = 10
-	// lower keeps it similar to 1st pass image, higher brings more variance
-	imgParams.HiresParams.DenoisingStrength = 0.4
-	imgParams.HiresParams.Scale = 2
-	// HiresUpscalerLatent is the default mode
-	// imgParams.HiresParams.Upscaler = sd.HiresUpscalerLatent
+	imgParams.Width = 1536
+	imgParams.Height = 768
 
 	fmt.Printf("\nImage params:\n%s", sd.ImageGenParamsToStr(imgParams))
 

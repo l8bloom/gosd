@@ -147,6 +147,11 @@ Canny Edge Detection: Extract structural outlines from any image to guide Contro
 
 With `A futuristic office with neon lights` prompt, see `examples/system/canny/preprocess_canny.go` for more details.
 
+### Video Generation
+`examples/video_gen/video_gen.go` shows video generation.
+
+https://github.com/user-attachments/assets/ef492ac1-2ba7-4943-9000-fb04d1d2c25c
+
 `examples` folder has more snippets showcasing classic use-cases.
 
 [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp) documentation
@@ -175,6 +180,6 @@ GPU acceleration via Vulkan and AMD ROCm/HIP stack are being tested on privately
 
 ## Thanks
 
-- C/C++: stable-diffusion.cpp, llama.cpp
+- C/C++: stable-diffusion.cpp
 - Go: ffi, purego
 - Hugging Face
