@@ -1,4 +1,4 @@
-// example on how to use gosd to generate an image with stable-diffusion.cpp
+// example on how to use gosd to generate a video with stable-diffusion.cpp
 
 package main
 
