@@ -8,7 +8,7 @@ High-performance diffusion model inference in pure Go.
 [![Linux](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/linux.yaml)
 [![Windows](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/windows.yaml)
 [![macOS](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml/badge.svg)](https://github.com/l8bloom/gosd/actions/workflows/macos.yaml)
-[![stable-diffusion.cpp](https://img.shields.io/badge/sd.cpp-6614334-yellow)](https://github.com/leejet/stable-diffusion.cpp/releases/tag/master-596-90e87bc)
+[![stable-diffusion.cpp](https://img.shields.io/badge/sd.cpp-0665a7f-yellow)](https://github.com/leejet/stable-diffusion.cpp/releases/tag/master-602-0665a7f)
 [![Coverage](https://img.shields.io/badge/code%20coverage-80%25-purple)](https://github.com/l8bloom/gosd/actions)
 
 
