@@ -311,7 +311,7 @@ const (
 // enum ggml_type
 type SDType int32
 
-//nolint:staticcheck // SA9004: matches C++ enum definition exactly
+// nolint:staticcheck // SA9004: matches C++ enum definition exactly
 const (
 	TypeF32  SDType = 0
 	TypeF16         = 1

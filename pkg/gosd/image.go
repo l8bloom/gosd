@@ -183,6 +183,8 @@ const (
 	RESMultistepSampleMethod
 	RES2SSampleMethod
 	ERSDESampleMethod
+	EulerCfgPPSampleMethod
+	EulerACfgPPSampleMethod
 	SampleMethodCount
 )
 

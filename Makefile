@@ -16,6 +16,9 @@ run_gen_image_example:
 run_gen_image_example_with_upscaler:
 	time go run examples/image_gen_with_upscaler/image_gen.go
 
+run_gen_image_simple:
+	time go run examples/image_gen_simple/gen_image_simple.go
+
 run_gen_video_example:
 	time go run examples/video_gen/video_gen.go
 

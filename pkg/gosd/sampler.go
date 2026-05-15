@@ -69,6 +69,7 @@ type sampleParamsType struct {
 	CustomSigmas      *float32         // float* custom_sigmas;
 	CustomSigmasCount int32            // int custom_sigmas_count;
 	FlowShift         float32          // float flow_shift;
+	ExtraSampleArgs   *byte            // const char* extra_sample_args;
 }
 
 func (slg *sampleParamsType) toGo() *SampleParamsType {
@@ -88,6 +89,7 @@ func (slg *sampleParamsType) toGo() *SampleParamsType {
 		CustomSigmas:      newSigma,
 		CustomSigmasCount: slg.CustomSigmasCount,
 		FlowShift:         slg.FlowShift,
+		ExtraSampleArgs:   charToString(slg.ExtraSampleArgs),
 	}
 }
 
@@ -101,6 +103,7 @@ type SampleParamsType struct {
 	CustomSigmas      []float32
 	CustomSigmasCount int32
 	FlowShift         float32
+	ExtraSampleArgs   string
 }
 
 func (slg *SampleParamsType) toC() *sampleParamsType {
@@ -121,11 +124,14 @@ func (slg *SampleParamsType) toC() *sampleParamsType {
 		CustomSigmas:      _data,
 		CustomSigmasCount: slg.CustomSigmasCount,
 		FlowShift:         slg.FlowShift,
+		ExtraSampleArgs:   stringToChar(slg.ExtraSampleArgs),
 	}
 }
 
 func newSampleParams() *sampleParamsType {
-	return &sampleParamsType{}
+	return &sampleParamsType{
+		ExtraSampleArgs: utilsGetNulString(),
+	}
 }
 
 // SampleParamsInit initializes default values for the inference sampler.

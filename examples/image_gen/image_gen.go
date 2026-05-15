@@ -47,10 +47,17 @@ func main() {
 	// prompts
 	imgParams.Prompt = "A breathtaking, asymmetrical ancient forest interior; on the left, a massive gnarled oak tree with hanging vines; on the right, a cluster of slender silver birches and flowering shrubs; a winding, irregular rocky stream flowing toward the viewer with small splashing waterfalls; vibrant colorful butterflies fluttering through beams of volumetric sunlight; thick uneven blankets of moss and ferns; hyper-detailed bark textures and leaf veins; 8k resolution, photorealistic, cinematic lighting, shot on 35mm lens, natural color grading, scattered fallen leaves, highly detailed environment."
 	imgParams.NegativePrompt = "mascots, watermark, signature"
+
 	// follow the instruction more closely
 	imgParams.SampleParams.Guidance.TextCfg = 7
 
-	// sampler config
+	// Optional; pass advanced, sampler-specific hyperparameters as a comma-separated string.
+	// Currently used primarily by Latent Consistency Models (LCM) and specific schedulers.
+	// Valid keys: noise_clip_std (float), noise_scale_start (float), noise_scale_end (float)
+	// As per usual check stable-diffusion.cpp docs for more insights.
+	imgParams.SampleParams.ExtraSampleArgs = "noise_clip_std=20.0,noise_scale_start=1.0,noise_scale_end=0.1"
+
+	// Number of iterations in the inference loop.
 	imgParams.SampleParams.SampleSteps = 10
 
 	// vram saving configuration in case of lower vram
