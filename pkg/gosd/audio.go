@@ -33,17 +33,17 @@ type audio struct {
 	Data        *float32 // float *data
 }
 
-func (a *audio) toGo() *Audio {
-	_data := make([]float32, a.SampleCount*uint64(a.Channels))
-	copy(_data, unsafe.Slice(a.Data, a.SampleCount))
+// func (a *audio) toGo() *Audio {
+// 	_data := make([]float32, a.SampleCount*uint64(a.Channels))
+// 	copy(_data, unsafe.Slice(a.Data, a.SampleCount))
 
-	return &Audio{
-		SampleRate:  a.SampleRate,
-		Channels:    a.Channels,
-		SampleCount: a.SampleCount,
-		Data:        _data,
-	}
-}
+// 	return &Audio{
+// 		SampleRate:  a.SampleRate,
+// 		Channels:    a.Channels,
+// 		SampleCount: a.SampleCount,
+// 		Data:        _data,
+// 	}
+// }
 
 type Audio struct {
 	SampleRate  uint32

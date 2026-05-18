@@ -6,6 +6,9 @@ test:
 	go test -v -coverprofile=coverage.out "$(shell go list ./... | grep -v "examples")"
 	go tool cover -html=coverage.out -o coverage.html
 
+run_linter:
+	golangci-lint run ./...
+
 sd_parity:
 	release=$$(cat stable_diffusion.release); \
 	cd "$$SD" && git pull && git diff $$release HEAD -- include/stable-diffusion.h
