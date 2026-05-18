@@ -163,6 +163,8 @@ func TestGenerateImage(t *testing.T) {
 		true,
 		4,
 		int(imgParams.Width),
+		"",
+		"",
 	)
 
 	if uctx == 0 {

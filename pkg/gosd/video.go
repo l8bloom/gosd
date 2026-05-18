@@ -13,7 +13,7 @@ var (
 	// SD_API void sd_vid_gen_params_init(sd_vid_gen_params_t* sd_vid_gen_params);
 	vidGenParamsInit ffi.Fun
 
-	// SD_API sd_image_t* generate_video(sd_ctx_t* sd_ctx, const sd_vid_gen_params_t* sd_vid_gen_params, int* num_frames_out);
+	// SD_API bool generate_video(sd_ctx_t* sd_ctx, const sd_vid_gen_params_t* sd_vid_gen_params, sd_image_t** frames_out, int* num_frames_out, sd_audio_t** audio_out);
 	generateVideo ffi.Fun
 )
 
@@ -29,6 +29,8 @@ func loadVideosRoutines(lib ffi.Lib) error {
 
 	if generateVideo, err = lib.Prep(
 		"generate_video",
+		&ffi.TypeUint8,
+		&ffi.TypePointer,
 		&ffi.TypePointer,
 		&ffi.TypePointer,
 		&ffi.TypePointer,
@@ -58,6 +60,7 @@ type videoParams struct {
 	Strength              float32          // float strength;
 	Seed                  int64            // int64_t seed;
 	VideoFrames           int32            // int video_frames;
+	FPS                   int32            // int fps;
 	VACEStrength          float32          // float vace_strength;
 	VAETilingParams       vAETilingParams  // sd_tiling_params_t vae_tiling_params;
 	Cache                 cacheParams      // sd_cache_params_t cache;
@@ -95,6 +98,7 @@ func (vp *videoParams) toGo() *VideoParams {
 		Strength:              vp.Strength,
 		Seed:                  vp.Seed,
 		VideoFrames:           vp.VideoFrames,
+		FPS:                   vp.FPS,
 		VACEStrength:          vp.VACEStrength,
 		VAETilingParams:       *vp.VAETilingParams.toGo(),
 		Cache:                 *vp.Cache.toGo(),
@@ -119,6 +123,7 @@ type VideoParams struct {
 	Strength              float32
 	Seed                  int64
 	VideoFrames           int32
+	FPS                   int32
 	VACEStrength          float32
 	VAETilingParams       VAETilingParams
 	Cache                 CacheParams
@@ -153,6 +158,7 @@ func (vp *VideoParams) toC() *videoParams {
 		Strength:              vp.Strength,
 		Seed:                  vp.Seed,
 		VideoFrames:           vp.VideoFrames,
+		FPS:                   vp.FPS,
 		VACEStrength:          vp.VACEStrength,
 		VAETilingParams:       *vp.VAETilingParams.toC(),
 		Cache:                 *vp.Cache.toC(),
@@ -222,20 +228,35 @@ func VideoGenParamsInit() VideoParams {
 
 // GenerateVideo starts the inference loop for video generation.
 func GenerateVideo(ctx Context, vidParams VideoParams) Video {
+	var res uint8
+
 	image := &image{}
+	imgPtr := &image
+
 	_vidParams := vidParams.toC()
 	framesCnt := new(int32)
 
+	audio := newAudio().toC()
+	audioPtr := &audio
+
 	generateVideo.Call(
-		unsafe.Pointer(&image),
+		unsafe.Pointer(&res),
 		unsafe.Pointer(&ctx),
 		unsafe.Pointer(&_vidParams),
+		unsafe.Pointer(&imgPtr),
 		unsafe.Pointer(&framesCnt),
+		unsafe.Pointer(&audioPtr),
 	)
+
+	if !byteToBool(res) {
+		// panic for now
+		panic("gosd: video generation failed")
+	}
 
 	images := unsafe.Slice(image, int(*framesCnt))
 	gv := Video{}
 	gv.Data = make([]Image, 0, len(images))
+
 	for _, img := range images {
 		gv.Data = append(gv.Data, *img.toGo())
 	}

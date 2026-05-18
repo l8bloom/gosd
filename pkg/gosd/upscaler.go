@@ -12,7 +12,7 @@ type (
 )
 
 var (
-	// SD_API upscaler_ctx_t* new_upscaler_ctx(const char* esrgan_path, bool offload_params_to_cpu, bool direct, int n_threads, int tile_size);
+	// SD_API upscaler_ctx_t* new_upscaler_ctx(const char* esrgan_path, bool offload_params_to_cpu, bool direct, int n_threads, int tile_size, const char* backend, const char* params_backend);
 	newUpscalerCtx ffi.Fun
 
 	// SD_API void free_upscaler_ctx(upscaler_ctx_t* upscaler_ctx);
@@ -45,6 +45,8 @@ func loadUpscalerRoutines(lib ffi.Lib) error {
 		&ffi.TypeUint8,
 		&ffi.TypeSint32,
 		&ffi.TypeSint32,
+		&ffi.TypePointer,
+		&ffi.TypePointer,
 	); err != nil {
 		return loadError("new_upscaler_ctx", err)
 	}
@@ -79,7 +81,7 @@ func loadUpscalerRoutines(lib ffi.Lib) error {
 }
 
 // NewUpscalerCtx creates context for the upscaler.
-func NewUpscalerCtx(esrganPath string, offloadParamsToCPU bool, direct bool, nThreads int, tileSize int) UpscalerContext {
+func NewUpscalerCtx(esrganPath string, offloadParamsToCPU bool, direct bool, nThreads int, tileSize int, backend string, backendParams string) UpscalerContext {
 	var ctx UpscalerContext
 
 	ep := stringToChar(esrganPath)
@@ -87,6 +89,8 @@ func NewUpscalerCtx(esrganPath string, offloadParamsToCPU bool, direct bool, nTh
 	_direct := boolToByte(direct)
 	threadsCnt := int32(nThreads)
 	tile := int32(tileSize)
+	b := stringToChar(backend)
+	bp := stringToChar(backendParams)
 
 	newUpscalerCtx.Call(
 		unsafe.Pointer(&ctx),
@@ -95,6 +99,8 @@ func NewUpscalerCtx(esrganPath string, offloadParamsToCPU bool, direct bool, nTh
 		unsafe.Pointer(&_direct),
 		unsafe.Pointer(&threadsCnt),
 		unsafe.Pointer(&tile),
+		unsafe.Pointer(&b),
+		unsafe.Pointer(&bp),
 	)
 
 	return ctx

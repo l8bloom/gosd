@@ -13,6 +13,8 @@ func TestNewUpscalerCtx(t *testing.T) {
 		false,
 		8,
 		64,
+		"",
+		"",
 	)
 
 	if ctx == 0 {
@@ -30,6 +32,8 @@ func TestGetUpscaleFactor(t *testing.T) {
 		false,
 		8,
 		64,
+		"",
+		"",
 	)
 
 	if ctx == 0 {

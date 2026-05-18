@@ -146,6 +146,10 @@ func Load() error {
 		return err
 	}
 
+	if err := loadAudioRoutines(lib); err != nil {
+		return err
+	}
+
 	return nil
 
 }

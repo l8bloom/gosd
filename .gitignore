@@ -42,3 +42,5 @@ venv/
 
 *output*
 !examples/**/*output*
+
+dockerfiles/

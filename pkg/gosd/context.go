@@ -96,7 +96,9 @@ type contextParams struct {
 	LLMVisionPath               *byte             // const char* llm_vision_path;
 	DiffusionModelPath          *byte             // const char* diffusion_model_path;
 	HighNoiseDiffusionModelPath *byte             // const char* high_noise_diffusion_model_path;
+	EmbeddingsConnectorsPath    *byte             // const char* embeddings_connectors_path;
 	VAEPath                     *byte             // const char* vae_path;
+	AudioVAEPath                *byte             // const char* audio_vae_path;
 	TAESDPath                   *byte             // const char* taesd_path;
 	ControlNetPath              *byte             // const char* control_net_path;
 	Embeddings                  *embedding        // const sd_embedding_t* embeddings;
@@ -129,6 +131,8 @@ type contextParams struct {
 	ChromaT5MaskPad             int32             // int chroma_t5_mask_pad;
 	QwenImageZeroCond           uint8             // bool qwen_image_zero_cond_t;
 	MaxVRAM                     float32           // float max_vram;
+	Backend                     *byte             // const char* backend;
+	ParamsBackend               *byte             // const char* params_backend;
 }
 
 func (ctx *contextParams) toGo() *ContextParams {
@@ -146,7 +150,9 @@ func (ctx *contextParams) toGo() *ContextParams {
 		LLMVisionPath:               charToString(ctx.LLMVisionPath),
 		DiffusionModelPath:          charToString(ctx.DiffusionModelPath),
 		HighNoiseDiffusionModelPath: charToString(ctx.HighNoiseDiffusionModelPath),
+		EmbeddingsConnectorsPath:    charToString(ctx.EmbeddingsConnectorsPath),
 		VAEPath:                     charToString(ctx.VAEPath),
+		AudioVAEPath:                charToString(ctx.AudioVAEPath),
 		TAESDPath:                   charToString(ctx.TAESDPath),
 		ControlNetPath:              charToString(ctx.ControlNetPath),
 		Embeddings:                  _embedding,
@@ -179,6 +185,8 @@ func (ctx *contextParams) toGo() *ContextParams {
 		ChromaT5MaskPad:             ctx.ChromaT5MaskPad,
 		QwenImageZeroCond:           byteToBool(ctx.QwenImageZeroCond),
 		MaxVRAM:                     ctx.MaxVRAM,
+		Backend:                     charToString(ctx.Backend),
+		ParamsBackend:               charToString(ctx.ParamsBackend),
 	}
 }
 
@@ -192,7 +200,9 @@ type ContextParams struct {
 	LLMVisionPath               string
 	DiffusionModelPath          string
 	HighNoiseDiffusionModelPath string
+	EmbeddingsConnectorsPath    string
 	VAEPath                     string
+	AudioVAEPath                string
 	TAESDPath                   string
 	ControlNetPath              string
 	Embeddings                  *Embedding
@@ -225,6 +235,8 @@ type ContextParams struct {
 	ChromaT5MaskPad             int32
 	QwenImageZeroCond           bool
 	MaxVRAM                     float32
+	Backend                     string
+	ParamsBackend               string
 }
 
 func (ctx *ContextParams) toC() *contextParams {
@@ -242,7 +254,9 @@ func (ctx *ContextParams) toC() *contextParams {
 		LLMVisionPath:               stringToChar(ctx.LLMVisionPath),
 		DiffusionModelPath:          stringToChar(ctx.DiffusionModelPath),
 		HighNoiseDiffusionModelPath: stringToChar(ctx.HighNoiseDiffusionModelPath),
+		EmbeddingsConnectorsPath:    stringToChar(ctx.EmbeddingsConnectorsPath),
 		VAEPath:                     stringToChar(ctx.VAEPath),
+		AudioVAEPath:                stringToChar(ctx.AudioVAEPath),
 		TAESDPath:                   stringToChar(ctx.TAESDPath),
 		ControlNetPath:              stringToChar(ctx.ControlNetPath),
 		Embeddings:                  _embedding,
@@ -275,6 +289,8 @@ func (ctx *ContextParams) toC() *contextParams {
 		ChromaT5MaskPad:             ctx.ChromaT5MaskPad,
 		QwenImageZeroCond:           boolToByte(ctx.QwenImageZeroCond),
 		MaxVRAM:                     ctx.MaxVRAM,
+		Backend:                     stringToChar(ctx.Backend),
+		ParamsBackend:               stringToChar(ctx.ParamsBackend),
 	}
 }
 
@@ -448,5 +464,9 @@ func newContextParams() *contextParams {
 		ControlNetPath:              utilsGetNulString(),
 		PhotoMakerPath:              utilsGetNulString(),
 		TensorTypeRules:             utilsGetNulString(),
+		EmbeddingsConnectorsPath:    utilsGetNulString(),
+		AudioVAEPath:                utilsGetNulString(),
+		Backend:                     utilsGetNulString(),
+		ParamsBackend:               utilsGetNulString(),
 	}
 }

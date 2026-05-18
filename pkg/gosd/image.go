@@ -123,7 +123,7 @@ type Image struct {
 }
 
 // deep copy Image resource
-// advisable for preview callbacks to avoid data hazards and race conditions
+// recommended for preview callbacks to avoid data hazards and race conditions
 func (img Image) Clone() Image {
 	clone := img
 	clone.Data = make([]uint8, len(img.Data))
@@ -162,6 +162,7 @@ const (
 	KLOptimalScheduler
 	LCMScheduler
 	BongTangentScheduler
+	LTX2Scheduler
 	SchedulerCount
 )
 
@@ -185,6 +186,7 @@ const (
 	ERSDESampleMethod
 	EulerCfgPPSampleMethod
 	EulerACfgPPSampleMethod
+	EulerGESampleMethod
 	SampleMethodCount
 )
 
@@ -393,42 +395,46 @@ func (pmp *PMParamsType) toC() *pMParamsType {
 }
 
 type vAETilingParams struct {
-	Enabled       uint8   // bool enabled;
-	TileSizeX     int32   // int tile_size_x;
-	TileSizeY     int32   // int tile_size_y;
-	TargetOverlap float32 // float target_overlap;
-	RelSizeX      float32 // float rel_size_x;
-	RelSizeY      float32 // float rel_size_y;
+	Enabled        uint8   // bool enabled;
+	TemporalTiling uint8   // bool temporal_tiling;
+	TileSizeX      int32   // int tile_size_x;
+	TileSizeY      int32   // int tile_size_y;
+	TargetOverlap  float32 // float target_overlap;
+	RelSizeX       float32 // float rel_size_x;
+	RelSizeY       float32 // float rel_size_y;
 }
 
 func (vae *vAETilingParams) toGo() *VAETilingParams {
 	return &VAETilingParams{
-		Enabled:       byteToBool(vae.Enabled),
-		TileSizeX:     vae.TileSizeX,
-		TileSizeY:     vae.TileSizeY,
-		TargetOverlap: vae.TargetOverlap,
-		RelSizeX:      vae.RelSizeX,
-		RelSizeY:      vae.RelSizeY,
+		Enabled:        byteToBool(vae.Enabled),
+		TemporalTiling: byteToBool(vae.TemporalTiling),
+		TileSizeX:      vae.TileSizeX,
+		TileSizeY:      vae.TileSizeY,
+		TargetOverlap:  vae.TargetOverlap,
+		RelSizeX:       vae.RelSizeX,
+		RelSizeY:       vae.RelSizeY,
 	}
 }
 
 type VAETilingParams struct {
-	Enabled       bool
-	TileSizeX     int32
-	TileSizeY     int32
-	TargetOverlap float32
-	RelSizeX      float32
-	RelSizeY      float32
+	Enabled        bool
+	TemporalTiling bool
+	TileSizeX      int32
+	TileSizeY      int32
+	TargetOverlap  float32
+	RelSizeX       float32
+	RelSizeY       float32
 }
 
 func (vae *VAETilingParams) toC() *vAETilingParams {
 	return &vAETilingParams{
-		Enabled:       boolToByte(vae.Enabled),
-		TileSizeX:     vae.TileSizeX,
-		TileSizeY:     vae.TileSizeY,
-		TargetOverlap: vae.TargetOverlap,
-		RelSizeX:      vae.RelSizeX,
-		RelSizeY:      vae.RelSizeY,
+		Enabled:        boolToByte(vae.Enabled),
+		TemporalTiling: boolToByte(vae.TemporalTiling),
+		TileSizeX:      vae.TileSizeX,
+		TileSizeY:      vae.TileSizeY,
+		TargetOverlap:  vae.TargetOverlap,
+		RelSizeX:       vae.RelSizeX,
+		RelSizeY:       vae.RelSizeY,
 	}
 }
 
