@@ -54,8 +54,6 @@ func TestGenerateVideo(t *testing.T) {
 	ctxParams.DiffusionModelPath = os.Getenv("VIDEO_DIFFUSION_MODEL_PATH")
 	ctxParams.VAEPath = os.Getenv("VIDEO_VAE_PATH")
 	ctxParams.T5XXLPath = os.Getenv("VIDEO_T5XXL_PATH")
-	ctxParams.DiffusionFlashAttn = true
-	ctxParams.KeepClipOnCPU = true
 	vidParams.VAETilingParams.Enabled = true
 	vidParams.VAETilingParams.RelSizeX = 4
 	vidParams.VAETilingParams.RelSizeY = 4

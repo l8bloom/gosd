@@ -370,7 +370,8 @@ const (
 	// SD_TYPE_IQ4_NL_8_8 = 38,
 	TypeMXFP4 = 39 // MXFP4 (1 block)
 	TypeNVFP4 = 40 // NVFP4 (4 blocks, E4M3 scale)
-	TypeCOUNT = 41
+	TypeQ1_0  = 41 // SD_TYPE_Q1_0  = 41,
+	TypeCOUNT = 42
 )
 
 type embedding struct {
