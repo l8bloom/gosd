@@ -1,7 +1,6 @@
 package gosd
 
 import (
-	"fmt"
 	"unsafe"
 
 	"github.com/jupiterrider/ffi"
@@ -33,30 +32,32 @@ type audio struct {
 	Data        *float32 // float *data
 }
 
-// func (a *audio) toGo() *Audio {
-// 	_data := make([]float32, a.SampleCount*uint64(a.Channels))
-// 	copy(_data, unsafe.Slice(a.Data, a.SampleCount))
+func (a *audio) toGo() *Audio {
+	return &Audio{
+		SampleRate:  a.SampleRate,
+		Channels:    a.Channels,
+		SampleCount: a.SampleCount,
+		Data:        unsafe.Slice(a.Data, a.SampleCount*uint64(a.Channels)),
 
-// 	return &Audio{
-// 		SampleRate:  a.SampleRate,
-// 		Channels:    a.Channels,
-// 		SampleCount: a.SampleCount,
-// 		Data:        _data,
-// 	}
-// }
+		// Ensapsulate C data here for later deallocation
+		// gosd does not own this piece of memory, sd.cpp does
+		audio: uintptr(unsafe.Pointer(a)),
+	}
+}
 
 type Audio struct {
 	SampleRate  uint32
 	Channels    uint32
 	SampleCount uint64
 	Data        []float32
+
+	audio uintptr
 }
 
 func (a *Audio) toC() *audio {
 	var _data *float32
 
 	if len(a.Data) > 0 {
-		fmt.Println("HERE")
 		_data = &a.Data[0]
 	}
 
@@ -68,13 +69,23 @@ func (a *Audio) toC() *audio {
 	}
 }
 
+func (a *Audio) audioPtr() uintptr {
+	return a.audio
+}
+
 func newAudio() *Audio {
 	return &Audio{}
 }
 
 // FreeAudio frees up memory holding audio content of a generated video.
-func FreeAudio(audio Audio) {
-	_audio := audio.toC()
+func FreeAudio(audio *Audio) {
+	_audio := audio.audioPtr()
 
 	freeAudio.Call(nil, unsafe.Pointer(&_audio))
+
+	audio.SampleRate = 0
+	audio.Channels = 0
+	audio.SampleCount = 0
+	audio.Data = nil
+	audio.audio = 0
 }

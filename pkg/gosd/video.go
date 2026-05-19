@@ -1,7 +1,10 @@
 package gosd
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
+	"os"
 	"os/exec"
 	"unsafe"
 
@@ -166,7 +169,8 @@ func (vp *VideoParams) toC() *videoParams {
 }
 
 type Video struct {
-	Data []Image
+	Data  []Image
+	Audio Audio
 }
 
 // Save saves generated video to the local disk with the help of ffmpeg.
@@ -174,14 +178,125 @@ type Video struct {
 // just an example of what can be done with
 // the generated video after stable diffusion finishes.
 func (gv Video) Save(filename string, fps int) error {
-	// requires ffmpeg installed
+	if len(gv.Audio.Data) == 0 {
+		return gv.saveVideo(filename, fps)
+	}
+
+	return gv.saveVideoWithAudio(filename, fps)
+}
+
+// The implementation is sub-ideal but solid.
+// It opens an additional pipe(simulating OS-level file descriptor)
+// to stream audio signal to ffmpeg.
+// Video frames are provided via OS stdin.
+func (gv Video) saveVideoWithAudio(filename string, fps int) error {
+	if len(gv.Data) == 0 {
+		return fmt.Errorf("no video frames to save")
+	}
+
+	audioReader, audioWriter, err := os.Pipe()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		// just in case smth goes bad; otherwise ffmpeg hangs
+		_ = audioReader.Close()
+		_ = audioWriter.Close()
+	}()
+
 	cmd := exec.Command("ffmpeg",
-		"-y",             // Overwrite output
-		"-f", "rawvideo", // Input format
+		"-y", // Overwrite output
+
+		// Video
+		"-f", "rawvideo",
 		"-vcodec", "rawvideo",
-		"-pix_fmt", "rgba", // Match your GeneratedImage format
+		"-pix_fmt", "rgba",
 		"-s", fmt.Sprintf("%dx%d", gv.Data[0].Width, gv.Data[0].Height),
 		"-r", fmt.Sprintf("%d", fps),
+		"-i", "pipe:0", // Explicitly read video from stdin
+
+		// Audio
+		"-f", "f32le",
+		"-ar", fmt.Sprintf("%d", gv.Audio.SampleRate),
+		"-ac", fmt.Sprintf("%d", gv.Audio.Channels),
+		"-i", "pipe:3", // Read audio from the 3rd extra file descriptor
+
+		// Output Encoding Configuration
+		"-c:v", "libx264",
+		"-pix_fmt", "yuv420p",
+		"-c:a", "aac",
+		"-shortest", // End the video when the shortest input ends
+		filename,
+	)
+
+	// Attach the audio pipe reader to the command as pipe:3
+	cmd.ExtraFiles = []*os.File{audioReader}
+
+	videoStdin, err := cmd.StdinPipe()
+	if err != nil {
+		return err
+	}
+
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	// Close the parent's copy of the pipe's reader(Go is not Rust)
+	_ = audioReader.Close()
+
+	errChan := make(chan error, 2)
+
+	// Send video frames
+	go func() {
+		defer func() { _ = videoStdin.Close() }()
+		for _, img := range gv.Data {
+			if _, err := videoStdin.Write(img.pixelize().Pix); err != nil {
+				errChan <- err
+				return
+			}
+		}
+		errChan <- nil
+	}()
+
+	// Send audio signals
+	go func() {
+		defer func() { _ = audioWriter.Close() }()
+
+		buf := new(bytes.Buffer)
+		err := binary.Write(buf, binary.LittleEndian, gv.Audio.Data)
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		if _, err := audioWriter.Write(buf.Bytes()); err != nil {
+			errChan <- err
+			return
+		}
+		errChan <- nil
+	}()
+
+	// wait
+	for range 2 {
+		if err := <-errChan; err != nil {
+			return err
+		}
+	}
+
+	return cmd.Wait()
+}
+
+func (gv Video) saveVideo(filename string, fps int) error {
+	cmd := exec.Command("ffmpeg",
+		"-y", // Overwrite output
+
+		"-f", "rawvideo", // Input format
+		"-vcodec", "rawvideo",
+		"-pix_fmt", "rgba", // assume RGBA
+		"-s", fmt.Sprintf("%dx%d", gv.Data[0].Width, gv.Data[0].Height),
+		"-r", fmt.Sprintf("%d", fps),
+
 		"-i", "-", // Read from stdin
 		"-c:v", "libx264", // H.264 codec
 		"-pix_fmt", "yuv420p", // Standard pixel format for players
@@ -253,8 +368,13 @@ func GenerateVideo(ctx Context, vidParams VideoParams) Video {
 		panic("gosd: video generation failed")
 	}
 
-	images := unsafe.Slice(image, int(*framesCnt))
 	gv := Video{}
+	// Attach audio if present
+	if *audioPtr != nil {
+		gv.Audio = *(*audioPtr).toGo()
+	}
+	// Attach the frames
+	images := unsafe.Slice(image, int(*framesCnt))
 	gv.Data = make([]Image, 0, len(images))
 
 	for _, img := range images {

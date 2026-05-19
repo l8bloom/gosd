@@ -104,4 +104,8 @@ func TestGenerateVideo(t *testing.T) {
 		t.Errorf("number of video frames should be %d, got %d", vidParams.VideoFrames, len(video.Data))
 	}
 	os.Remove("test_output.mp4")
+
+	// Can't free since video test don't generate audio
+	// free() will complain if it tries to deallocate Go's memory
+	// FreeAudio(video.Audio)
 }
