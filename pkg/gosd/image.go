@@ -673,7 +673,12 @@ func ImageFromPNG(imgPath string) (Image, error) {
 	if err != nil {
 		return Image{}, err
 	}
-	defer file.Close()
+	defer func() {
+		closeError := file.Close()
+		if err == nil {
+			err = closeError
+		}
+	}()
 
 	src, _, err := imgPckg.Decode(file)
 	if err != nil {

@@ -57,28 +57,25 @@ func main() {
 
 	// split spatial volume in case of lower vram
 	vidParams.VAETilingParams.Enabled = true
-	vidParams.VAETilingParams.RelSizeX = 64
-	vidParams.VAETilingParams.RelSizeY = 64
+	vidParams.VAETilingParams.RelSizeX = 4
+	vidParams.VAETilingParams.RelSizeY = 4
 
-	vidParams.SampleParams.SampleSteps = 30
+	vidParams.SampleParams.SampleSteps = 50
 	vidParams.SampleParams.SampleMethod = sd.EulerSampleMethod
 	vidParams.SampleParams.Guidance.TextCfg = 6
 
 	vidParams.FPS = 24
 
 	// number of video frames to generate
-	vidParams.VideoFrames = 240
+	vidParams.VideoFrames = 120
 
 	// prompts
-	vidParams.Prompt = "A low-angle, fast-paced tracking shot following a massive stone golem awakening inside an ancient, crumbling moss-covered temple. Crimson magical energy cracks through the fissures of its rocky body as it slowly lifts its heavy head. The camera violently shakes as the golem slams its fist into the stone floor, sending debris and dust flying toward the lens. The audio features a loud, low-frequency stone-grinding rumble followed by a massive, echoing boom as the fist impacts the ground, accompanied by a tense orchestral string rise."
+	vidParams.Prompt = "A cinematic, slow-motion shot of a narrow street in a rainy cyberpunk city at night. A person holding a transparent umbrella walks slowly past the camera. Neon signs reflect flawlessly on the wet pavement. Continuous light rain falls, creating ripples in puddles as steam rises from street vents and cars move in the far distance. Atmospheric fog, smooth camera pan, ultra-detailed realistic reflections. Concurrently, the synchronized audio track delivers the crisp, close-up acoustics of continuous soft rain drops falling, layered over a muffled, distant thunderstorm rumbling gently in the far background."
 	vidParams.NegativePrompt = "low quality, blurry, distorted, deformed, watermark, text, oversaturated, jpeg artifacts"
 
 	// video resolution
-	vidParams.Width = 480
-	vidParams.Height = 832
-
-	// vidParams.Width = 240
-	// vidParams.Height = 416
+	vidParams.Width = 300
+	vidParams.Height = 500
 
 	sd.SetLogCallback(myLogCallback, nil)
 	genVideo := sd.GenerateVideo(ctx, vidParams)
