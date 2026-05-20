@@ -238,7 +238,6 @@ func (hp *hiresParams) toGo() *HiresParams {
 		DenoisingStrength: hp.DenoisingStrength,
 		UpscaleTileSize:   hp.UpscaleTileSize,
 		CustomSigmas:      _sigmas,
-		CustomSigmasCount: hp.CustomSigmasCount,
 	}
 }
 
@@ -261,14 +260,15 @@ type HiresParams struct {
 	DenoisingStrength float32
 	UpscaleTileSize   int32
 	CustomSigmas      []float32
-	CustomSigmasCount int32
 }
 
 func (hp *HiresParams) toC() *hiresParams {
 	var _sigmas *float32
+	var _sigmaCnt int32
 
-	if hp.CustomSigmasCount > 0 {
+	if len(hp.CustomSigmas) > 0 {
 		_sigmas = &hp.CustomSigmas[0]
+		_sigmaCnt = int32(len(hp.CustomSigmas))
 	}
 
 	return &hiresParams{
@@ -282,7 +282,7 @@ func (hp *HiresParams) toC() *hiresParams {
 		DenoisingStrength: hp.DenoisingStrength,
 		UpscaleTileSize:   hp.UpscaleTileSize,
 		CustomSigmas:      _sigmas,
-		CustomSigmasCount: hp.CustomSigmasCount,
+		CustomSigmasCount: _sigmaCnt,
 	}
 }
 

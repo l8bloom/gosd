@@ -77,6 +77,7 @@ func main() {
 	vidParams.HiresParams.DenoisingStrength = 0.2
 	vidParams.HiresParams.Scale = 2
 	vidParams.HiresParams.Upscaler = sd.HiresUpscalerModel
+	vidParams.HiresParams.CustomSigmas = []float32{0.85, 0.725, 0.421875, 0.0}
 
 	// prompts
 	vidParams.Prompt = "A cinematic, slow-motion shot of a narrow street in a rainy cyberpunk city at night. A person holding a transparent umbrella walks slowly past the camera. Neon signs reflect flawlessly on the wet pavement. Continuous light rain falls, creating ripples in puddles as steam rises from street vents and cars move in the far distance. Atmospheric fog, smooth camera pan, ultra-detailed realistic reflections. The sound of continuous soft raindrops falling can be heard, layered with the muffled rumble of a distant thunderstorm in the background."
