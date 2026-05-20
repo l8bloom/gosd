@@ -54,8 +54,6 @@ func TestGenerateVideo(t *testing.T) {
 	ctxParams.DiffusionModelPath = os.Getenv("VIDEO_DIFFUSION_MODEL_PATH")
 	ctxParams.VAEPath = os.Getenv("VIDEO_VAE_PATH")
 	ctxParams.T5XXLPath = os.Getenv("VIDEO_T5XXL_PATH")
-	ctxParams.DiffusionFlashAttn = true
-	ctxParams.KeepClipOnCPU = true
 	vidParams.VAETilingParams.Enabled = true
 	vidParams.VAETilingParams.RelSizeX = 4
 	vidParams.VAETilingParams.RelSizeY = 4
@@ -106,4 +104,8 @@ func TestGenerateVideo(t *testing.T) {
 		t.Errorf("number of video frames should be %d, got %d", vidParams.VideoFrames, len(video.Data))
 	}
 	os.Remove("test_output.mp4")
+
+	// Can't free since video test don't generate audio
+	// free() will complain if it tries to deallocate Go's memory
+	// FreeAudio(video.Audio)
 }
