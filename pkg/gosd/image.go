@@ -216,9 +216,17 @@ type hiresParams struct {
 	Steps             int32             // int steps;
 	DenoisingStrength float32           // float denoising_strength;
 	UpscaleTileSize   int32             // int upscale_tile_size;
+	CustomSigmas      *float32          // float* custom_sigmas;
+	CustomSigmasCount int32             // int custom_sigmas_count;
 }
 
 func (hp *hiresParams) toGo() *HiresParams {
+	var _sigmas []float32
+
+	if hp.CustomSigmasCount > 0 {
+		_sigmas = unsafe.Slice(hp.CustomSigmas, hp.CustomSigmasCount)
+	}
+
 	return &HiresParams{
 		Enabled:           byteToBool(hp.Enabled),
 		Upscaler:          hp.Upscaler,
@@ -229,6 +237,8 @@ func (hp *hiresParams) toGo() *HiresParams {
 		Steps:             hp.Steps,
 		DenoisingStrength: hp.DenoisingStrength,
 		UpscaleTileSize:   hp.UpscaleTileSize,
+		CustomSigmas:      _sigmas,
+		CustomSigmasCount: hp.CustomSigmasCount,
 	}
 }
 
@@ -250,9 +260,17 @@ type HiresParams struct {
 	Steps             int32
 	DenoisingStrength float32
 	UpscaleTileSize   int32
+	CustomSigmas      []float32
+	CustomSigmasCount int32
 }
 
 func (hp *HiresParams) toC() *hiresParams {
+	var _sigmas *float32
+
+	if hp.CustomSigmasCount > 0 {
+		_sigmas = &hp.CustomSigmas[0]
+	}
+
 	return &hiresParams{
 		Enabled:           boolToByte(hp.Enabled),
 		Upscaler:          hp.Upscaler,
@@ -263,6 +281,8 @@ func (hp *HiresParams) toC() *hiresParams {
 		Steps:             hp.Steps,
 		DenoisingStrength: hp.DenoisingStrength,
 		UpscaleTileSize:   hp.UpscaleTileSize,
+		CustomSigmas:      _sigmas,
+		CustomSigmasCount: hp.CustomSigmasCount,
 	}
 }
 

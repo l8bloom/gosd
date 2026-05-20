@@ -67,6 +67,7 @@ type videoParams struct {
 	VACEStrength          float32          // float vace_strength;
 	VAETilingParams       vAETilingParams  // sd_tiling_params_t vae_tiling_params;
 	Cache                 cacheParams      // sd_cache_params_t cache;
+	HiresParams           hiresParams      // sd_hires_params_t hires;
 }
 
 func (vp *videoParams) toGo() *VideoParams {
@@ -105,6 +106,7 @@ func (vp *videoParams) toGo() *VideoParams {
 		VACEStrength:          vp.VACEStrength,
 		VAETilingParams:       *vp.VAETilingParams.toGo(),
 		Cache:                 *vp.Cache.toGo(),
+		HiresParams:           *vp.HiresParams.toGo(),
 	}
 }
 
@@ -130,6 +132,7 @@ type VideoParams struct {
 	VACEStrength          float32
 	VAETilingParams       VAETilingParams
 	Cache                 CacheParams
+	HiresParams           HiresParams
 }
 
 func (vp *VideoParams) toC() *videoParams {
@@ -165,6 +168,7 @@ func (vp *VideoParams) toC() *videoParams {
 		VACEStrength:          vp.VACEStrength,
 		VAETilingParams:       *vp.VAETilingParams.toC(),
 		Cache:                 *vp.Cache.toC(),
+		HiresParams:           *vp.HiresParams.toC(),
 	}
 }
 
