@@ -58,6 +58,7 @@ func myImagePreviewCallback(step int32, image Image, isNoisy bool, data unsafe.P
 
 func myLogCallback(level LogLevel, text string, data unsafe.Pointer) {
 	*(*int)(data)++
+	level.Stringify()
 }
 
 func TestGenerateImage(t *testing.T) {

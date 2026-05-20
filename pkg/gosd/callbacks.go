@@ -66,6 +66,22 @@ const (
 	Error
 )
 
+func (ll LogLevel) Stringify() string {
+	var lvl string
+
+	switch ll {
+	case Debug:
+		lvl = "Debug"
+	case Info:
+		lvl = "Info"
+	case Warn:
+		lvl = "Warning"
+	case Error:
+		lvl = "Error"
+	}
+	return lvl
+}
+
 type PreviewMode int32
 
 const (

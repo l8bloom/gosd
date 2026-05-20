@@ -13,7 +13,7 @@ import (
 
 var myLogCallback sd.LogCallback = func(level sd.LogLevel, text string, data unsafe.Pointer) {
 	fmt.Println("My log callback:")
-	fmt.Println("level: ", level)
+	fmt.Println("level: ", level.Stringify())
 	fmt.Println("text: ", text)
 }
 
@@ -35,7 +35,7 @@ func main() {
 	ctxParams.EmbeddingsConnectorsPath = os.Getenv("VIDEO_EX_EMBEDDINGS_PATH")
 
 	// https://huggingface.co/unsloth/gemma-3-12b-it-qat-GGUF/blob/main/gemma-3-12b-it-qat-UD-Q4_K_XL.gguf
-	ctxParams.LLMPath = os.Getenv("VIDEO_EX_T5XXL_PATH")
+	ctxParams.LLMPath = os.Getenv("VIDEO_EX_LLM_PATH")
 
 	// https://huggingface.co/unsloth/LTX-2.3-GGUF/blob/main/vae/ltx-2.3-22b-dev_video_vae.safetensors
 	ctxParams.VAEPath = os.Getenv("VIDEO_EX_VAE_PATH")
@@ -60,7 +60,7 @@ func main() {
 	vidParams.VAETilingParams.RelSizeX = 4
 	vidParams.VAETilingParams.RelSizeY = 4
 
-	vidParams.SampleParams.SampleSteps = 50
+	vidParams.SampleParams.SampleSteps = 30
 	vidParams.SampleParams.SampleMethod = sd.EulerSampleMethod
 	vidParams.SampleParams.Guidance.TextCfg = 6
 
@@ -69,13 +69,25 @@ func main() {
 	// number of video frames to generate
 	vidParams.VideoFrames = 120
 
+	vidParams.HiresParams.Enabled = true
+	// https://huggingface.co/Lightricks/LTX-2.3/blob/main/ltx-2.3-spatial-upscaler-x2-1.1.safetensors
+	vidParams.HiresParams.ModelPath = os.Getenv("LTX_UPSCALER_PATH")
+	vidParams.HiresParams.Steps = 30
+	// lower keeps it similar to 1st pass image, higher brings more variance
+	vidParams.HiresParams.DenoisingStrength = 0.2
+	vidParams.HiresParams.Scale = 2
+	vidParams.HiresParams.Upscaler = sd.HiresUpscalerModel
+
 	// prompts
-	vidParams.Prompt = "A cinematic, slow-motion shot of a narrow street in a rainy cyberpunk city at night. A person holding a transparent umbrella walks slowly past the camera. Neon signs reflect flawlessly on the wet pavement. Continuous light rain falls, creating ripples in puddles as steam rises from street vents and cars move in the far distance. Atmospheric fog, smooth camera pan, ultra-detailed realistic reflections. Concurrently, the synchronized audio track delivers the crisp, close-up acoustics of continuous soft rain drops falling, layered over a muffled, distant thunderstorm rumbling gently in the far background."
-	vidParams.NegativePrompt = "low quality, blurry, distorted, deformed, watermark, text, oversaturated, jpeg artifacts"
+	vidParams.Prompt = "A cinematic, slow-motion shot of a narrow street in a rainy cyberpunk city at night. A person holding a transparent umbrella walks slowly past the camera. Neon signs reflect flawlessly on the wet pavement. Continuous light rain falls, creating ripples in puddles as steam rises from street vents and cars move in the far distance. Atmospheric fog, smooth camera pan, ultra-detailed realistic reflections. The sound of continuous soft raindrops falling can be heard, layered with the muffled rumble of a distant thunderstorm in the background."
+	// vidParams.NegativePrompt = "low quality, blurry, distorted, deformed, watermark, text, oversaturated, jpeg artifacts"
 
 	// video resolution
-	vidParams.Width = 300
-	vidParams.Height = 500
+	vidParams.Width = 150
+	vidParams.Height = 250
+
+	vidParams.Width = 720 / 2
+	vidParams.Height = 1280 / 2
 
 	sd.SetLogCallback(myLogCallback, nil)
 	genVideo := sd.GenerateVideo(ctx, vidParams)
