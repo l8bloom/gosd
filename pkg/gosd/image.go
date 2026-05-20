@@ -663,6 +663,56 @@ func (img Image) pixelize() imgPckg.RGBA {
 	return *rgba
 }
 
+// ImageFromPNG loads a PNG file from disk and parses it into the custom Image struct.
+func ImageFromPNG(imgPath string) (Image, error) {
+	if _, err := os.Stat(imgPath); err != nil {
+		return Image{}, err
+	}
+
+	file, err := os.Open(imgPath)
+	if err != nil {
+		return Image{}, err
+	}
+	defer file.Close()
+
+	src, _, err := imgPckg.Decode(file)
+	if err != nil {
+		return Image{}, err
+	}
+
+	bounds := src.Bounds()
+	width := bounds.Dx()
+	height := bounds.Dy()
+
+	// Assume 3 channels
+	const channels = 3
+
+	data := make([]uint8, width*height*channels)
+	idx := 0
+
+	// 3. Extract pixels
+	for row := bounds.Min.Y; row < bounds.Max.Y; row++ {
+		for col := bounds.Min.X; col < bounds.Max.X; col++ {
+			c := src.At(col, row)
+			r, g, b, _ := c.RGBA()
+
+			// Go returns 16-bit color space [0, 0xffff]
+			data[idx] = uint8(r >> 8)
+			data[idx+1] = uint8(g >> 8)
+			data[idx+2] = uint8(b >> 8)
+
+			idx += channels
+		}
+	}
+
+	return Image{
+		Width:   uint32(width),
+		Height:  uint32(height),
+		Channel: uint32(channels),
+		Data:    data,
+	}, nil
+}
+
 // HiresParamsInit initializes default values for high-resolution upscaling.
 func HiresParamsInit() HiresParams {
 	hp := newHiresParams()
