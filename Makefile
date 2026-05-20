@@ -25,6 +25,9 @@ run_gen_image_simple:
 run_gen_video_example:
 	time go run examples/video_gen/video_gen.go
 
+run_gen_video_audio_example:
+	time go run examples/gen_video_with_audio/video_gen.go
+
 run_gen_image_with_callbacks_example:
 	time go run examples/callbacks/image_gen/image_gen_with_callbacks.go
 

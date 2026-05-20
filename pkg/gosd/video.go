@@ -222,7 +222,7 @@ func (gv Video) saveVideoWithAudio(filename string, fps int) error {
 		"-ac", fmt.Sprintf("%d", gv.Audio.Channels),
 		"-i", "pipe:3", // Read audio from the 3rd extra file descriptor
 
-		// Output Encoding Configuration
+		// Output encoding configuration
 		"-c:v", "libx264",
 		"-pix_fmt", "yuv420p",
 		"-c:a", "aac",
