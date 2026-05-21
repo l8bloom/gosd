@@ -216,9 +216,17 @@ type hiresParams struct {
 	Steps             int32             // int steps;
 	DenoisingStrength float32           // float denoising_strength;
 	UpscaleTileSize   int32             // int upscale_tile_size;
+	CustomSigmas      *float32          // float* custom_sigmas;
+	CustomSigmasCount int32             // int custom_sigmas_count;
 }
 
 func (hp *hiresParams) toGo() *HiresParams {
+	var _sigmas []float32
+
+	if hp.CustomSigmasCount > 0 {
+		_sigmas = unsafe.Slice(hp.CustomSigmas, hp.CustomSigmasCount)
+	}
+
 	return &HiresParams{
 		Enabled:           byteToBool(hp.Enabled),
 		Upscaler:          hp.Upscaler,
@@ -229,6 +237,7 @@ func (hp *hiresParams) toGo() *HiresParams {
 		Steps:             hp.Steps,
 		DenoisingStrength: hp.DenoisingStrength,
 		UpscaleTileSize:   hp.UpscaleTileSize,
+		CustomSigmas:      _sigmas,
 	}
 }
 
@@ -250,9 +259,18 @@ type HiresParams struct {
 	Steps             int32
 	DenoisingStrength float32
 	UpscaleTileSize   int32
+	CustomSigmas      []float32
 }
 
 func (hp *HiresParams) toC() *hiresParams {
+	var _sigmas *float32
+	var _sigmaCnt int32
+
+	if len(hp.CustomSigmas) > 0 {
+		_sigmas = &hp.CustomSigmas[0]
+		_sigmaCnt = int32(len(hp.CustomSigmas))
+	}
+
 	return &hiresParams{
 		Enabled:           boolToByte(hp.Enabled),
 		Upscaler:          hp.Upscaler,
@@ -263,6 +281,8 @@ func (hp *HiresParams) toC() *hiresParams {
 		Steps:             hp.Steps,
 		DenoisingStrength: hp.DenoisingStrength,
 		UpscaleTileSize:   hp.UpscaleTileSize,
+		CustomSigmas:      _sigmas,
+		CustomSigmasCount: _sigmaCnt,
 	}
 }
 
@@ -395,46 +415,50 @@ func (pmp *PMParamsType) toC() *pMParamsType {
 }
 
 type vAETilingParams struct {
-	Enabled        uint8   // bool enabled;
-	TemporalTiling uint8   // bool temporal_tiling;
-	TileSizeX      int32   // int tile_size_x;
-	TileSizeY      int32   // int tile_size_y;
-	TargetOverlap  float32 // float target_overlap;
-	RelSizeX       float32 // float rel_size_x;
-	RelSizeY       float32 // float rel_size_y;
+	Enabled         uint8   // bool enabled;
+	TemporalTiling  uint8   // bool temporal_tiling;
+	TileSizeX       int32   // int tile_size_x;
+	TileSizeY       int32   // int tile_size_y;
+	TargetOverlap   float32 // float target_overlap;
+	RelSizeX        float32 // float rel_size_x;
+	RelSizeY        float32 // float rel_size_y;
+	ExtraTilingArgs *byte   // const char* extra_tiling_args;
 }
 
 func (vae *vAETilingParams) toGo() *VAETilingParams {
 	return &VAETilingParams{
-		Enabled:        byteToBool(vae.Enabled),
-		TemporalTiling: byteToBool(vae.TemporalTiling),
-		TileSizeX:      vae.TileSizeX,
-		TileSizeY:      vae.TileSizeY,
-		TargetOverlap:  vae.TargetOverlap,
-		RelSizeX:       vae.RelSizeX,
-		RelSizeY:       vae.RelSizeY,
+		Enabled:         byteToBool(vae.Enabled),
+		TemporalTiling:  byteToBool(vae.TemporalTiling),
+		TileSizeX:       vae.TileSizeX,
+		TileSizeY:       vae.TileSizeY,
+		TargetOverlap:   vae.TargetOverlap,
+		RelSizeX:        vae.RelSizeX,
+		RelSizeY:        vae.RelSizeY,
+		ExtraTilingArgs: charToString(vae.ExtraTilingArgs),
 	}
 }
 
 type VAETilingParams struct {
-	Enabled        bool
-	TemporalTiling bool
-	TileSizeX      int32
-	TileSizeY      int32
-	TargetOverlap  float32
-	RelSizeX       float32
-	RelSizeY       float32
+	Enabled         bool
+	TemporalTiling  bool
+	TileSizeX       int32
+	TileSizeY       int32
+	TargetOverlap   float32
+	RelSizeX        float32
+	RelSizeY        float32
+	ExtraTilingArgs string
 }
 
 func (vae *VAETilingParams) toC() *vAETilingParams {
 	return &vAETilingParams{
-		Enabled:        boolToByte(vae.Enabled),
-		TemporalTiling: boolToByte(vae.TemporalTiling),
-		TileSizeX:      vae.TileSizeX,
-		TileSizeY:      vae.TileSizeY,
-		TargetOverlap:  vae.TargetOverlap,
-		RelSizeX:       vae.RelSizeX,
-		RelSizeY:       vae.RelSizeY,
+		Enabled:         boolToByte(vae.Enabled),
+		TemporalTiling:  boolToByte(vae.TemporalTiling),
+		TileSizeX:       vae.TileSizeX,
+		TileSizeY:       vae.TileSizeY,
+		TargetOverlap:   vae.TargetOverlap,
+		RelSizeX:        vae.RelSizeX,
+		RelSizeY:        vae.RelSizeY,
+		ExtraTilingArgs: stringToChar(vae.ExtraTilingArgs),
 	}
 }
 
