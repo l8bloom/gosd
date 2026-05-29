@@ -11,7 +11,7 @@ run_linter:
 
 sd_parity:
 	release=$$(cat stable_diffusion.release); \
-	cd "$$SD" && git pull && git diff $$release HEAD -- include/stable-diffusion.h
+	cd "$$SD" && git pull && git diff $$release HEAD -- include/stable-diffusion.h && git rev-list --count $$release..HEAD
 
 run_gen_image_example:
 	time go run examples/image_gen/image_gen.go
