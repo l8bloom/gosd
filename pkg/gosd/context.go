@@ -96,6 +96,7 @@ type contextParams struct {
 	LLMVisionPath               *byte             // const char* llm_vision_path;
 	DiffusionModelPath          *byte             // const char* diffusion_model_path;
 	HighNoiseDiffusionModelPath *byte             // const char* high_noise_diffusion_model_path;
+	UncondDiffusionModelPath    *byte             // const char* uncond_diffusion_model_path;
 	EmbeddingsConnectorsPath    *byte             // const char* embeddings_connectors_path;
 	VAEPath                     *byte             // const char* vae_path;
 	AudioVAEPath                *byte             // const char* audio_vae_path;
@@ -130,7 +131,9 @@ type contextParams struct {
 	ChromaUseT5Mask             uint8             // bool chroma_use_t5_mask;
 	ChromaT5MaskPad             int32             // int chroma_t5_mask_pad;
 	QwenImageZeroCond           uint8             // bool qwen_image_zero_cond_t;
+	VAEFormat                   VAEFormatType     // enum sd_vae_format_t vae_format;
 	MaxVRAM                     float32           // float max_vram;
+	StreamLayers                uint8             // bool stream_layers;  // Enable residency+prefetch streaming on top of --max-vram (no effect without --max-vram)
 	Backend                     *byte             // const char* backend;
 	ParamsBackend               *byte             // const char* params_backend;
 }
@@ -150,6 +153,7 @@ func (ctx *contextParams) toGo() *ContextParams {
 		LLMVisionPath:               charToString(ctx.LLMVisionPath),
 		DiffusionModelPath:          charToString(ctx.DiffusionModelPath),
 		HighNoiseDiffusionModelPath: charToString(ctx.HighNoiseDiffusionModelPath),
+		UncondDiffusionModelPath:    charToString(ctx.UncondDiffusionModelPath),
 		EmbeddingsConnectorsPath:    charToString(ctx.EmbeddingsConnectorsPath),
 		VAEPath:                     charToString(ctx.VAEPath),
 		AudioVAEPath:                charToString(ctx.AudioVAEPath),
@@ -184,7 +188,9 @@ func (ctx *contextParams) toGo() *ContextParams {
 		ChromaUseT5Mask:             byteToBool(ctx.ChromaUseT5Mask),
 		ChromaT5MaskPad:             ctx.ChromaT5MaskPad,
 		QwenImageZeroCond:           byteToBool(ctx.QwenImageZeroCond),
+		VAEFormat:                   ctx.VAEFormat,
 		MaxVRAM:                     ctx.MaxVRAM,
+		StreamLayers:                byteToBool(ctx.StreamLayers),
 		Backend:                     charToString(ctx.Backend),
 		ParamsBackend:               charToString(ctx.ParamsBackend),
 	}
@@ -200,6 +206,7 @@ type ContextParams struct {
 	LLMVisionPath               string
 	DiffusionModelPath          string
 	HighNoiseDiffusionModelPath string
+	UncondDiffusionModelPath    string
 	EmbeddingsConnectorsPath    string
 	VAEPath                     string
 	AudioVAEPath                string
@@ -234,7 +241,9 @@ type ContextParams struct {
 	ChromaUseT5Mask             bool
 	ChromaT5MaskPad             int32
 	QwenImageZeroCond           bool
+	VAEFormat                   VAEFormatType
 	MaxVRAM                     float32
+	StreamLayers                bool
 	Backend                     string
 	ParamsBackend               string
 }
@@ -254,6 +263,7 @@ func (ctx *ContextParams) toC() *contextParams {
 		LLMVisionPath:               stringToChar(ctx.LLMVisionPath),
 		DiffusionModelPath:          stringToChar(ctx.DiffusionModelPath),
 		HighNoiseDiffusionModelPath: stringToChar(ctx.HighNoiseDiffusionModelPath),
+		UncondDiffusionModelPath:    stringToChar(ctx.UncondDiffusionModelPath),
 		EmbeddingsConnectorsPath:    stringToChar(ctx.EmbeddingsConnectorsPath),
 		VAEPath:                     stringToChar(ctx.VAEPath),
 		AudioVAEPath:                stringToChar(ctx.AudioVAEPath),
@@ -288,7 +298,9 @@ func (ctx *ContextParams) toC() *contextParams {
 		ChromaUseT5Mask:             boolToByte(ctx.ChromaUseT5Mask),
 		ChromaT5MaskPad:             ctx.ChromaT5MaskPad,
 		QwenImageZeroCond:           boolToByte(ctx.QwenImageZeroCond),
+		VAEFormat:                   ctx.VAEFormat,
 		MaxVRAM:                     ctx.MaxVRAM,
+		StreamLayers:                boolToByte(ctx.StreamLayers),
 		Backend:                     stringToChar(ctx.Backend),
 		ParamsBackend:               stringToChar(ctx.ParamsBackend),
 	}
@@ -372,6 +384,16 @@ const (
 	TypeNVFP4 = 40 // NVFP4 (4 blocks, E4M3 scale)
 	TypeQ1_0  = 41 // SD_TYPE_Q1_0  = 41,
 	TypeCOUNT = 42
+)
+
+type VAEFormatType int32
+
+const (
+	VAEFormatAuto VAEFormatType = iota - 1
+	VAEFormatFlux
+	VAEFormatSD3
+	VAEFormatFlux2
+	VAEFomatCount
 )
 
 type embedding struct {
@@ -460,6 +482,7 @@ func newContextParams() *contextParams {
 		LLMVisionPath:               utilsGetNulString(),
 		DiffusionModelPath:          utilsGetNulString(),
 		HighNoiseDiffusionModelPath: utilsGetNulString(),
+		UncondDiffusionModelPath:    utilsGetNulString(),
 		VAEPath:                     utilsGetNulString(),
 		TAESDPath:                   utilsGetNulString(),
 		ControlNetPath:              utilsGetNulString(),
